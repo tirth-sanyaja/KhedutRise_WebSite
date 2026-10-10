@@ -1,0 +1,552 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Site.Master.cs" Inherits="KhedutRise.Site" %>
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - KhedutRise</title>
+    
+    <!-- External Stylesheets: Bootstrap 5 and Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+    
+    <style>
+        /* Global Color Theme Variables */
+        :root {
+            --kr-green-primary: #15803d;
+            --kr-green-hover: #166534;
+            --kr-green-light: #22c55e;
+            --kr-green-bg: #f0fdf4;
+            --kr-text-dark: #111827;
+            --kr-border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f9fafb;
+            color: var(--kr-text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Header & Sticky Navigation Bar */
+        .kr-header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--kr-border);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .kr-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        /* Brand Logo and Title Container */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.1;
+            letter-spacing: -0.4px;
+        }
+        .brand-subtitle {
+            font-size: 0.7rem;
+            color: #6b7280;
+            font-weight: 500;
+            display: block;
+        }
+
+        /* Centered Horizontal Navigation Links with Balanced Spacing */
+        .kr-nav-list {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            margin: 0 auto; /* Keeps the navigation fields perfectly centered */
+            padding: 0;
+            gap: 2rem;      /* Even spacing between each navigation field */
+            flex-wrap: nowrap;
+        }
+        .kr-nav-link {
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            white-space: nowrap !important;
+            padding: 0.45rem 0.2rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.15s ease;
+        }
+        .kr-nav-link:hover, .kr-nav-link.active {
+            color: #0b6028;
+            font-weight: 700;
+            border-bottom: 3px solid #0b6028;
+        }
+
+        /* Right Side Actions: Login, Register, Logout and Profile Icons */
+        .kr-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        .btn-kr-login {
+            color: #0b6028;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            padding: 0.45rem 0.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .btn-kr-login:hover, .btn-kr-login.active {
+            color: #094d20;
+            border-bottom: 3px solid #0b6028;
+        }
+        .btn-kr-register {
+            background-color: #0b6028;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.92rem;
+            text-decoration: none;
+            padding: 0.5rem 1.45rem;
+            border-radius: 9999px;
+            white-space: nowrap;
+            border: none;
+            display: inline-block;
+            transition: background-color 0.15s;
+        }
+        .btn-kr-register:hover {
+            background-color: #094d20;
+            color: #ffffff !important;
+        }
+        .btn-kr-logout {
+            background-color: #ffe4e6 !important;
+            color: #e11d48 !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+            text-decoration: none !important;
+            padding: 0.4rem 1.4rem !important;
+            border-radius: 9999px !important;
+            border: 1px solid #fecdd3 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            transition: all 0.15s;
+        }
+        .btn-kr-logout:hover {
+            background-color: #fecdd3 !important;
+            color: #be123c !important;
+        }
+        .icon-circle-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: background-color 0.15s;
+        }
+        .icon-circle-btn:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+
+        /* Wide Desktop Page Layout Container (1420px matching Figma frame) */
+        .kr-page-container {
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 2.25rem 2rem;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .kr-page-container {
+                padding: 1.25rem 1rem;
+            }
+        }
+
+        /* Card and Border Styling */
+        .card-custom {
+            border: 1px solid var(--kr-border);
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        /* Custom Themed Buttons */
+        .btn-kr-primary {
+            background-color: #16a34a !important;
+            border-color: #16a34a !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.55rem 1.35rem;
+            transition: all 0.15s ease;
+        }
+        .btn-kr-primary:hover {
+            background-color: #15803d !important;
+            border-color: #15803d !important;
+            color: #ffffff !important;
+        }
+        .btn-kr-theme-secondary {
+            background-color: #ffffff !important;
+            border: 1px solid #16a34a !important;
+            color: #15803d !important;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.55rem 1.35rem;
+            transition: all 0.15s ease;
+        }
+        .btn-kr-theme-secondary:hover {
+            background-color: #f0fdf4 !important;
+            color: #166534 !important;
+        }
+
+        /* Clean Form Input Elements */
+        .form-control, .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.95rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+        }
+
+        /* Form Label & Required Field Indicators */
+        .required-mark {
+            color: #dc2626;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+        .form-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.35rem;
+            display: inline-block;
+        }
+
+        /* Table Headers and Cell Layouts */
+        .table thead th {
+            background-color: #f9fafb;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.75rem 1rem;
+        }
+        .table tbody td {
+            padding: 0.95rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+
+        /* Footer Styling matching Figma Dark Theme with White Letters */
+        footer {
+            background-color: #161c18 !important;
+            color: #d1d5db !important;
+            margin-top: auto;
+            border-top: 1px solid #28332c;
+        }
+        footer h5, footer h6 {
+            color: #ffffff !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            margin-bottom: 1.15rem !important;
+        }
+        footer p, footer span, footer li {
+            color: #d1d5db !important;
+            font-size: 0.9rem !important;
+        }
+        footer .footer-desc {
+            color: #9ca3af !important;
+            font-size: 0.88rem !important;
+            line-height: 1.5;
+        }
+        footer a, 
+        footer a:link, 
+        footer a:visited, 
+        footer a:active,
+        footer a:focus {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            font-size: 0.9rem !important;
+            transition: color 0.15s ease;
+        }
+        footer a:hover {
+            color: #4ade80 !important;
+            text-decoration: underline !important;
+        }
+        footer .badge-ssl {
+            background-color: #233128;
+            color: #4ade80 !important;
+            border: 1px solid #2e4335;
+            font-weight: 600;
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            display: inline-block;
+        }
+        footer hr {
+            border-color: #2b3830 !important;
+            opacity: 1 !important;
+        }
+        footer .copyright-text {
+            color: #9ca3af !important;
+            font-size: 0.85rem !important;
+        }
+    
+        /* Enhanced Responsive Design & Soft Placeholder Styling */
+        ::placeholder, .form-control::placeholder {
+            color: #9ca3af !important;
+            opacity: 0.75 !important;
+            font-weight: 400 !important;
+            font-style: normal !important;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 991px) {
+            .kr-navbar {
+                flex-wrap: wrap !important;
+                gap: 0.75rem;
+            }
+            .kr-nav-list {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.5rem 0;
+                margin: 0;
+                gap: 1.25rem;
+                justify-content: flex-start;
+            }
+            .kr-nav-list::-webkit-scrollbar {
+                height: 4px;
+            }
+            .kr-nav-list::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+            .kr-nav-right {
+                margin-left: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kr-page-container {
+                padding: 1.25rem 0.75rem !important;
+            }
+            .card-custom {
+                padding: 1.25rem !important;
+            }
+            .brand-title {
+                font-size: 1.15rem;
+            }
+            .brand-subtitle {
+                display: none;
+            }
+            h1, .h1 { font-size: 1.85rem !important; }
+            h2, .h2 { font-size: 1.55rem !important; }
+            h3, .h3 { font-size: 1.3rem !important; }
+            .btn-kr-login, .btn-kr-register {
+                padding: 0.35rem 0.85rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+    </style>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="formMain" runat="server">
+        <!-- Main Application Header with Centered Navigation -->
+        <header class="kr-header">
+            <div class="container-fluid px-lg-5">
+                <nav class="kr-navbar">
+                    <!-- Brand Section: Farmer Logo and Title -->
+                    <a class="brand-container" href="Default.aspx">
+                        <img src="Images/logo.png" alt="KhedutRise Logo" height="42" width="42" class="me-2 rounded-circle" style="object-fit: cover;" />
+                        <div>
+                            <span class="brand-title">KhedutRise</span>
+                            <span class="brand-subtitle">Smart Farming. Better Future.</span>
+                        </div>
+                    </a>
+
+                    <!-- Centered Role-Aware Navigation Bar -->
+                    <asp:PlaceHolder ID="phNavLinks" runat="server"></asp:PlaceHolder>
+
+                    <!-- User Actions: Authentication and Profile Access -->
+                    <div class="kr-nav-right">
+                        <asp:PlaceHolder ID="phNavAuth" runat="server"></asp:PlaceHolder>
+                        <asp:PlaceHolder ID="phUserIcons" runat="server"></asp:PlaceHolder>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Dynamic Content Area -->
+        <main class="flex-grow-1">
+            <asp:PlaceHolder ID="phGuestBanner" runat="server"></asp:PlaceHolder>
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+        </main>
+
+        <!-- Global Application Footer -->
+        <footer class="pt-5 pb-4">
+            <div class="container-fluid px-lg-5">
+                <div class="row g-4 mb-4">
+                    <!-- Column 1: Platform Overview -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="Images/logo.png" alt="KhedutRise" height="36" width="36" class="me-2 rounded-circle" style="object-fit: cover;" />
+                            <h5 class="text-white mb-0 fw-bold">KhedutRise</h5>
+                        </div>
+                        <p class="footer-desc mb-2 fw-semibold text-white-50">Smart Farming. Better Future.</p>
+                        <p class="footer-desc" style="max-width: 320px;">Empowering farmers with smarter technology, better markets and connected agricultural services.</p>
+                    </div>
+                    <!-- Column 2: Platform Links -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6>Platform</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2"><a href="FarmerDashboard.aspx">For Farmers</a></li>
+                            <li class="mb-2"><a href="BuyerDashboard.aspx">For Buyers</a></li>
+                            <li class="mb-2"><a href="ApmcRates.aspx">APMC Live Market</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 3: Services Links -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6>Services</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2"><a href="TractorRentals.aspx">Tractor Rentals</a></li>
+                            <li class="mb-2"><a href="AgriServices.aspx">Soil Lab Testing</a></li>
+                            <li class="mb-2"><a href="WeatherForecast.aspx">Crop Insurance</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 4: Company Information -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6>Company</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2"><a href="About.aspx">About KhedutRise</a></li>
+                            <li class="mb-2"><a href="About.aspx">Our Mission</a></li>
+                            <li class="mb-2"><a href="Contact.aspx">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <!-- Column 5: Support & Security Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <h6>Support</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2"><a href="Contact.aspx">Help Center</a></li>
+                            <li class="mb-2"><a href="Contact.aspx">FAQs</a></li>
+                            <li class="mb-2"><a href="Contact.aspx">Contact Support</a></li>
+                            <li class="mt-3"><span class="badge-ssl">Secure 256-Bit SSL Encrypted Connection</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <hr style="border-color: #2e3a33;" />
+                <!-- Bottom Copyright and Policy Links -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted pt-2">
+                    <p class="mb-0 copyright-text">&copy; 2026 KhedutRise. All rights reserved.</p>
+                    <div class="d-flex gap-4">
+                        <a href="About.aspx">Privacy Policy</a>
+                        <a href="About.aspx">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </form>
+    <!-- Bootstrap JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Guest User Action Guard: Allows guest to view all pages, but redirects to Register when clicking action buttons like Buy, Sell, Book, Order etc. -->
+    <script>
+        (function() {
+            var isGuest = <%= (Session["UserRole"] == null) ? "true" : "false" %>;
+            if (!isGuest) return;
+
+            var actionKeywords = [
+                'buy', 'purchase', 'sell', 'book', 'rent', 'order', 
+                'publish', 'add plot', 'add crop', 'add activity', 'add farming',
+                'confirm booking', 'inquire', 'contact owner', 'wishlist',
+                'checkout', 'reserve', 'pay'
+            ];
+
+            document.addEventListener('click', function(e) {
+                var target = e.target.closest('button, input[type="submit"], input[type="button"], a.btn, a.btn-kr-primary, a.btn-kr-theme-secondary, a[href*="Buy"], a[href*="Book"], a[href*="Sell"], a[href*="Order"], a[href*="Wishlist"]');
+                if (!target) return;
+
+                var currentPath = window.location.pathname.toLowerCase();
+                if (currentPath.indexOf('login.aspx') >= 0 || 
+                    currentPath.indexOf('selectrole.aspx') >= 0 || 
+                    currentPath.indexOf('register') >= 0 || 
+                    currentPath.indexOf('admin') >= 0 ||
+                    currentPath.indexOf('contact.aspx') >= 0 ||
+                    currentPath.indexOf('about.aspx') >= 0) {
+                    return;
+                }
+
+                if (target.closest('.kr-header') || target.closest('footer') || target.classList.contains('kr-nav-link') || target.classList.contains('btn-kr-login') || target.classList.contains('btn-kr-register')) {
+                    return;
+                }
+
+                var text = (target.innerText || target.value || target.getAttribute('title') || '').trim().toLowerCase();
+                var href = (target.getAttribute('href') || '').toLowerCase();
+
+                var isAction = false;
+                for (var i = 0; i < actionKeywords.length; i++) {
+                    var kw = actionKeywords[i];
+                    if (text.indexOf(kw) >= 0 || href.indexOf(kw) >= 0) {
+                        isAction = true;
+                        break;
+                    }
+                }
+
+                if (isAction) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = 'SelectRole.aspx?msg=register_required';
+                }
+            }, true);
+        })();
+    </script>
+</body>
+</html>

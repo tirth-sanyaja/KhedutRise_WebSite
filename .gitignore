@@ -1,0 +1,11 @@
+# Visual Studio temporary files
+.vs/
+PrecompiledWeb/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
