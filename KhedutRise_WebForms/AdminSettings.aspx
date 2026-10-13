@@ -117,45 +117,45 @@
                     </div>
                     <hr class="my-3 text-muted" />
 
-                    <div class="d-flex flex-column gap-3">
-                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
-                            <div>
-                                <label class="form-check-label fw-bold text-dark mb-0" for="chkAutoApproveFarmers">
-                                    Auto-Approve Farmers with Valid 7/12 Land Records
-                                </label>
+                    <div class="d-flex flex-column gap-0">
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <div class="pe-4">
+                                <div class="fw-bold text-dark mb-1">Auto-Approve Farmers with Valid 7/12 Land Records</div>
                                 <div class="text-muted small">Automatically mark farmer registrations as Approved when document hash verification passes.</div>
                             </div>
-                            <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" CssClass="form-check-input ms-3" />
-                        </div>
-
-                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
-                            <div>
-                                <label class="form-check-label fw-bold text-dark mb-0" for="chkGstRequired">
-                                    Require Mandatory GST Verification for Bulk Grain Buyers
-                                </label>
-                                <div class="text-muted small">Buyers must provide valid GSTIN before placing bulk crop bids above ₹1 Lakh.</div>
+                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                                <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
                             </div>
-                            <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" CssClass="form-check-input ms-3" />
                         </div>
 
-                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
-                            <div>
-                                <label class="form-check-label fw-bold text-dark mb-0" for="chkAutoApproveCrops">
-                                    Auto-Approve Verified Farmer Crop Listings under ₹50,000
-                                </label>
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <div class="pe-4">
+                                <div class="fw-bold text-dark mb-1">Require Mandatory GST Verification for Bulk Grain Buyers</div>
+                                <div class="text-muted small">Buyers must provide valid GSTIN before placing bulk crop bids above &#8377;1 Lakh.</div>
+                            </div>
+                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                                <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <div class="pe-4">
+                                <div class="fw-bold text-dark mb-1">Auto-Approve Verified Farmer Crop Listings under &#8377;50,000</div>
                                 <div class="text-muted small">Allows verified farmers to publish small-to-medium harvest batches directly to the marketplace.</div>
                             </div>
-                            <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" CssClass="form-check-input ms-3" />
+                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                                <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
+                            </div>
                         </div>
 
-                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
-                            <div>
-                                <label class="form-check-label fw-bold text-dark mb-0" for="chkSmsNotification">
-                                    Send Instant SMS Alerts to Users on Approval / Rejection
-                                </label>
+                        <div class="d-flex justify-content-between align-items-center py-3">
+                            <div class="pe-4">
+                                <div class="fw-bold text-dark mb-1">Send Instant SMS Alerts to Users on Approval / Rejection</div>
                                 <div class="text-muted small">Notify farmers and buyers instantly via SMS when admin approves or rejects their account.</div>
                             </div>
-                            <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" CssClass="form-check-input ms-3" />
+                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                                <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,12 +184,15 @@
                             </asp:DropDownList>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check form-switch pt-3">
-                                <asp:CheckBox ID="chkMaintenanceMode" runat="server" Checked="false" CssClass="form-check-input" />
-                                <label class="form-check-label fw-bold text-dark ms-2" for="chkMaintenanceMode">
-                                    Enable Maintenance Mode (System Downtime)
-                                </label>
-                                <div class="text-muted small ps-2">When enabled, only administrators can access the portal.</div>
+                            <label class="form-label small fw-bold mb-2" style="color:#0b6028;font-size:0.75rem;">MAINTENANCE MODE</label>
+                            <div class="d-flex justify-content-between align-items-center border rounded-3 p-3 bg-light">
+                                <div class="pe-3">
+                                    <div class="fw-bold text-dark" style="font-size:0.92rem;">Enable Maintenance Mode (System Downtime)</div>
+                                    <div class="text-muted small mt-1">When enabled, only administrators can access the portal.</div>
+                                </div>
+                                <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                                    <asp:CheckBox ID="chkMaintenanceMode" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
+                                </div>
                             </div>
                         </div>
                     </div>
