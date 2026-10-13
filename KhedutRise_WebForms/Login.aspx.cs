@@ -23,7 +23,8 @@ namespace KhedutRise
         protected void btnSendOtp_Click(object sender, EventArgs e)
         {
             string mob = txtMobile.Text.Trim();
-            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out _))
+            long parsedMob;
+            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out parsedMob))
             {
                 lblLoginMsg.Text = "Please enter a valid 10-digit mobile number before requesting OTP.";
                 lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
@@ -41,7 +42,8 @@ namespace KhedutRise
             string mob = txtMobile.Text.Trim();
             string otp = txtOtp.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out _))
+            long parsedMob;
+            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out parsedMob))
             {
                 lblLoginMsg.Text = "Please enter a valid 10-digit mobile number.";
                 lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";

@@ -26,7 +26,8 @@ namespace KhedutRise
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10 || !long.TryParse(mobile, out _))
+            long parsedMob;
+            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10 || !long.TryParse(mobile, out parsedMob))
             {
                 ShowError("Please enter a valid 10-digit Indian mobile number.");
                 return;
