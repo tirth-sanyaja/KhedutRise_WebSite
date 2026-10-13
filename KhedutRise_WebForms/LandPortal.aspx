@@ -32,7 +32,7 @@
                                 <h6 class="fw-bold mb-1 text-dark" style="font-size: 1.05rem;"><%# Eval("Title") %></h6>
                                 <small class="text-muted d-block" style="font-size: 0.8rem;">Location: <%# Eval("Location") %> | Water: <%# Eval("WaterSource") %></small>
                                 <small class="text-muted d-block mb-2" style="font-size: 0.8rem;">Area: <%# Eval("AreaAcres") %> Acres | Soil: <%# Eval("SoilType") %></small>
-                                <h4 class="fw-bold mb-0" style="color: #0b6028; font-size: 1.3rem;"><%# Eval("Price") %></h4>
+                                <h4 class="fw-bold mb-0" style="color: #0b6028; font-size: 1.3rem;"><%# Eval("Price").ToString().Replace("â‚¹", "").Replace("₹", "").Trim() %></h4>
                             </div>
                         </div>
                     </ItemTemplate>
