@@ -86,6 +86,7 @@
     <Content Include="TractorRentals.aspx" />
     <Content Include="WeatherForecast.aspx" />
     <Content Include="Wishlist.aspx" />
+    <Content Include="SiteDirectory.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Site.Master.cs">
@@ -320,6 +321,13 @@
     </Compile>
     <Compile Include="Wishlist.aspx.designer.cs">
       <DependentUpon>Wishlist.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SiteDirectory.aspx.cs">
+      <DependentUpon>SiteDirectory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SiteDirectory.aspx.designer.cs">
+      <DependentUpon>SiteDirectory.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -21,10 +21,6 @@
             --kr-border: #e5e7eb;
         }
 
-        html, body {
-            min-height: 100%;
-        }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f9fafb;
@@ -34,22 +30,6 @@
             flex-direction: column;
             margin: 0;
             padding: 0;
-        }
-
-        #formMain {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            width: 100%;
-            flex: 1 0 auto;
-        }
-
-        main {
-            flex: 1 0 auto;
-        }
-
-        footer {
-            margin-top: auto !important;
         }
 
         /* Top Header & Sticky Navigation Bar */
@@ -297,7 +277,7 @@ footer {
     margin-top: auto;
     border-top: 1px solid #1e3a5f;
 }
-        footer h5, footer h6 {
+        footer h5, footer h6 {  /* !important Keyword gives this CSS property higher priority. */
             color: #ffffff !important;
             font-size: 0.85rem !important;
             font-weight: 700 !important;
@@ -472,6 +452,7 @@ footer {
                             <li class="mb-2"><a href="FarmerDashboard.aspx">For Farmers</a></li>
                             <li class="mb-2"><a href="BuyerDashboard.aspx">For Buyers</a></li>
                             <li class="mb-2"><a href="ApmcRates.aspx">APMC Live Market</a></li>
+                            <li class="mb-2"><a href="SiteDirectory.aspx" class="fw-bold" style="color: #4ade80 !important;"><i class="bi bi-compass me-1"></i> Site Directory (All Pages)</a></li>
                         </ul>
                     </div>
                     <!-- Column 3: Services Links -->
@@ -507,6 +488,7 @@ footer {
                 <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted pt-2">
                     <p class="mb-0 copyright-text">&copy; 2026 KhedutRise. All rights reserved.</p>
                     <div class="d-flex gap-4">
+                        <a href="SiteDirectory.aspx" class="fw-bold" style="color: #4ade80 !important;"><i class="bi bi-compass me-1"></i> All 34 Pages Directory</a>
                         <a href="About.aspx">Privacy Policy</a>
                         <a href="About.aspx">Terms of Service</a>
                     </div>
