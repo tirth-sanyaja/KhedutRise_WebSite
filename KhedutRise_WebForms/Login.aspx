@@ -83,12 +83,9 @@
                     <!-- Mobile Number Field -->
                     <div class="mb-3">
                         <label class="form-label" style="color: #0b6028;">MOBILE NUMBER <span class="required-mark">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-muted fw-semibold">+91</span>
-                            <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
-                                placeholder="Enter 10-digit mobile number" MaxLength="10" 
-                                type="tel" pattern="[6-9][0-9]{9}" required="required"></asp:TextBox>
-                        </div>
+                        <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
+                            placeholder="+91  Enter 10-digit mobile number" MaxLength="10" 
+                            type="tel" required="required"></asp:TextBox>
                     </div>
 
                     <!-- Separate Send OTP Button -->

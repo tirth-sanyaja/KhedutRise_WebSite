@@ -39,14 +39,12 @@
                                 placeholder="e.g. Dev Patel" required="required"></asp:TextBox>
                         </div>
 
-                        <!-- Business Mobile with Send OTP -->
+                        <!-- Business Mobile -->
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">BUSINESS MOBILE NUMBER <span class="required-mark">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted border-end-0 fw-semibold">+91</span>
-                                <asp:TextBox ID="txtMobile" runat="server" type="tel" pattern="[6-9][0-9]{9}" CssClass="form-control border-start-0 ps-1" 
-                                    placeholder="10-digit mobile number" MaxLength="10" required="required"></asp:TextBox>
-                            </div>
+                            <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
+                                placeholder="+91  10-digit mobile number" MaxLength="10" 
+                                type="tel" required="required"></asp:TextBox>
                         </div>
 
                         <!-- Business Email -->
