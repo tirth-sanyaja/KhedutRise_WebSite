@@ -23,8 +23,15 @@ namespace KhedutRise
             string email = txtAdminEmail.Text.Trim().ToLower();
             string pass = txtAdminPass.Text.Trim();
 
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass))
+            {
+                lblAdminMsg.Text = "Please enter both admin email and password.";
+                lblAdminMsg.CssClass = "alert alert-warning d-block p-2 text-center small mb-3";
+                return;
+            }
+
             // Default credentials: admin@khedutrise.com / admin123
-            if (string.IsNullOrEmpty(email) || email.Contains("admin") || email == "admin@khedutrise.com")
+            if (email == "admin@khedutrise.com" && pass == "admin123")
             {
                 Session["UserRole"] = "Admin";
                 Session["UserName"] = "System Admin";
@@ -32,7 +39,7 @@ namespace KhedutRise
             }
             else
             {
-                lblAdminMsg.Text = " Invalid Admin credentials. Please use admin@khedutrise.com / admin123";
+                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com / admin123";
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
             }
         }

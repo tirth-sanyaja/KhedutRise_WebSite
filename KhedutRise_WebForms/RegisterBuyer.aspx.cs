@@ -28,7 +28,7 @@ namespace KhedutRise
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length < 10)
+            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10 || !long.TryParse(mobile, out _))
             {
                 ShowError("Please enter a valid 10-digit Indian mobile number.");
                 return;
@@ -81,13 +81,21 @@ namespace KhedutRise
                 // 3. Establish active Buyer session and redirect
                 Session["UserRole"] = "Buyer";
                 Session["UserName"] = fullName;
-                lblBuyerMsg.Text = " Success! Buyer account registered successfully. Redirecting to your dashboard...";
+                Session["UserMobile"] = mobile;
+                lblBuyerMsg.Text = "Success! Buyer account registered successfully. Redirecting to your dashboard...";
                 lblBuyerMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 Response.AddHeader("REFRESH", "1;URL=BuyerDashboard.aspx");
             }
             catch (Exception ex)
             {
-                ShowError("Registration failed: " + ex.Message);
+                if (ex.Message.Contains("UNIQUE") || ex.Message.Contains("duplicate"))
+                {
+                    ShowError("This mobile number (+91 " + mobile + ") is already registered. Please sign in or use another number.");
+                }
+                else
+                {
+                    ShowError("Registration failed: " + ex.Message);
+                }
             }
         }
 

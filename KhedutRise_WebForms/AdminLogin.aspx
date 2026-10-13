@@ -15,9 +15,7 @@
 
             <asp:Label ID="lblAdminMsg" runat="server" CssClass="d-block mb-3 fw-bold"></asp:Label>
 
-        
 
-            <!-- Admin Email -->
             <div class="mb-3">
                 <label class="form-label" style="color: #0b6028;">ADMIN EMAIL <span class="required-mark">*</span></label>
                 <asp:TextBox ID="txtAdminEmail" runat="server" type="email" CssClass="form-control py-2" Text="admin@khedutrise.com" 
@@ -27,7 +25,7 @@
             <!-- Password -->
             <div class="mb-4">
                 <label class="form-label" style="color: #0b6028;">PASSWORD <span class="required-mark">*</span></label>
-                <asp:TextBox ID="txtAdminPass" runat="server" TextMode="Password" Text="admin123" CssClass="form-control py-2" 
+                <asp:TextBox ID="txtAdminPass" runat="server" TextMode="Password" CssClass="form-control py-2" 
                     placeholder="Enter admin password" minlength="6" required="required"></asp:TextBox>
             </div>
 

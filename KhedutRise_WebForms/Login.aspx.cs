@@ -1,4 +1,6 @@
 using System;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace KhedutRise
 {
@@ -21,7 +23,7 @@ namespace KhedutRise
         protected void btnSendOtp_Click(object sender, EventArgs e)
         {
             string mob = txtMobile.Text.Trim();
-            if (string.IsNullOrWhiteSpace(mob) || mob.Length < 10)
+            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out _))
             {
                 lblLoginMsg.Text = "Please enter a valid 10-digit mobile number before requesting OTP.";
                 lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
@@ -39,7 +41,7 @@ namespace KhedutRise
             string mob = txtMobile.Text.Trim();
             string otp = txtOtp.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(mob) || mob.Length < 10)
+            if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out _))
             {
                 lblLoginMsg.Text = "Please enter a valid 10-digit mobile number.";
                 lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
@@ -53,51 +55,68 @@ namespace KhedutRise
                 return;
             }
 
-            CompleteLogin();
+            CompleteLogin(mob);
         }
 
-        private void CompleteLogin()
+        private void CompleteLogin(string mob)
         {
             string returnUrl = Request.QueryString["returnUrl"];
 
+            string role = "Farmer";
+            string userName = "Sanyaja Tirth";
+
             if (rbBuyer.Checked)
             {
-                Session["UserRole"] = "Buyer";
-                Session["UserName"] = "Dev Patel";
-                if (!string.IsNullOrEmpty(returnUrl) && returnUrl.EndsWith(".aspx") && returnUrl != "Default.aspx")
-                {
-                    Response.Redirect(returnUrl);
-                }
-                else
-                {
-                    Response.Redirect("BuyerDashboard.aspx");
-                }
+                role = "Buyer";
+                userName = "Dev Patel";
             }
             else if (rbOperator.Checked)
             {
-                Session["UserRole"] = "Operator";
-                Session["UserName"] = "Dilipbhai Parmar";
-                if (!string.IsNullOrEmpty(returnUrl) && returnUrl.EndsWith(".aspx") && returnUrl != "Default.aspx")
+                role = "Operator";
+                userName = "Dilipbhai Parmar";
+            }
+
+            // Check if user exists in database with this mobile number
+            try
+            {
+                SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Mob", mob) };
+                DataTable dt = DbHelper.ExecuteQuery("SELECT TOP 1 FullName, UserRole FROM Users WHERE MobileNo = @Mob", prms);
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    Response.Redirect(returnUrl);
+                    if (dt.Rows[0]["FullName"] != DBNull.Value && !string.IsNullOrWhiteSpace(dt.Rows[0]["FullName"].ToString()))
+                    {
+                        userName = dt.Rows[0]["FullName"].ToString();
+                    }
+                    if (dt.Rows[0]["UserRole"] != DBNull.Value && !string.IsNullOrWhiteSpace(dt.Rows[0]["UserRole"].ToString()))
+                    {
+                        role = dt.Rows[0]["UserRole"].ToString();
+                    }
                 }
-                else
-                {
-                    Response.Redirect("TractorRentals.aspx");
-                }
+            }
+            catch
+            {
+                // Fallback to selected role
+            }
+
+            Session["UserRole"] = role;
+            Session["UserName"] = userName;
+            Session["UserMobile"] = mob;
+
+            if (!string.IsNullOrEmpty(returnUrl) && returnUrl.EndsWith(".aspx") && returnUrl != "Default.aspx")
+            {
+                Response.Redirect(returnUrl);
+            }
+            else if (role == "Buyer")
+            {
+                Response.Redirect("BuyerDashboard.aspx");
+            }
+            else if (role == "Operator")
+            {
+                Response.Redirect("TractorRentals.aspx");
             }
             else
             {
-                Session["UserRole"] = "Farmer";
-                Session["UserName"] = "Sanyaja Tirth";
-                if (!string.IsNullOrEmpty(returnUrl) && returnUrl.EndsWith(".aspx") && returnUrl != "Default.aspx")
-                {
-                    Response.Redirect(returnUrl);
-                }
-                else
-                {
-                    Response.Redirect("FarmerDashboard.aspx");
-                }
+                Response.Redirect("FarmerDashboard.aspx");
             }
         }
     }

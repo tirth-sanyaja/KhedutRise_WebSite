@@ -28,7 +28,7 @@ namespace KhedutRise
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length < 10)
+            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10 || !long.TryParse(mobile, out _))
             {
                 ShowError("Please enter a valid 10-digit Indian mobile number.");
                 return;
@@ -86,13 +86,21 @@ namespace KhedutRise
                 // 3. Establish active Operator session and redirect
                 Session["UserRole"] = "Operator";
                 Session["UserName"] = fullName;
+                Session["UserMobile"] = mobile;
                 lblOpMsg.Text = "Success! Machinery Operator registered successfully. Redirecting to rentals portal...";
                 lblOpMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 Response.AddHeader("REFRESH", "1;URL=TractorRentals.aspx");
             }
             catch (Exception ex)
             {
-                ShowError("Registration failed: " + ex.Message);
+                if (ex.Message.Contains("UNIQUE") || ex.Message.Contains("duplicate"))
+                {
+                    ShowError("This mobile number (+91 " + mobile + ") is already registered. Please sign in or use another number.");
+                }
+                else
+                {
+                    ShowError("Registration failed: " + ex.Message);
+                }
             }
         }
 
