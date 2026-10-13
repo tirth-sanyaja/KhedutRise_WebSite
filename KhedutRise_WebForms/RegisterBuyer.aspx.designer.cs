@@ -9,9 +9,21 @@ namespace KhedutRise {
     public partial class RegisterBuyer {
         protected global::System.Web.UI.WebControls.Button btnSubmitBuyer;
         protected global::System.Web.UI.WebControls.CheckBox chkAgree;
+        protected global::System.Web.UI.WebControls.CompareValidator cmpPassword;
         protected global::System.Web.UI.WebControls.Content Content1;
         protected global::System.Web.UI.WebControls.DropDownList ddlBizType;
         protected global::System.Web.UI.WebControls.Label lblBuyerMsg;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvBizType;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvConfirmPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvFullName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvGstin;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvInterests;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPassword;
         protected global::System.Web.UI.WebControls.TextBox txtConfirmPassword;
         protected global::System.Web.UI.WebControls.TextBox txtEmail;
         protected global::System.Web.UI.WebControls.TextBox txtFullName;

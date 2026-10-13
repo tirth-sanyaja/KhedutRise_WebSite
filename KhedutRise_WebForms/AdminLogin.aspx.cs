@@ -20,6 +20,11 @@ namespace KhedutRise
 
         protected void btnAdminLogin_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string email = txtAdminEmail.Text.Trim().ToLower();
             string pass = txtAdminPass.Text.Trim();
 

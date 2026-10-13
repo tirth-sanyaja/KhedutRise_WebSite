@@ -10,6 +10,9 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.Button btnAdminLogin;
         protected global::System.Web.UI.WebControls.Content Content1;
         protected global::System.Web.UI.WebControls.Label lblAdminMsg;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revAdminEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminPass;
         protected global::System.Web.UI.WebControls.TextBox txtAdminEmail;
         protected global::System.Web.UI.WebControls.TextBox txtAdminPass;
     }

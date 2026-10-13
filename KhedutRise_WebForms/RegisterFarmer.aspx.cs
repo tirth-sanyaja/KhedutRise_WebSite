@@ -12,6 +12,11 @@ namespace KhedutRise
 
         protected void btnSubmitFarmer_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string fullName = txtFullName.Text.Trim();
             string mobile = txtMobile.Text.Trim();
             string crop = txtCrop.Text.Trim();

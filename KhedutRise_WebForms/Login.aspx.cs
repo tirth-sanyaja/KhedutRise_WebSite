@@ -39,6 +39,11 @@ namespace KhedutRise
         // Establish user role session and navigate to respective dashboard via OTP
         protected void btnLogin_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string mob = txtMobile.Text.Trim();
             string otp = txtOtp.Text.Trim();
 

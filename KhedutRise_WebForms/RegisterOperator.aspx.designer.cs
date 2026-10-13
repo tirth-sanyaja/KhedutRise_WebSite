@@ -8,9 +8,21 @@ namespace KhedutRise {
     
     public partial class RegisterOperator {
         protected global::System.Web.UI.WebControls.Button btnSubmitOp;
+        protected global::System.Web.UI.WebControls.CompareValidator cmpPassword;
         protected global::System.Web.UI.WebControls.Content Content1;
         protected global::System.Web.UI.WebControls.FileUpload fuOpDoc;
         protected global::System.Web.UI.WebControls.Label lblOpMsg;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAttachments;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvConfirmPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvModel;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRadius;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRate;
+        protected global::System.Web.UI.WebControls.RangeValidator rngRate;
         protected global::System.Web.UI.WebControls.TextBox txtAttachments;
         protected global::System.Web.UI.WebControls.TextBox txtConfirmPassword;
         protected global::System.Web.UI.WebControls.TextBox txtMobile;

@@ -36,7 +36,8 @@
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">FULL NAME <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtFullName" runat="server" CssClass="form-control" 
-                                placeholder="e.g. Ramesh Patel" required="required"></asp:TextBox>
+                                placeholder="e.g. Ramesh Patel"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvFullName" ControlToValidate="txtFullName" ErrorMessage="Full name is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Mobile Number -->
@@ -44,35 +45,44 @@
                             <label class="form-label" style="color: #0b6028;">MOBILE NUMBER <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
                                 placeholder="+91  10-digit mobile number" MaxLength="10" 
-                                type="tel" required="required"></asp:TextBox>
+                                type="tel"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Primary Sowing Crop -->
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">PRIMARY CROP <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtCrop" runat="server" CssClass="form-control" 
-                                placeholder="e.g. Groundnut, Cotton, Wheat" required="required"></asp:TextBox>
+                                placeholder="e.g. Groundnut, Cotton, Wheat"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvCrop" ControlToValidate="txtCrop" ErrorMessage="Primary crop is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Farm Area (Acres) -->
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">FARM AREA (ACRES) <span class="required-mark">*</span></label>
-                            <asp:TextBox ID="txtArea" runat="server" type="number" step="0.1" min="0.1" CssClass="form-control" 
-                                placeholder="e.g. 5.5" required="required"></asp:TextBox>
+                            <asp:TextBox ID="txtArea" runat="server" CssClass="form-control" 
+                                placeholder="e.g. 5.5"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvArea" ControlToValidate="txtArea" ErrorMessage="Farm area is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RangeValidator ID="rngArea" ControlToValidate="txtArea" MinimumValue="0.1" MaximumValue="9999.0" Type="Double" ErrorMessage="Area must be between 0.1 and 9999 acres." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Password -->
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">CREATE PASSWORD <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" 
-                                placeholder="Min 6 characters" minlength="6" required="required"></asp:TextBox>
+                                placeholder="Min 6 characters"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvPassword" ControlToValidate="txtPassword" ErrorMessage="Password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RegularExpressionValidator ID="revPassword" ControlToValidate="txtPassword" ValidationExpression="^.{6,}$" ErrorMessage="Password must be at least 6 characters." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">CONFIRM PASSWORD <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtConfirmPassword" runat="server" TextMode="Password" CssClass="form-control" 
-                                placeholder="Re-enter password" minlength="6" required="required"></asp:TextBox>
+                                placeholder="Re-enter password"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvConfirmPassword" ControlToValidate="txtConfirmPassword" ErrorMessage="Please confirm password." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:CompareValidator ID="cmpPassword" ControlToValidate="txtConfirmPassword" ControlToCompare="txtPassword" Operator="Equal" ErrorMessage="Passwords do not match." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
                         </div>
 
                         <!-- Farming Interests & Services -->

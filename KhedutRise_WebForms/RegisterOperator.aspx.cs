@@ -12,6 +12,11 @@ namespace KhedutRise
 
         protected void btnSubmitOp_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string fullName = txtName.Text.Trim();
             string mobile = txtMobile.Text.Trim();
             string model = txtModel.Text.Trim();
