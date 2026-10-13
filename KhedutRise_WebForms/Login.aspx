@@ -86,14 +86,14 @@
                         <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
                             placeholder="+91  Enter 10-digit mobile number" MaxLength="10" 
                             type="tel"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                        <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ValidationGroup="MobileAuth" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationGroup="MobileAuth" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
                     <!-- Separate Send OTP Button -->
                     <div class="mb-3">
                         <asp:Button ID="btnSendOtp" runat="server" Text="Send OTP" CssClass="btn w-100 py-2 fw-bold" 
-                            OnClick="btnSendOtp_Click" CausesValidation="false"
+                            OnClick="btnSendOtp_Click" ValidationGroup="MobileAuth" CausesValidation="true"
                             style="background-color: #f0fdf4; color: #0b6028; border: 1.5px solid #0b6028; border-radius: 6px; font-size: 0.95rem;" />
                     </div>
 
@@ -105,15 +105,16 @@
                         </div>
                         <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold fs-5 py-2 letter-spacing-2" 
                             placeholder="• • • • • •" MaxLength="6" Text="482190"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationExpression="^\d{4,6}$" ErrorMessage="OTP must be 4 to 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ValidationExpression="^\d{4,6}$" ErrorMessage="OTP must be 4 to 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
                     <!-- Submit OTP Button -->
                     <div class="mb-3">
                         <asp:Button ID="btnLogin" runat="server" Text="Verify & Sign In" 
                             CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" 
-                            OnClick="btnLogin_Click" 
+                            OnClick="btnLogin_Click" ValidationGroup="OtpAuth"
+                            OnClientClick="return (Page_ClientValidate('MobileAuth') && Page_ClientValidate('OtpAuth'));"
                             style="background-color: #0b6028; border-radius: 6px; font-size: 1rem; border: none;" />
                     </div>
 

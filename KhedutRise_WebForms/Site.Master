@@ -57,18 +57,18 @@
         }
 
         /* ASP.NET WebForms Validator Display Control */
-        /* Guarantees validators never display prematurely before user interaction or submission */
-        span[style*="display:none"], span[style*="display: none"] {
-            display: none !important;
-        }
+        /* Guarantees validators never display prematurely on page load */
         .kr-val-error {
             color: #dc2626 !important;
             font-size: 0.82rem;
             font-weight: 600;
             margin-top: 0.25rem;
+            display: block;
         }
-        .kr-val-error:not([style*="display:none"]):not([style*="display: none"]) {
-            display: block !important;
+        .kr-val-error[style*="none" i],
+        span[style*="display:none" i],
+        span[style*="display: none" i] {
+            display: none !important;
         }
 
         /* Top Header & Sticky Navigation Bar */

@@ -22,6 +22,12 @@ namespace KhedutRise
         // Send simulated OTP to user mobile
         protected void btnSendOtp_Click(object sender, EventArgs e)
         {
+            Page.Validate("MobileAuth");
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string mob = txtMobile.Text.Trim();
             long parsedMob;
             if (string.IsNullOrWhiteSpace(mob) || mob.Length != 10 || !long.TryParse(mob, out parsedMob))
@@ -39,6 +45,8 @@ namespace KhedutRise
         // Establish user role session and navigate to respective dashboard via OTP
         protected void btnLogin_Click(object sender, EventArgs e)
         {
+            Page.Validate("MobileAuth");
+            Page.Validate("OtpAuth");
             if (!Page.IsValid)
             {
                 return;
