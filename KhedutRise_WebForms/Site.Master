@@ -270,12 +270,13 @@
         }
 
         /* Footer Styling matching Figma Dark Theme with White Letters */
-        footer {
-            background-color: #161c18 !important;
-            color: #d1d5db !important;
-            margin-top: auto;
-            border-top: 1px solid #28332c;
-        }
+       /* Footer Styling - Modern Navy Blue Theme */
+footer {
+    background-color: #0A192F !important;
+    color: #d1d5db !important;
+    margin-top: auto;
+    border-top: 1px solid #1e3a5f;
+}
         footer h5, footer h6 {
             color: #ffffff !important;
             font-size: 0.85rem !important;
