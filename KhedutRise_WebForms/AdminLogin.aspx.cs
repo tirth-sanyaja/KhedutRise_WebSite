@@ -9,7 +9,7 @@ namespace KhedutRise
         {
             if (!IsPostBack)
             {
-                txtAdminPass.Attributes["value"] = "admin123";
+                txtAdminPass.Attributes["value"] = "11111111";
                 if (Request.QueryString["error"] == "admin_required")
                 {
                     lblAdminMsg.Text = "Administrative Access Required: Please sign in with administrator credentials.";
@@ -35,8 +35,8 @@ namespace KhedutRise
                 return;
             }
 
-            // Default credentials: admin@khedutrise.com / admin123
-            if (email == "admin@khedutrise.com" && pass == "admin123")
+            // Default credentials: admin@khedutrise.com / 11111111
+            if (email == "admin@khedutrise.com" && pass == "11111111")
             {
                 Session["UserRole"] = "Admin";
                 Session["UserName"] = "System Admin";
@@ -44,7 +44,7 @@ namespace KhedutRise
             }
             else
             {
-                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com / admin123";
+                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com / 11111111";
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
             }
         }

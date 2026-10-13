@@ -19,17 +19,56 @@
             --kr-green-bg: #f0fdf4;
             --kr-text-dark: #111827;
             --kr-border: #e5e7eb;
+            --kr-body-bg: #f8fafc;
+        }
+
+        html, body {
+            min-height: 100%;
+            background-color: #f8fafc !important;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f9fafb;
+            background-color: #f8fafc !important;
             color: var(--kr-text-dark);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             margin: 0;
             padding: 0;
+        }
+
+        #formMain {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            flex: 1 0 auto;
+            background-color: #f8fafc !important;
+        }
+
+        main {
+            flex: 1 0 auto;
+            background-color: #f8fafc !important;
+        }
+
+        footer {
+            margin-top: auto !important;
+        }
+
+        /* ASP.NET WebForms Validator Display Control */
+        /* Guarantees validators never display prematurely before user interaction or submission */
+        span[style*="display:none"], span[style*="display: none"] {
+            display: none !important;
+        }
+        .kr-val-error {
+            color: #dc2626 !important;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+        .kr-val-error:not([style*="display:none"]):not([style*="display: none"]) {
+            display: block !important;
         }
 
         /* Top Header & Sticky Navigation Bar */

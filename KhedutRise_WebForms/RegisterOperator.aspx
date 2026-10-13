@@ -38,7 +38,7 @@
                             <label class="form-label" style="color: #0b6028;">OPERATOR FULL NAME <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtName" runat="server" CssClass="form-control" 
                                 placeholder="e.g. Dilipbhai Parmar"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvName" ControlToValidate="txtName" ErrorMessage="Operator name is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvName" ControlToValidate="txtName" ErrorMessage="Operator name is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Mobile Number -->
@@ -47,8 +47,8 @@
                             <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
                                 placeholder="+91  10-digit mobile number" MaxLength="10" 
                                 type="tel"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                            <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                            <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Equipment / Tractor Model -->
@@ -56,7 +56,7 @@
                             <label class="form-label" style="color: #0b6028;">EQUIPMENT / TRACTOR MODEL <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtModel" runat="server" CssClass="form-control" 
                                 placeholder="e.g. Massey Ferguson 241DI (41 HP)"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvModel" ControlToValidate="txtModel" ErrorMessage="Equipment / Model is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvModel" ControlToValidate="txtModel" ErrorMessage="Equipment / Model is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Rental Rate -->
@@ -68,8 +68,8 @@
                                     placeholder="800"></asp:TextBox>
                                 <span class="input-group-text bg-light text-muted">/ Hour</span>
                             </div>
-                            <asp:RequiredFieldValidator ID="rfvRate" ControlToValidate="txtRate" ErrorMessage="Hourly rental rate is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                            <asp:RangeValidator ID="rngRate" ControlToValidate="txtRate" MinimumValue="50" MaximumValue="100000" Type="Double" ErrorMessage="Rate must be at least ₹50/hour." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvRate" ControlToValidate="txtRate" ErrorMessage="Hourly rental rate is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                            <asp:RangeValidator ID="rngRate" ControlToValidate="txtRate" MinimumValue="50" MaximumValue="100000" Type="Double" ErrorMessage="Rate must be at least ₹50/hour." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Available Attachments -->
@@ -77,7 +77,7 @@
                             <label class="form-label" style="color: #0b6028;">ATTACHMENTS AVAILABLE <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtAttachments" runat="server" CssClass="form-control" 
                                 placeholder="e.g. Rotavator, Cultivator, MB Plough"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvAttachments" ControlToValidate="txtAttachments" ErrorMessage="Attachments information is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvAttachments" ControlToValidate="txtAttachments" ErrorMessage="Attachments information is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Operating Radius -->
@@ -85,7 +85,7 @@
                             <label class="form-label" style="color: #0b6028;">SERVICE VILLAGE RADIUS <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtRadius" runat="server" CssClass="form-control" 
                                 placeholder="e.g. 15 km around Rajkot"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvRadius" ControlToValidate="txtRadius" ErrorMessage="Service radius is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvRadius" ControlToValidate="txtRadius" ErrorMessage="Service radius is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Password -->
@@ -93,8 +93,8 @@
                             <label class="form-label" style="color: #0b6028;">CREATE PASSWORD <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" 
                                 placeholder="Min 6 characters"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvPassword" ControlToValidate="txtPassword" ErrorMessage="Password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                            <asp:RegularExpressionValidator ID="revPassword" ControlToValidate="txtPassword" ValidationExpression="^.{6,}$" ErrorMessage="Password must be at least 6 characters." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvPassword" ControlToValidate="txtPassword" ErrorMessage="Password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                            <asp:RegularExpressionValidator ID="revPassword" ControlToValidate="txtPassword" ValidationExpression="^.{6,}$" ErrorMessage="Password must be at least 6 characters." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Confirm Password -->
@@ -102,8 +102,8 @@
                             <label class="form-label" style="color: #0b6028;">CONFIRM PASSWORD <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtConfirmPassword" runat="server" TextMode="Password" CssClass="form-control" 
                                 placeholder="Re-enter password"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvConfirmPassword" ControlToValidate="txtConfirmPassword" ErrorMessage="Please confirm password." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                            <asp:CompareValidator ID="cmpPassword" ControlToValidate="txtConfirmPassword" ControlToCompare="txtPassword" Operator="Equal" ErrorMessage="Passwords do not match." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                            <asp:RequiredFieldValidator ID="rfvConfirmPassword" ControlToValidate="txtConfirmPassword" ErrorMessage="Please confirm password." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                            <asp:CompareValidator ID="cmpPassword" ControlToValidate="txtConfirmPassword" ControlToCompare="txtPassword" Operator="Equal" ErrorMessage="Passwords do not match." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Upload Documents -->

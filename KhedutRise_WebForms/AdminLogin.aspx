@@ -20,8 +20,8 @@
                 <label class="form-label" style="color: #0b6028;">ADMIN EMAIL <span class="required-mark">*</span></label>
                 <asp:TextBox ID="txtAdminEmail" runat="server" type="email" CssClass="form-control py-2" Text="admin@khedutrise.com" 
                     placeholder="admin@khedutrise.com"></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
             </div>
 
             <!-- Password -->
@@ -29,7 +29,7 @@
                 <label class="form-label" style="color: #0b6028;">PASSWORD <span class="required-mark">*</span></label>
                 <asp:TextBox ID="txtAdminPass" runat="server" TextMode="Password" CssClass="form-control py-2" 
                     placeholder="Enter admin password"></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvAdminPass" ControlToValidate="txtAdminPass" ErrorMessage="Admin password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                <asp:RequiredFieldValidator ID="rfvAdminPass" ControlToValidate="txtAdminPass" ErrorMessage="Admin password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
             </div>
 
             <!-- Submit Button -->

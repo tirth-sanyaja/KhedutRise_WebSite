@@ -86,8 +86,8 @@
                         <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
                             placeholder="+91  Enter 10-digit mobile number" MaxLength="10" 
                             type="tel"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                        <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
                     <!-- Separate Send OTP Button -->
@@ -105,8 +105,8 @@
                         </div>
                         <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold fs-5 py-2 letter-spacing-2" 
                             placeholder="• • • • • •" MaxLength="6" Text="482190"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
-                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationExpression="^\d{4,6}$" ErrorMessage="OTP must be 4 to 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 d-block fw-semibold" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationExpression="^\d{4,6}$" ErrorMessage="OTP must be 4 to 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
                     <!-- Submit OTP Button -->
