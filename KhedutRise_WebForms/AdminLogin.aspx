@@ -44,7 +44,7 @@
 
             <!-- Submit Button -->
             <div class="mb-3">
-                <asp:Button ID="btnAdminLogin" runat="server" Text="Secure Admin Login" CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" OnClick="btnAdminLogin_Click" style="background-color: #0b6028; border-radius: 6px; font-size: 1rem; border: none;" />
+                <asp:Button ID="btnAdminLogin" runat="server" Text="Secure Admin Login" UseSubmitBehavior="false" CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" OnClick="btnAdminLogin_Click" style="background-color: #0b6028; border-radius: 6px; font-size: 1rem; border: none;" />
             </div>
 
             <!-- Forgot Password Link -->
