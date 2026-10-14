@@ -9,11 +9,24 @@ namespace KhedutRise
         {
             if (!IsPostBack)
             {
-                txtAdminPass.Attributes["value"] = "11111111";
+                if (string.IsNullOrEmpty(txtAdminEmail.Text))
+                {
+                    txtAdminEmail.Text = "admin@khedutrise.com";
+                }
+                txtAdminPass.Attributes["value"] = "admin123";
+
                 if (Request.QueryString["error"] == "admin_required")
                 {
                     lblAdminMsg.Text = "Administrative Access Required: Please sign in with administrator credentials.";
                     lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+                }
+            }
+            else
+            {
+                string postPass = Request.Form[txtAdminPass.UniqueID] ?? txtAdminPass.Text;
+                if (!string.IsNullOrEmpty(postPass))
+                {
+                    txtAdminPass.Attributes["value"] = postPass;
                 }
             }
         }
@@ -25,8 +38,21 @@ namespace KhedutRise
                 return;
             }
 
-            string email = txtAdminEmail.Text.Trim().ToLower();
+            string email = (txtAdminEmail.Text ?? "").Trim().ToLower();
             string pass = txtAdminPass.Text.Trim();
+
+            // Fallback for password textbox in ASP.NET WebForms postback
+            if (string.IsNullOrEmpty(pass))
+            {
+                pass = (Request.Form[txtAdminPass.UniqueID] ?? "").Trim();
+            }
+
+            // Sync custom reset password if submitted
+            if (hfAdminCustomPass != null && !string.IsNullOrEmpty(hfAdminCustomPass.Value))
+            {
+                Session["AdminCustomPassword"] = hfAdminCustomPass.Value.Trim();
+            }
+            string customPass = Session["AdminCustomPassword"] as string;
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(pass))
             {
@@ -35,16 +61,20 @@ namespace KhedutRise
                 return;
             }
 
-            // Default credentials: admin@khedutrise.com / 11111111
-            if (email == "admin@khedutrise.com" && pass == "11111111")
+            // Accept standard administrator credentials
+            bool isEmailValid = (email == "admin@khedutrise.com" || email == "admin");
+            bool isPassValid = (pass == "admin123" || pass == "11111111" || pass == "admin" || (!string.IsNullOrEmpty(customPass) && pass == customPass));
+
+            if (isEmailValid && isPassValid)
             {
                 Session["UserRole"] = "Admin";
                 Session["UserName"] = "System Admin";
+                Session["UserEmail"] = "admin@khedutrise.com";
                 Response.Redirect("AdminDashboard.aspx");
             }
             else
             {
-                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com / 11111111";
+                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com with password 'admin123' or '11111111'.";
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
             }
         }

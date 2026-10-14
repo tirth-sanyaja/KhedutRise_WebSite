@@ -9,6 +9,7 @@ namespace KhedutRise {
     public partial class AdminLogin {
         protected global::System.Web.UI.WebControls.Button btnAdminLogin;
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.HiddenField hfAdminCustomPass;
         protected global::System.Web.UI.WebControls.Label lblAdminMsg;
         protected global::System.Web.UI.WebControls.RegularExpressionValidator revAdminEmail;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminEmail;

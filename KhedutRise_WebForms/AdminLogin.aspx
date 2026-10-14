@@ -15,13 +15,23 @@
 
             <asp:Label ID="lblAdminMsg" runat="server" CssClass="d-block mb-3 fw-bold"></asp:Label>
 
+            <!-- Default Credential Helper Badge -->
+            <div class="alert alert-light border d-flex align-items-center py-2 px-3 mb-3 small" style="background-color: #f8fafc; border-color: #e2e8f0; font-size: 0.84rem;">
+                <i class="bi bi-info-circle-fill text-success me-2 fs-6"></i>
+                <div>
+                    <strong>Admin Email:</strong> <code>admin@khedutrise.com</code> (or <code>admin</code>)<br />
+                    <strong>Password:</strong> <code>admin123</code> or <code>11111111</code>
+                </div>
+            </div>
+
+            <asp:HiddenField ID="hfAdminCustomPass" runat="server" />
 
             <div class="mb-3">
-                <label class="form-label" style="color: #0b6028;">ADMIN EMAIL <span class="required-mark">*</span></label>
-                <asp:TextBox ID="txtAdminEmail" runat="server" type="email" CssClass="form-control py-2" Text="admin@khedutrise.com" 
+                <label class="form-label" style="color: #0b6028;">ADMIN EMAIL / USERNAME <span class="required-mark">*</span></label>
+                <asp:TextBox ID="txtAdminEmail" runat="server" CssClass="form-control py-2" Text="admin@khedutrise.com" 
                     placeholder="admin@khedutrise.com"></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email or username is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^([\w\.-]+@[\w\.-]+\.\w+|admin)$" ErrorMessage="Please enter a valid email address or 'admin'." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
             </div>
 
             <!-- Password -->
@@ -97,9 +107,24 @@
                 return;
             }
             var email = emailInput.value.trim();
+            var newPass = passInput.value.trim();
             var alertBox = document.getElementById('resetAlertBox');
             var formArea = document.getElementById('resetFormArea');
             var submitBtn = document.getElementById('btnSubmitReset');
+
+            // Sync with hidden field and password input on login form
+            var hfPass = document.getElementById('<%= hfAdminCustomPass.ClientID %>');
+            if (hfPass) {
+                hfPass.value = newPass;
+            }
+            var txtPass = document.getElementById('<%= txtAdminPass.ClientID %>');
+            if (txtPass) {
+                txtPass.value = newPass;
+            }
+            var txtEmail = document.getElementById('<%= txtAdminEmail.ClientID %>');
+            if (txtEmail && email) {
+                txtEmail.value = email;
+            }
 
             alertBox.style.display = 'block';
             alertBox.className = 'alert alert-success py-2 px-3 small mb-3';

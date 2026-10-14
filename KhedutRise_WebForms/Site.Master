@@ -491,7 +491,6 @@ footer {
                             <li class="mb-2"><a href="FarmerDashboard.aspx">For Farmers</a></li>
                             <li class="mb-2"><a href="BuyerDashboard.aspx">For Buyers</a></li>
                             <li class="mb-2"><a href="ApmcRates.aspx">APMC Live Market</a></li>
-                            <li class="mb-2"><a href="SiteDirectory.aspx" class="fw-bold" style="color: #4ade80 !important;"><i class="bi bi-compass me-1"></i> Site Directory (All Pages)</a></li>
                         </ul>
                     </div>
                     <!-- Column 3: Services Links -->
@@ -527,7 +526,6 @@ footer {
                 <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted pt-2">
                     <p class="mb-0 copyright-text">&copy; 2026 KhedutRise. All rights reserved.</p>
                     <div class="d-flex gap-4">
-                        <a href="SiteDirectory.aspx" class="fw-bold" style="color: #4ade80 !important;"><i class="bi bi-compass me-1"></i> All 34 Pages Directory</a>
                         <a href="About.aspx">Privacy Policy</a>
                         <a href="About.aspx">Terms of Service</a>
                     </div>
