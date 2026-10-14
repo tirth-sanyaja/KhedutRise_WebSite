@@ -17,21 +17,21 @@
 
             <!-- Default Credential Helper Badge -->
             <div class="alert alert-light border d-flex align-items-center py-2 px-3 mb-3 small" style="background-color: #f8fafc; border-color: #e2e8f0; font-size: 0.84rem;">
-                <i class="bi bi-info-circle-fill text-success me-2 fs-6"></i>
+                <i class="bi bi-shield-check text-success me-2 fs-6"></i>
                 <div>
-                    <strong>Admin Email:</strong> <code>admin@khedutrise.com</code> (or <code>admin</code>)<br />
-                    <strong>Password:</strong> <code>admin123</code> or <code>11111111</code>
+                    <strong>Admin Email:</strong> <code>admin@khedutrise.com</code><br />
+                    <strong>Password:</strong> <code>admin123</code>
                 </div>
             </div>
 
             <asp:HiddenField ID="hfAdminCustomPass" runat="server" />
 
             <div class="mb-3">
-                <label class="form-label" style="color: #0b6028;">ADMIN EMAIL / USERNAME <span class="required-mark">*</span></label>
+                <label class="form-label" style="color: #0b6028;">ADMIN EMAIL <span class="required-mark">*</span></label>
                 <asp:TextBox ID="txtAdminEmail" runat="server" CssClass="form-control py-2" Text="admin@khedutrise.com" 
                     placeholder="admin@khedutrise.com"></asp:TextBox>
-                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email or username is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^([\w\.-]+@[\w\.-]+\.\w+|admin)$" ErrorMessage="Please enter a valid email address or 'admin'." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^([\w\.-]+@[\w\.-]+\.\w+|admin)$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
             </div>
 
             <!-- Password -->

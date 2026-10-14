@@ -74,7 +74,7 @@ namespace KhedutRise
             }
             else
             {
-                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com with password 'admin123' or '11111111'.";
+                lblAdminMsg.Text = "Invalid Admin credentials. Please use admin@khedutrise.com with password 'admin123'.";
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
             }
         }
