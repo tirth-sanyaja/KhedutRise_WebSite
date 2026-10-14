@@ -11,6 +11,15 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.Content Content1;
         protected global::System.Web.UI.WebControls.DropDownList ddlCategory;
         protected global::System.Web.UI.WebControls.Label lblContactMsg;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revContactBody;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revContactEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revContactMobile;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revContactName;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvCategory;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvContactBody;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvContactEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvContactMobile;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvContactName;
         protected global::System.Web.UI.WebControls.TextBox txtContactBody;
         protected global::System.Web.UI.WebControls.TextBox txtContactEmail;
         protected global::System.Web.UI.WebControls.TextBox txtContactMobile;

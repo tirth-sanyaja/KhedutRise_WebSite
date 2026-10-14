@@ -22,41 +22,51 @@
                     <div class="mb-3">
                         <label class="form-label" style="color: #0b6028;">FULL NAME <span class="required-mark">*</span></label>
                         <asp:TextBox ID="txtContactName" runat="server" CssClass="form-control" 
-                            placeholder="Enter your full name" required="required"></asp:TextBox>
+                            placeholder="Enter your full name"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvContactName" ControlToValidate="txtContactName" ErrorMessage="Full name is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
+                        <asp:RegularExpressionValidator ID="revContactName" ControlToValidate="txtContactName" ValidationExpression="^[a-zA-Z\s]{2,50}$" ErrorMessage="Please enter a valid name (at least 2 letters, characters only)." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                     </div>
 
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">MOBILE NUMBER <span class="required-mark">*</span></label>
-                            <asp:TextBox ID="txtContactMobile" runat="server" type="tel" pattern="[6-9][0-9]{9}" CssClass="form-control" 
-                                placeholder="10-digit mobile number" MaxLength="10" required="required"></asp:TextBox>
+                            <asp:TextBox ID="txtContactMobile" runat="server" CssClass="form-control" 
+                                placeholder="10-digit mobile number" MaxLength="10"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvContactMobile" ControlToValidate="txtContactMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
+                            <asp:RegularExpressionValidator ID="revContactMobile" ControlToValidate="txtContactMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">EMAIL ADDRESS <span class="required-mark">*</span></label>
-                            <asp:TextBox ID="txtContactEmail" runat="server" type="email" CssClass="form-control" 
-                                placeholder="name@example.com" required="required"></asp:TextBox>
+                            <asp:TextBox ID="txtContactEmail" runat="server" CssClass="form-control" 
+                                placeholder="name@example.com"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvContactEmail" ControlToValidate="txtContactEmail" ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
+                            <asp:RegularExpressionValidator ID="revContactEmail" ControlToValidate="txtContactEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" style="color: #0b6028;">INQUIRY CATEGORY <span class="required-mark">*</span></label>
-                        <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-select" required="required">
+                        <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-select">
+                            <asp:ListItem Text="-- Select Inquiry Category --" Value="" />
                             <asp:ListItem Text="General Support & Inquiries" Value="General Support" Selected="True" />
                             <asp:ListItem Text="Crop Marketplace & Orders" Value="Marketplace" />
                             <asp:ListItem Text="Tractor & Harvester Rentals" Value="Machinery Rentals" />
                             <asp:ListItem Text="Soil Testing & Agri Services" Value="Agri Services" />
                             <asp:ListItem Text="Farmland Listings & Registration" Value="Land Portal" />
                         </asp:DropDownList>
+                        <asp:RequiredFieldValidator ID="rfvCategory" ControlToValidate="ddlCategory" InitialValue="" ErrorMessage="Please select an inquiry category." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label" style="color: #0b6028;">MESSAGE / INQUIRY DETAILS <span class="required-mark">*</span></label>
                         <asp:TextBox ID="txtContactBody" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-control" 
-                            placeholder="Please describe your question or requirement in detail (minimum 10 characters)..." 
-                            minlength="10" required="required"></asp:TextBox>
+                            placeholder="Please describe your question or requirement in detail (minimum 10 characters)..."></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvContactBody" ControlToValidate="txtContactBody" ErrorMessage="Message details are required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
+                        <asp:RegularExpressionValidator ID="revContactBody" ControlToValidate="txtContactBody" ValidationExpression="^[\s\S]{10,1000}$" ErrorMessage="Message details must be at least 10 characters long." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                     </div>
 
                     <asp:Button ID="btnSubmitContact" runat="server" Text="Submit Message" 
+                        CausesValidation="false"
                         CssClass="btn btn-kr-primary w-100 mt-auto py-2 fw-bold" 
                         style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;" 
                         OnClick="btnSubmitContact_Click" />

@@ -13,6 +13,12 @@ namespace KhedutRise
         // CREATE: Insert inquiry message into ContactInquiries table
         protected void btnSubmitContact_Click(object sender, EventArgs e)
         {
+            Page.Validate();
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
             string name = txtContactName.Text.Trim();
             string mobile = txtContactMobile.Text.Trim();
             string email = txtContactEmail.Text.Trim();
