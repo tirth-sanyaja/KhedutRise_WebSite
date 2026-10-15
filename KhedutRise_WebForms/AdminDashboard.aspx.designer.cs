@@ -7,17 +7,28 @@
 namespace KhedutRise {
     
     public partial class AdminDashboard {
-        protected global::System.Web.UI.WebControls.LinkButton btnApprove;
-        protected global::System.Web.UI.WebControls.LinkButton btnFilterAll;
-        protected global::System.Web.UI.WebControls.LinkButton btnFilterApproved;
-        protected global::System.Web.UI.WebControls.LinkButton btnFilterPending;
-        protected global::System.Web.UI.WebControls.LinkButton btnFilterRejected;
-        protected global::System.Web.UI.WebControls.LinkButton btnReject;
         protected global::System.Web.UI.WebControls.Content Content1;
-        protected global::System.Web.UI.WebControls.Label lblActionMsg;
+        protected global::System.Web.UI.WebControls.Literal litCurrentDate;
+        protected global::System.Web.UI.WebControls.Label lblTotalUsers;
         protected global::System.Web.UI.WebControls.Label lblApprovedCount;
-        protected global::System.Web.UI.WebControls.Label lblPendingRejectedCount;
+        protected global::System.Web.UI.WebControls.Label lblPendingCount;
+        protected global::System.Web.UI.WebControls.Label lblInquiriesCount;
+        protected global::System.Web.UI.WebControls.Label lblVerificationRate;
         protected global::System.Web.UI.WebControls.Panel pnlActionAlert;
+        protected global::System.Web.UI.WebControls.Label lblActionMsg;
+        protected global::System.Web.UI.WebControls.LinkButton btnFilterAll;
+        protected global::System.Web.UI.WebControls.LinkButton btnFilterPending;
+        protected global::System.Web.UI.WebControls.LinkButton btnFilterApproved;
+        protected global::System.Web.UI.WebControls.LinkButton btnFilterRejected;
+        protected global::System.Web.UI.WebControls.Literal litAllCount;
+        protected global::System.Web.UI.WebControls.Literal litPendingCount;
+        protected global::System.Web.UI.WebControls.Literal litVerifiedCount;
+        protected global::System.Web.UI.WebControls.Literal litRejectedCount;
+        protected global::System.Web.UI.WebControls.TextBox txtSearchUser;
+        protected global::System.Web.UI.WebControls.LinkButton btnSearchUser;
         protected global::System.Web.UI.WebControls.Repeater rptPending;
+        protected global::System.Web.UI.WebControls.Panel pnlEmptyState;
+        protected global::System.Web.UI.WebControls.Repeater rptInquiries;
+        protected global::System.Web.UI.WebControls.Panel pnlEmptyInquiries;
     }
 }
