@@ -190,21 +190,28 @@ namespace KhedutRise
             }
         }
 
-        // 2. Fetch Crop Products
+        // 2. Fetch Crop Products with SQL LEFT JOIN on Users (via FarmerId Foreign Key)
         private void LoadProducts(string statusFilter)
         {
             try
             {
-                string sql = "SELECT * FROM Products WHERE 1=1";
+                string sql = @"SELECT p.ProductId, p.ProductName, p.Category, p.QuantityInQuintal, p.PricePerQuintal, 
+                                      p.Grade, p.IsApproved, p.CreatedDate, p.FarmerId,
+                                      ISNULL(u.FullName, p.FarmerName) AS FarmerName, 
+                                      ISNULL(u.Location, p.Location) AS Location,
+                                      u.MobileNo AS FarmerContact 
+                               FROM Products p 
+                               LEFT JOIN Users u ON p.FarmerId = u.UserId 
+                               WHERE 1=1";
                 if (statusFilter == "Approved")
                 {
-                    sql += " AND IsApproved = 1";
+                    sql += " AND p.IsApproved = 1";
                 }
                 else if (statusFilter == "Rejected" || statusFilter == "Pending")
                 {
-                    sql += " AND IsApproved = 0";
+                    sql += " AND p.IsApproved = 0";
                 }
-                sql += " ORDER BY ProductId DESC";
+                sql += " ORDER BY p.ProductId DESC";
 
                 DataTable dt = DbHelper.ExecuteQuery(sql);
                 rptProducts.DataSource = dt;
@@ -225,25 +232,30 @@ namespace KhedutRise
             }
         }
 
-        // 3. Fetch Land Listings
+        // 3. Fetch Land Listings with SQL LEFT JOIN on Users (via SellerId Foreign Key)
         private void LoadLandListings(string statusFilter)
         {
             try
             {
-                string sql = "SELECT * FROM LandListings WHERE 1=1";
+                string sql = @"SELECT l.LandId, l.Title, l.AreaAcres, l.Location, l.WaterSource, l.Price, l.SoilType, l.Status, l.SellerId,
+                                      ISNULL(u.FullName, 'Farmer Seller') AS SellerName, 
+                                      u.MobileNo AS SellerContact 
+                               FROM LandListings l 
+                               LEFT JOIN Users u ON l.SellerId = u.UserId 
+                               WHERE 1=1";
                 if (statusFilter == "Approved")
                 {
-                    sql += " AND (Status = 'Approved' OR Status = 'Verified')";
+                    sql += " AND (l.Status = 'Approved' OR l.Status = 'Verified')";
                 }
                 else if (statusFilter == "Pending")
                 {
-                    sql += " AND Status = 'Pending'";
+                    sql += " AND l.Status = 'Pending'";
                 }
                 else if (statusFilter == "Rejected")
                 {
-                    sql += " AND Status = 'Rejected'";
+                    sql += " AND l.Status = 'Rejected'";
                 }
-                sql += " ORDER BY LandId DESC";
+                sql += " ORDER BY l.LandId DESC";
 
                 DataTable dt = DbHelper.ExecuteQuery(sql);
                 rptLand.DataSource = dt;

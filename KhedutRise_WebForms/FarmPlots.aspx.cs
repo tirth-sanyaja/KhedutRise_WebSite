@@ -15,12 +15,19 @@ namespace KhedutRise
             }
         }
 
-        // READ: Load farmland plots into the registry table
+        // READ: Load farmland plots with SQL LEFT JOIN on Users table (via FarmerId Foreign Key)
         private void LoadPlots()
         {
             try
             {
-                DataTable dt = DbHelper.ExecuteQuery("SELECT * FROM FarmPlots ORDER BY PlotId ASC");
+                string sql = @"SELECT f.PlotId, f.PlotName, f.AreaAcres, f.Crop, f.Stage, f.Status, f.SoilType, f.FarmerId,
+                                      ISNULL(u.FullName, 'Registered Farmer') AS FarmerName, 
+                                      ISNULL(u.Location, 'Gujarat Farm') AS Village
+                               FROM FarmPlots f
+                               LEFT JOIN Users u ON f.FarmerId = u.UserId
+                               ORDER BY f.PlotId ASC";
+
+                DataTable dt = DbHelper.ExecuteQuery(sql);
                 if (dt.Rows.Count > 0)
                 {
                     rptPlots.DataSource = dt;

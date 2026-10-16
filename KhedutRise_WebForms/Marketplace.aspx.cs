@@ -25,18 +25,35 @@ namespace KhedutRise
             LoadProducts(categoryName);
         }
 
-        // Load products from database
+        // Load products from database with SQL LEFT JOIN on Users table
         private void LoadProducts(string category)
         {
             try
             {
-                string sql = "SELECT * FROM Products WHERE IsApproved = 1";
+                // Relational SQL JOIN between Products and Users (via Foreign Key FarmerId)
+                string sql = @"SELECT p.ProductId, p.ProductName, p.Category, p.QuantityInQuintal, p.PricePerQuintal, 
+                                      p.Grade, p.IsApproved, p.CreatedDate, p.FarmerId,
+                                      ISNULL(u.FullName, p.FarmerName) AS FarmerName, 
+                                      ISNULL(u.Location, p.Location) AS Location, 
+                                      u.MobileNo AS FarmerContact 
+                               FROM Products p 
+                               LEFT JOIN Users u ON p.FarmerId = u.UserId 
+                               WHERE p.IsApproved = 1";
+
+                DataTable dt;
                 if (!string.IsNullOrEmpty(category))
                 {
-                    sql += " AND Category = '" + category + "'";
+                    sql += " AND p.Category = @Category";
+                    System.Data.SqlClient.SqlParameter[] prms = new System.Data.SqlClient.SqlParameter[]
+                    {
+                        new System.Data.SqlClient.SqlParameter("@Category", category)
+                    };
+                    dt = DbHelper.ExecuteQuery(sql, prms);
                 }
-
-                DataTable dt = DbHelper.ExecuteQuery(sql);
+                else
+                {
+                    dt = DbHelper.ExecuteQuery(sql);
+                }
 
                 // --- Collections & Generics Examples ---
                 // 1. List<T>: Convert DataTable to List of CropItem
