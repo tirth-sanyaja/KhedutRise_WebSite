@@ -136,7 +136,7 @@ All collection and generic concepts are centralized in `App_Code/KhedutCollectio
 * Select your role (**Farmer**, **Buyer**, or **Operator**).
 * Enter any 10-digit mobile number (e.g. `9876543210`).
 * Click **Send OTP**.
-* Enter verification OTP: `482190`.
+* Enter verification OTP: `Example 482190`.
 * Click **Verify & Sign In**.
 
 ### 8.2 Administrator Portal
