@@ -8,5 +8,24 @@ namespace KhedutRise {
     
     public partial class OrderDetails {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litOrderIdHeader;
+        protected global::System.Web.UI.WebControls.Label lblOrderMsg;
+        protected global::System.Web.UI.WebControls.Literal litStepperProgressLine;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl node1;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl node2;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl node3;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl node4;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl node5;
+        protected global::System.Web.UI.WebControls.Image imgProduct;
+        protected global::System.Web.UI.WebControls.Literal litProductName;
+        protected global::System.Web.UI.WebControls.Literal litFarmerInfo;
+        protected global::System.Web.UI.WebControls.Literal litQuantity;
+        protected global::System.Web.UI.WebControls.Literal litOrderDate;
+        protected global::System.Web.UI.WebControls.Literal litSubtotal;
+        protected global::System.Web.UI.WebControls.Literal litLogisticsFee;
+        protected global::System.Web.UI.WebControls.Literal litTotalPaid;
+        protected global::System.Web.UI.WebControls.Literal litStatusBadge;
+        protected global::System.Web.UI.WebControls.Literal litBuyerDetails;
+        protected global::System.Web.UI.WebControls.Literal litDeliveryAddress;
     }
 }
