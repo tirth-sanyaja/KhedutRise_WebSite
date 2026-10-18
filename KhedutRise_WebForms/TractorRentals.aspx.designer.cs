@@ -8,5 +8,10 @@ namespace KhedutRise {
     
     public partial class TractorRentals {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.TextBox txtSearch;
+        protected global::System.Web.UI.WebControls.Button btnSearch;
+        protected global::System.Web.UI.WebControls.Panel pnlNoEquipment;
+        protected global::System.Web.UI.WebControls.LinkButton btnResetSearch;
+        protected global::System.Web.UI.WebControls.Repeater rptEquipments;
     }
 }

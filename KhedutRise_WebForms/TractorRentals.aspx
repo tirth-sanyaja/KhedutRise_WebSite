@@ -1,84 +1,74 @@
 <%@ Page Title="Tractor & Agricultural Equipment" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="TractorRentals.aspx.cs" Inherits="KhedutRise.TractorRentals" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- Tractor & Agricultural Equipment-->
-    <div class="kr-page-container">
-        <!--  Header -->
+    <!-- 100% Dynamic Tractor & Agricultural Equipment Marketplace -->
+    <div class="kr-page-container py-4">
+        <!-- Header -->
         <div class="mb-4">
             <small class="text-muted"><a href="Default.aspx" class="text-decoration-none text-muted">Home</a> / Agri Services / Equipment Marketplace</small>
             <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">Tractor & Agricultural Equipment</h2>
-            <p class="text-muted small mb-0">Find reliable equipment for your farming needs.</p>
+            <p class="text-muted small mb-0">Find reliable high-horsepower tractors, harvesters, and implements from verified local owners.</p>
         </div>
 
-        <!-- Rent Verified High-HP Tractors & Harvesters Search Banner -->
-        <div class="card card-custom p-4 mb-4">
+        <!-- Search & Filter Banner -->
+        <div class="card card-custom p-4 mb-4 border shadow-sm">
             <h5 class="fw-bold mb-1" style="color: #0b6028;">Rent Verified High-HP Tractors & Harvesters</h5>
-            <p class="text-muted small mb-3">Direct booking with local verified machinery owners.</p>
+            <p class="text-muted small mb-3">Direct booking with local verified machinery operators and fleet owners.</p>
             <div class="row g-3">
-                <div class="col-md-5">
-                    <input type="text" class="form-control" placeholder="What equipment do you need?" />
+                <div class="col-md-9">
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Search tractor model or village location (e.g. Massey, Rajkot, Swaraj)..."></asp:TextBox>
                 </div>
-                <div class="col-md-5">
-                    <input type="text" class="form-control" placeholder="Location?" />
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-kr-primary w-100 py-2 fw-bold" style="background-color: #0b6028 !important; border-color: #0b6028 !important;">Search</button>
+                <div class="col-md-3">
+                    <asp:Button ID="btnSearch" runat="server" Text="Search Equipment" CssClass="btn btn-kr-primary w-100 py-2 fw-bold" OnClick="btnSearch_Click" style="background-color: #0b6028 !important; border-color: #0b6028 !important;" />
                 </div>
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- LEFT: Massey Ferguson Card -->
-            <div class="col-lg-5">
-                <div class="card card-custom p-4 h-100 d-flex flex-column">
-                    <img src="Images/massey_tractor.jpg" class="rounded-3 mb-3 img-fluid object-fit-cover" style="height: 220px; width: 100%;" alt="Massey Ferguson" />
-                    <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;">Massey Ferguson 241DI (41 HP)</h5>
-                    <small class="text-muted mb-2 d-block" style="font-size: 0.85rem;">Year: 2023 | Location: Rajkot Bypass | Rating: 4.8</small>
-                    <h3 class="fw-bold mb-4" style="color: #0b6028; font-size: 1.7rem;">₹800 / Hour</h3>
-
-                    <div class="d-flex gap-2 mt-auto">
-                        <a href="BookingConfirm.aspx" class="btn w-50 py-2 fw-bold" style="background-color: #ffffff; color: #0b6028; border: 1.5px solid #0b6028; border-radius: 6px;">View Details</a>
-                        <a href="BookingConfirm.aspx" class="btn btn-kr-primary w-50 py-2 fw-bold" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Book Now</a>
-                    </div>
-                </div>
+        <!-- Empty State -->
+        <asp:Panel ID="pnlNoEquipment" runat="server" Visible="false" CssClass="card p-5 text-center bg-white border mb-4">
+            <i class="bi bi-truck text-muted display-4 mb-3"></i>
+            <h5 class="fw-bold text-dark">No Equipment Listings Found</h5>
+            <p class="text-muted small mb-3">Try clearing your search query to see all available agricultural machinery.</p>
+            <div>
+                <asp:LinkButton ID="btnResetSearch" runat="server" CssClass="btn btn-sm btn-outline-secondary" OnClick="btnResetSearch_Click">View All Machinery</asp:LinkButton>
             </div>
+        </asp:Panel>
 
-            <!-- RIGHT: Compare Popular Equipment -->
-            <div class="col-lg-7">
-                <div class="card card-custom p-4 h-100 d-flex flex-column">
-                    <h5 class="fw-bold mb-4" style="color: #0b6028;">Compare Popular Equipment</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="text-muted" style="font-size: 0.72rem; letter-spacing: 0.5px;">
-                                <tr>
-                                    <th>SPEC</th>
-                                    <th>MASSEY FERGUSON 241DI</th>
-                                    <th>MAHINDRA YUVO 575</th>
-                                    <th>SWARAJ 744 FE</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size: 0.92rem;">
-                                <tr>
-                                    <td class="fw-semibold text-dark">Horsepower</td>
-                                    <td>41 HP</td>
-                                    <td>45 HP</td>
-                                    <td>48 HP</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-dark">Rate / Hour</td>
-                                    <td><strong style="color: #0b6028;">₹800 / hr</strong></td>
-                                    <td><strong style="color: #0b6028;">₹750 / hr</strong></td>
-                                    <td><strong style="color: #0b6028;">₹780 / hr</strong></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-semibold text-dark">Rating</td>
-                                    <td>4.8 </td>
-                                    <td>4.6 </td>
-                                    <td>4.7 </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <!-- Dynamic Equipment Catalog Cards -->
+        <div class="row g-4 mb-4">
+            <asp:Repeater ID="rptEquipments" runat="server">
+                <ItemTemplate>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card card-custom p-4 h-100 d-flex flex-column border shadow-sm">
+                            <img src='<%# ResolveUrl(Eval("ImagePath").ToString()) %>' class="rounded-3 mb-3 img-fluid object-fit-cover" style="height: 200px; width: 100%;" alt='<%# Eval("ModelName") %>' onerror="this.src='Images/massey_tractor.jpg';" />
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle small fw-bold"><%# Eval("Horsepower") %></span>
+                                <small class="text-warning fw-bold"><i class="bi bi-star-fill me-1"></i><%# Eval("Rating", "{0:F1}") %></small>
+                            </div>
+                            <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;"><%# Eval("ModelName") %></h5>
+                            <small class="text-muted mb-3 d-block" style="font-size: 0.85rem;">
+                                Owner: <strong><%# Eval("OwnerName") %></strong> | Location: <%# Eval("Location") %>
+                            </small>
+                            <h3 class="fw-bold mb-3" style="color: #0b6028; font-size: 1.6rem;">
+                                ₹<%# Eval("HourlyRate", "{0:N0}") %> <small class="fs-6 text-muted fw-normal">/ Hour</small>
+                            </h3>
+
+                            <div class="mt-auto pt-2 border-top">
+                                <a href='BookingConfirm.aspx?eqId=<%# Eval("EquipmentId") %>' class="btn btn-kr-primary w-100 py-2 fw-bold" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Book Rental Now</a>
+                            </div>
+                        </div>
                     </div>
+                </ItemTemplate>
+            </asp:Repeater>
+        </div>
+
+        <!-- Verified Guarantee -->
+        <div class="card p-3 rounded-3 bg-light border">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-shield-check text-success display-6"></i>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Operator & Equipment Guarantee</h6>
+                    <small class="text-muted">All registered tractors and drivers are vetted with valid agricultural driving permits and clean maintenance records.</small>
                 </div>
             </div>
         </div>
