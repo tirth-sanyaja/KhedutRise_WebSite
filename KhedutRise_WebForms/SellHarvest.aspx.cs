@@ -1,102 +1,120 @@
 using System;
-using System.Data;
-using System.Data.SqlClient;
+using System.Web.UI;
 
 namespace KhedutRise
 {
-    // Page 19: Sell Harvest - Product listing with complete validation
+    // Sell Harvest - Authenticated Farmer Produce Listing
     public partial class SellHarvest : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                // Enforce authentication
+                if (Session["UserId"] == null)
+                {
+                    Response.Redirect("Login.aspx?error=auth_required&returnUrl=" + Server.UrlEncode("SellHarvest.aspx"));
+                    return;
+                }
+
+                string role = Session["UserRole"] != null ? Session["UserRole"].ToString() : "";
+                if (role != "Farmer" && role != "Admin")
+                {
+                    ShowError("Only registered Farmers can list crops for sale. Your active role is: " + role);
+                    btnSaveCrop.Enabled = false;
+                    return;
+                }
+
                 if (Session["UserName"] != null)
                 {
                     txtFarmer.Text = Session["UserName"].ToString();
+                    txtFarmer.ReadOnly = true;
                 }
             }
         }
 
-        // CREATE & UPDATE: Save new harvest listing
+        // CREATE: Save new harvest listing with authenticated FarmerId
         protected void btnSaveCrop_Click(object sender, EventArgs e)
         {
+            if (Session["UserId"] == null)
+            {
+                Response.Redirect("Login.aspx?error=auth_required&returnUrl=" + Server.UrlEncode("SellHarvest.aspx"));
+                return;
+            }
+
+            int farmerId = Convert.ToInt32(Session["UserId"]);
+            string farmerName = Session["UserName"] != null ? Session["UserName"].ToString() : txtFarmer.Text.Trim();
+
             string name = txtProdName.Text.Trim();
             string category = ddlCategory.SelectedValue;
-            string farmer = txtFarmer.Text.Trim();
             string location = txtLocation.Text.Trim();
             string qtyStr = txtQty.Text.Trim();
             string priceStr = txtPrice.Text.Trim();
             string grade = ddlGrade.SelectedValue;
 
-            // 1. Validation checks
+            // 1. Server-side validation
             if (string.IsNullOrWhiteSpace(name) || name.Length < 2)
             {
-                ShowError("Please enter a valid crop or variety name.");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(farmer))
-            {
-                ShowError("Please enter farmer or seller name.");
+                ShowError("Please enter a valid crop name (minimum 2 characters).");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(location))
             {
-                ShowError("Please enter farm location.");
+                ShowError("Please enter your farm village / district location.");
                 return;
             }
 
             decimal qty;
             if (!decimal.TryParse(qtyStr, out qty) || qty <= 0)
             {
-                ShowError("Please enter a valid positive quantity in quintals.");
+                ShowError("Please enter a valid positive harvest quantity in Quintals.");
                 return;
             }
 
             decimal price;
             if (!decimal.TryParse(priceStr, out price) || price <= 0)
             {
-                ShowError("Please enter a valid expected price per quintal.");
+                ShowError("Please enter a valid price per Quintal in INR.");
                 return;
             }
 
-            // 2. Database Insertion
+            // Select appropriate image path by category
+            string imagePath = "Images/groundnut_harvest.jpg";
+            if (category == "Cotton") imagePath = "Images/green_rows.jpg";
+            else if (category == "Wheat") imagePath = "Images/hero_farmer.jpg";
+            else if (category == "Spices") imagePath = "Images/groundnut_harvest.jpg";
+
+            // 2. Insert into database using ProductRepository
             try
             {
-                string query = @"INSERT INTO Products (ProductName, Category, QuantityInQuintal, PricePerQuintal, FarmerName, Location, Grade, IsApproved)
-                                 VALUES (@Name, @Cat, @Qty, @Price, @Farmer, @Loc, @Grade, 1)";
-                SqlParameter[] prms = new SqlParameter[]
+                int newProductId = ProductRepository.AddProduct(farmerId, farmerName, name, category, qty, price, location, grade, imagePath);
+
+                if (newProductId > 0)
                 {
-                    new SqlParameter("@Name", name),
-                    new SqlParameter("@Cat", category),
-                    new SqlParameter("@Qty", qty),
-                    new SqlParameter("@Price", price),
-                    new SqlParameter("@Farmer", farmer),
-                    new SqlParameter("@Loc", location),
-                    new SqlParameter("@Grade", grade)
-                };
-                DbHelper.ExecuteNonQuery(query, prms);
+                    lblMsg.Text = "🎉 Crop Listed Successfully! Your crop <b>" + Server.HtmlEncode(name) + "</b> is now active and live on the <a href='Marketplace.aspx' class='alert-link fw-bold text-decoration-underline'>Marketplace</a>.";
+                    lblMsg.CssClass = "alert alert-success d-block p-3 text-center mb-3 fs-6";
 
-                lblMsg.Text = "✅ Success! Crop listing for <b>" + name + "</b> has been published to the Marketplace!";
-                lblMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
-
-                // Clear fields
-                txtProdName.Text = "";
-                txtQty.Text = "";
-                txtPrice.Text = "";
+                    // Reset form
+                    txtProdName.Text = "";
+                    txtQty.Text = "";
+                    txtPrice.Text = "";
+                }
+                else
+                {
+                    ShowError("Failed to publish crop listing. Please try again.");
+                }
             }
             catch (Exception ex)
             {
-                ShowError("Failed to publish crop: " + ex.Message);
+                ShowError("Error saving crop listing: " + ex.Message);
             }
         }
 
         private void ShowError(string msg)
         {
             lblMsg.Text = "❌ " + msg;
-            lblMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+            lblMsg.CssClass = "alert alert-danger d-block p-3 text-center mb-3";
         }
     }
 }
