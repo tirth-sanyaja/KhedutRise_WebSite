@@ -8,6 +8,8 @@ namespace KhedutRise {
     
     public partial class MyPurchases {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Panel pnlNoPurchases;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divPurchasesTable;
         protected global::System.Web.UI.WebControls.Repeater rptPurchases;
     }
 }
