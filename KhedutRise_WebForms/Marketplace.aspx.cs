@@ -1,81 +1,108 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Web.UI.WebControls;
 
 namespace KhedutRise
 {
-    // Fresh From Farmers - Marketplace products list with category filters
+    // Fresh From Farmers - 100% Dynamic Database Marketplace
     public partial class Marketplace : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                LoadProducts("");
+                ViewState["ActiveCategory"] = "";
+                LoadProducts();
             }
         }
 
-        // Handle category tab clicks (Groundnut, Cotton, Wheat, Vegetables)
+        // Handle category tab clicks (All, Groundnut, Cotton, Wheat, Spices, Vegetables)
         protected void FilterCategory_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
             string categoryName = btn.CommandArgument;
-            LoadProducts(categoryName);
+            ViewState["ActiveCategory"] = categoryName;
+
+            // Highlight selected chip
+            ResetCategoryStyles();
+            btn.CssClass = "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none";
+            btn.Style["background-color"] = "#0b6028";
+            btn.Style["border"] = "1px solid #0b6028";
+
+            LoadProducts();
         }
 
-        // Load products from database with SQL LEFT JOIN on Users table
-        private void LoadProducts(string category)
+        // Search & Filter handlers
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            LoadProducts();
+        }
+
+        protected void ddlSort_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadProducts();
+        }
+
+        protected void btnResetFilter_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = "";
+            txtLocationFilter.Text = "";
+            ddlSort.SelectedIndex = 0;
+            ViewState["ActiveCategory"] = "";
+            ResetCategoryStyles();
+            btnAll.CssClass = "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none";
+            btnAll.Style["background-color"] = "#0b6028";
+            LoadProducts();
+        }
+
+        private void ResetCategoryStyles()
+        {
+            LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnSpices, btnVegetables };
+            foreach (var b in buttons)
+            {
+                if (b != null)
+                {
+                    b.CssClass = "btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark";
+                    b.Style["border"] = "1px solid #d1d5db";
+                    b.Style["background-color"] = "#ffffff";
+                }
+            }
+        }
+
+        // Load products dynamically from database via ProductRepository
+        private void LoadProducts()
         {
             try
             {
-                // Relational SQL JOIN between Products and Users (via Foreign Key FarmerId)
-                string sql = @"SELECT p.ProductId, p.ProductName, p.Category, p.QuantityInQuintal, p.PricePerQuintal, 
-                                      p.Grade, p.IsApproved, p.CreatedDate, p.FarmerId,
-                                      ISNULL(u.FullName, p.FarmerName) AS FarmerName, 
-                                      ISNULL(u.Location, p.Location) AS Location, 
-                                      u.MobileNo AS FarmerContact 
-                               FROM Products p 
-                               LEFT JOIN Users u ON p.FarmerId = u.UserId 
-                               WHERE p.IsApproved = 1";
-
-                DataTable dt;
-                if (!string.IsNullOrEmpty(category))
+                string category = ViewState["ActiveCategory"] != null ? ViewState["ActiveCategory"].ToString() : "";
+                string search = txtSearch.Text.Trim();
+                string location = txtLocationFilter.Text.Trim();
+                if (!string.IsNullOrEmpty(location))
                 {
-                    sql += " AND p.Category = @Category";
-                    System.Data.SqlClient.SqlParameter[] prms = new System.Data.SqlClient.SqlParameter[]
-                    {
-                        new System.Data.SqlClient.SqlParameter("@Category", category)
-                    };
-                    dt = DbHelper.ExecuteQuery(sql, prms);
+                    search = string.IsNullOrEmpty(search) ? location : (search + " " + location);
                 }
-                else
+                string sort = ddlSort.SelectedValue;
+
+                DataTable dt = ProductRepository.GetMarketplaceProducts(category, search, sort);
+
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    dt = DbHelper.ExecuteQuery(sql);
-                }
-
-                // --- Collections & Generics Examples ---
-                // 1. List<T>: Convert DataTable to List of CropItem
-                List<CropItem> cropList = KhedutCollectionsService.ConvertDataTableToCropList(dt);
-
-                // 2. Generic Delegate Predicate<T>: Filter items by condition
-                List<CropItem> activeCrops = KhedutCollectionsService.FilterCropsByPrice(cropList, c => c.PricePerQuintal > 0);
-
-                // 3. HashSet<T>: Store unique districts
-                HashSet<string> districts = KhedutCollectionsService.GetUniqueDistricts(activeCrops);
-
-                // 4. ArrayList: Non-generic collection storing search parameters
-                ArrayList filterValues = KhedutCollectionsService.GetSearchFilters(category, 0, true);
-
-                // Bind records to Repeater control
-                if (dt.Rows.Count > 0)
-                {
+                    rptProducts.Visible = true;
+                    pnlNoProducts.Visible = false;
                     rptProducts.DataSource = dt;
                     rptProducts.DataBind();
                 }
+                else
+                {
+                    rptProducts.Visible = false;
+                    pnlNoProducts.Visible = true;
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                rptProducts.Visible = false;
+                pnlNoProducts.Visible = true;
+            }
         }
     }
 }
