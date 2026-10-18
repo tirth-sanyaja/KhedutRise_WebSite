@@ -5,8 +5,8 @@
     <div class="kr-page-container py-4">
         <!-- GREETING & SUMMARY -->
         <div class="mb-4">
-            <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem;">Good Morning, Sanyaja Tirth!</h2>
-            <p class="text-secondary small mb-0">Here is your agricultural business activity summary for today.</p>
+            <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem;">Welcome, <asp:Literal ID="litFarmerGreeting" runat="server">Farmer</asp:Literal>!</h2>
+            <p class="text-secondary small mb-0">Here is your live farm operations and agricultural marketplace activity summary.</p>
         </div>
 
         <!-- 6 KEY METRIC WIDGETs-->
@@ -14,37 +14,47 @@
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
                     <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">FARM AREA</small>
-                    <h3 class="fw-bold text-dark mt-2 mb-0" style="font-size: 1.65rem;">8.5 Acres</h3>
+                    <h3 class="fw-bold text-dark mt-2 mb-0" style="font-size: 1.65rem;">
+                        <asp:Literal ID="litTotalAcres" runat="server">0 Acres</asp:Literal>
+                    </h3>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
                     <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">CURRENT CROP</small>
-                    <h3 class="fw-bold text-dark mt-2 mb-0" style="font-size: 1.65rem;">Groundnut</h3>
+                    <h3 class="fw-bold text-dark mt-2 mb-0" style="font-size: 1.65rem;">
+                        <asp:Literal ID="litCurrentCrop" runat="server">Mixed Crops</asp:Literal>
+                    </h3>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
-                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">COTTON PRICE</small>
+                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">COTTON APMC</small>
                     <h3 class="fw-bold mt-2 mb-0" style="color: #ea580c; font-size: 1.65rem;">₹7,150 / Q</h3>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
                     <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">ACTIVE ORDERS</small>
-                    <h3 class="fw-bold mt-2 mb-0" style="color: #0284c7; font-size: 1.65rem;">4 Pending</h3>
+                    <h3 class="fw-bold mt-2 mb-0" style="color: #0284c7; font-size: 1.65rem;">
+                        <asp:Literal ID="litActiveOrders" runat="server">0 Active</asp:Literal>
+                    </h3>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
-                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">UPCOMING SERVICE</small>
-                    <h3 class="fw-bold mt-2 mb-0" style="color: #eab308; font-size: 1.65rem;">Soil Test</h3>
+                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">BOOKINGS</small>
+                    <h3 class="fw-bold mt-2 mb-0" style="color: #eab308; font-size: 1.65rem;">
+                        <asp:Literal ID="litUpcomingBookings" runat="server">0 Bookings</asp:Literal>
+                    </h3>
                 </div>
             </div>
             <div class="col-6 col-md-4 col-lg-2">
                 <div class="card p-3 text-start border rounded-3 shadow-none h-100" style="border-color: #e2e8f0 !important; background: #ffffff;">
-                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">MONTHLY REVENUE</small>
-                    <h3 class="fw-bold mt-2 mb-0" style="color: #16a34a; font-size: 1.65rem;">₹84,200</h3>
+                    <small class="text-secondary fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">TOTAL SALES</small>
+                    <h3 class="fw-bold mt-2 mb-0" style="color: #16a34a; font-size: 1.65rem;">
+                        <asp:Literal ID="litTotalRevenue" runat="server">₹0</asp:Literal>
+                    </h3>
                 </div>
             </div>
         </div>

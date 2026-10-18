@@ -8,5 +8,11 @@ namespace KhedutRise {
     
     public partial class FarmerDashboard {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litFarmerGreeting;
+        protected global::System.Web.UI.WebControls.Literal litTotalAcres;
+        protected global::System.Web.UI.WebControls.Literal litCurrentCrop;
+        protected global::System.Web.UI.WebControls.Literal litActiveOrders;
+        protected global::System.Web.UI.WebControls.Literal litUpcomingBookings;
+        protected global::System.Web.UI.WebControls.Literal litTotalRevenue;
     }
 }
