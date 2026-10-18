@@ -15,19 +15,28 @@
         <div class="row g-4">
             <!-- LEFT: Tractor Booking Item -->
             <div class="col-lg-5">
-                <div class="card card-custom p-4 h-100 d-flex flex-column">
-                    <img src="Images/massey_tractor.jpg" class="rounded-3 mb-3 img-fluid object-fit-cover" style="height: 250px; width: 100%;" alt="Massey Ferguson" />
+                <div class="card card-custom p-4 h-100 d-flex flex-column border shadow-sm">
+                    <asp:Image ID="imgEquipment" runat="server" ImageUrl="Images/massey_tractor.jpg" CssClass="rounded-3 mb-3 img-fluid object-fit-cover" style="height: 250px; width: 100%;" />
                     <span class="badge bg-success-subtle text-success border border-success-subtle align-self-start mb-2 px-3 py-1">Verified Machinery</span>
-                    <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;">Massey Ferguson 241DI Tractor</h5>
-                    <small class="text-muted mb-3 d-block" style="font-size: 0.88rem;">Owner: Dilipbhai Parmar | Location: Rajkot Bypass | 41 HP</small>
-                    <h3 class="fw-bold mb-0 mt-auto" style="color: #0b6028; font-size: 1.8rem;">₹800 / Hour</h3>
+                    <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;">
+                        <asp:Literal ID="litModelName" runat="server">Massey Ferguson 241DI</asp:Literal>
+                    </h5>
+                    <small class="text-muted mb-3 d-block" style="font-size: 0.88rem;">
+                        Owner: <strong><asp:Literal ID="litOwnerName" runat="server">Dilipbhai Parmar</asp:Literal></strong> | Location: <asp:Literal ID="litLocation" runat="server">Rajkot</asp:Literal> | <asp:Literal ID="litHorsepower" runat="server">42 HP</asp:Literal>
+                    </small>
+                    <h3 class="fw-bold mb-0 mt-auto" style="color: #0b6028; font-size: 1.8rem;">
+                        ₹<asp:Literal ID="litHourlyRate" runat="server">800</asp:Literal> <small class="fs-6 text-muted fw-normal">/ Hour</small>
+                    </h3>
                 </div>
             </div>
 
             <!-- RIGHT: Schedule & Details Form -->
             <div class="col-lg-7">
-                <div class="card card-custom p-4 p-md-5 h-100 d-flex flex-column">
+                <div class="card card-custom p-4 p-md-5 h-100 d-flex flex-column border shadow-sm">
                     <h5 class="fw-bold mb-3" style="color: #0b6028;">Schedule & Field Details</h5>
+
+                    <asp:HiddenField ID="hfEquipmentId" runat="server" Value="1" />
+                    <asp:HiddenField ID="hfHourlyRate" runat="server" Value="800" />
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -38,7 +47,7 @@
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">DURATION (HOURS) <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtDuration" runat="server" type="number" min="1" max="48" CssClass="form-control" Text="6" 
-                                placeholder="e.g. 6" required="required"></asp:TextBox>
+                                placeholder="e.g. 6" required="required" AutoPostBack="true" OnTextChanged="txtDuration_TextChanged"></asp:TextBox>
                         </div>
                     </div>
 
@@ -61,8 +70,8 @@
                     <small class="text-muted fw-bold d-block mb-2" style="font-size: 0.72rem; letter-spacing: 0.5px;">ESTIMATED PRICING</small>
                     <div class="border-top pt-2 mb-4">
                         <div class="d-flex justify-content-between py-1 text-dark" style="font-size: 0.95rem;">
-                            <span>Base Rental (₹800/hr)</span>
-                            <span class="fw-bold">₹4,800</span>
+                            <span>Base Rental (<asp:Literal ID="litBaseRateCalc" runat="server">₹800/hr</asp:Literal>)</span>
+                            <span class="fw-bold">₹<asp:Literal ID="litSubtotal" runat="server">4,800</asp:Literal></span>
                         </div>
                         <div class="d-flex justify-content-between py-1 text-dark" style="font-size: 0.95rem;">
                             <span>Machinery Transport Charge</span>
@@ -70,7 +79,7 @@
                         </div>
                         <div class="d-flex justify-content-between py-2 border-top mt-2" style="font-size: 1.25rem;">
                             <span class="fw-bold text-dark">Estimated Total</span>
-                            <span class="fw-bold" style="color: #0b6028;">₹5,300</span>
+                            <span class="fw-bold" style="color: #0b6028;">₹<asp:Literal ID="litTotal" runat="server">5,300</asp:Literal></span>
                         </div>
                     </div>
 

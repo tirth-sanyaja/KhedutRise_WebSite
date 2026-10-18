@@ -7,12 +7,23 @@
 namespace KhedutRise {
     
     public partial class BookingConfirm {
-        protected global::System.Web.UI.WebControls.Button btnConfirmBooking;
         protected global::System.Web.UI.WebControls.Content Content1;
-        protected global::System.Web.UI.WebControls.DropDownList ddlPaymentMode;
         protected global::System.Web.UI.WebControls.Label lblBookingMsg;
-        protected global::System.Web.UI.WebControls.TextBox txtAddress;
+        protected global::System.Web.UI.WebControls.Image imgEquipment;
+        protected global::System.Web.UI.WebControls.Literal litModelName;
+        protected global::System.Web.UI.WebControls.Literal litOwnerName;
+        protected global::System.Web.UI.WebControls.Literal litLocation;
+        protected global::System.Web.UI.WebControls.Literal litHorsepower;
+        protected global::System.Web.UI.WebControls.Literal litHourlyRate;
+        protected global::System.Web.UI.WebControls.HiddenField hfEquipmentId;
+        protected global::System.Web.UI.WebControls.HiddenField hfHourlyRate;
         protected global::System.Web.UI.WebControls.TextBox txtBookingDate;
         protected global::System.Web.UI.WebControls.TextBox txtDuration;
+        protected global::System.Web.UI.WebControls.TextBox txtAddress;
+        protected global::System.Web.UI.WebControls.DropDownList ddlPaymentMode;
+        protected global::System.Web.UI.WebControls.Literal litBaseRateCalc;
+        protected global::System.Web.UI.WebControls.Literal litSubtotal;
+        protected global::System.Web.UI.WebControls.Literal litTotal;
+        protected global::System.Web.UI.WebControls.Button btnConfirmBooking;
     }
 }
