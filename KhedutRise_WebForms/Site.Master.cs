@@ -105,65 +105,70 @@ namespace KhedutRise
             string authHtml = "";
             string userIconsHtml = "";
 
+            string userName = Session["UserName"] != null ? Session["UserName"].ToString() : "User";
+
             if (activeRole == "Farmer")
             {
-                // Active Role: Farmer Navigation matching Figma Screens 8, 9, 10
+                // Active Role: Farmer Navigation
                 navHtml = "<ul class='kr-nav-list'>" +
                     "<li><a href='FarmerDashboard.aspx' class='kr-nav-link " + (currentPage == "FarmerDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
-                    "<li><a href='FarmPlots.aspx' class='kr-nav-link " + (currentPage == "FarmPlots.aspx" ? "active" : "") + "'>My Farm</a></li>" +
-                    "<li><a href='MyCrops.aspx' class='kr-nav-link " + (currentPage == "MyCrops.aspx" ? "active" : "") + "'>Crops</a></li>" +
-                    "<li><a href='LandPortal.aspx' class='kr-nav-link " + (currentPage == "LandPortal.aspx" ? "active" : "") + "'>Land Portal</a></li>" +
-                    "<li><a href='AgriServices.aspx' class='kr-nav-link " + (currentPage == "AgriServices.aspx" ? "active" : "") + "'>Agri Services</a></li>" +
-                    "<li><a href='WeatherForecast.aspx' class='kr-nav-link " + (currentPage == "WeatherForecast.aspx" || currentPage == "Community.aspx" ? "active" : "") + "'>Weather & Community</a></li>" +
+                    "<li><a href='MyCrops.aspx' class='kr-nav-link " + (currentPage == "MyCrops.aspx" ? "active" : "") + "'>My Crops</a></li>" +
+                    "<li><a href='SellHarvest.aspx' class='kr-nav-link " + (currentPage == "SellHarvest.aspx" ? "active" : "") + "'>Sell Harvest</a></li>" +
+                    "<li><a href='TractorRentals.aspx' class='kr-nav-link " + (currentPage == "TractorRentals.aspx" ? "active" : "") + "'>Tractor Rentals</a></li>" +
+                    "<li><a href='MyBookings.aspx' class='kr-nav-link " + (currentPage == "MyBookings.aspx" ? "active" : "") + "'>My Bookings</a></li>" +
+                    "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile Settings</a></li>" +
                     "</ul>";
 
-                authHtml = "<a href='Default.aspx?action=logout' class='btn-kr-logout' style='background-color: #ffe4e6; color: #e11d48; border: 1px solid #fecdd3; border-radius: 9999px; padding: 0.4rem 1.4rem; font-weight: 700; text-decoration: none;' title='Log out of farmer account'>LOGOUT</a>";
+                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Farmer)</span>" +
+                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of farmer account'>LOGOUT</a>";
                 userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
             }
             else if (activeRole == "Buyer")
             {
-                // Active Role: Buyer Navigation (Buyer-specific pages)
+                // Active Role: Buyer Navigation
                 navHtml = "<ul class='kr-nav-list'>" +
                     "<li><a href='BuyerDashboard.aspx' class='kr-nav-link " + (currentPage == "BuyerDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
-                    "<li><a href='Marketplace.aspx' class='kr-nav-link " + (currentPage == "Marketplace.aspx" ? "active" : "") + "'>Browse Marketplace</a></li>" +
-                    "<li><a href='MyPurchases.aspx' class='kr-nav-link " + (currentPage == "MyPurchases.aspx" ? "active" : "") + "'>My Orders</a></li>" +
-                    "<li><a href='ApmcRates.aspx' class='kr-nav-link " + (currentPage == "ApmcRates.aspx" ? "active" : "") + "'>Live APMC</a></li>" +
-                    "<li><a href='LandPortal.aspx' class='kr-nav-link " + (currentPage == "LandPortal.aspx" ? "active" : "") + "'>Land Portal</a></li>" +
-                    "<li><a href='Wishlist.aspx' class='kr-nav-link " + (currentPage == "Wishlist.aspx" ? "active" : "") + "'>Wishlist</a></li>" +
+                    "<li><a href='Marketplace.aspx' class='kr-nav-link " + (currentPage == "Marketplace.aspx" ? "active" : "") + "'>Marketplace</a></li>" +
+                    "<li><a href='MyPurchases.aspx' class='kr-nav-link " + (currentPage == "MyPurchases.aspx" ? "active" : "") + "'>My Purchases</a></li>" +
+                    "<li><a href='OrderDetails.aspx' class='kr-nav-link " + (currentPage == "OrderDetails.aspx" ? "active" : "") + "'>Order Tracking</a></li>" +
+                    "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile Settings</a></li>" +
                     "</ul>";
 
-                authHtml = "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of buyer account'>LOGOUT</a>";
+                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Buyer)</span>" +
+                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of buyer account'>LOGOUT</a>";
                 userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
             }
             else if (activeRole == "Operator")
             {
-                // Active Role: Equipment Operator Navigation (Operator-specific pages)
+                // Active Role: Equipment Operator Navigation
                 navHtml = "<ul class='kr-nav-list'>" +
                     "<li><a href='TractorRentals.aspx' class='kr-nav-link " + (currentPage == "TractorRentals.aspx" ? "active" : "") + "'>Tractors & Machinery</a></li>" +
                     "<li><a href='MyBookings.aspx' class='kr-nav-link " + (currentPage == "MyBookings.aspx" ? "active" : "") + "'>My Bookings</a></li>" +
                     "<li><a href='AgriServices.aspx' class='kr-nav-link " + (currentPage == "AgriServices.aspx" ? "active" : "") + "'>Agri Services</a></li>" +
-                    "<li><a href='WeatherForecast.aspx' class='kr-nav-link " + (currentPage == "WeatherForecast.aspx" || currentPage == "Community.aspx" ? "active" : "") + "'>Community</a></li>" +
                     "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile</a></li>" +
                     "</ul>";
 
-                authHtml = "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of operator account'>LOGOUT</a>";
+                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Operator)</span>" +
+                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of operator account'>LOGOUT</a>";
                 userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
             }
             else if (activeRole == "Admin")
             {
-                // Active Role: Admin Navigation (Admin-specific pages)
+                // Active Role: Admin Navigation
                 navHtml = "<ul class='kr-nav-list'>" +
                     "<li><a href='AdminDashboard.aspx' class='kr-nav-link " + (currentPage == "AdminDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
                     "<li><a href='AdminManagement.aspx' class='kr-nav-link " + (currentPage == "AdminManagement.aspx" ? "active" : "") + "'>Platform Management</a></li>" +
                     "<li><a href='AdminAnalytics.aspx' class='kr-nav-link " + (currentPage == "AdminAnalytics.aspx" ? "active" : "") + "'>Analytics</a></li>" +
+                    "<li><a href='AdminSettings.aspx' class='kr-nav-link " + (currentPage == "AdminSettings.aspx" ? "active" : "") + "'>Settings</a></li>" +
                     "</ul>";
 
-                authHtml = "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of admin session'>LOGOUT</a>";
+                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Admin)</span>" +
+                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of admin session'>LOGOUT</a>";
                 userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
             }
             else
             {
-                // Guest / Public Desktop Navigation: Matches Figma screenshots exactly
+                // Guest / Public Desktop Navigation
                 navHtml = "<ul class='kr-nav-list'>" +
                     "<li><a href='Default.aspx' class='kr-nav-link " + (currentPage == "Default.aspx" ? "active" : "") + "'>Home</a></li>" +
                     "<li><a href='Marketplace.aspx' class='kr-nav-link " + (currentPage == "Marketplace.aspx" ? "active" : "") + "'>Marketplace</a></li>" +
@@ -231,15 +236,17 @@ namespace KhedutRise
         // Generate interactive User Profile Dropdown
         private string GetProfileDropdownHtml(string activeRole)
         {
+            string userName = Session["UserName"] != null ? Session["UserName"].ToString() : "User";
+
             if (activeRole == "Farmer")
             {
                 return @"<div class='dropdown d-inline-block'>
                     <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Farmer Profile' style='background: #0b6028; color: #ffffff;'>
                         <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
                     </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 220px; border-radius: 10px; z-index: 1050;'>
+                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 230px; border-radius: 10px; z-index: 1050;'>
                         <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>Sanyaja Tirth</strong>
+                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>" + System.Web.HttpUtility.HtmlEncode(userName) + @"</strong>
                             <span class='badge bg-success-subtle text-success'>Verified Farmer</span>
                         </li>
                         <li><a class='dropdown-item py-2 fw-semibold text-dark' href='FarmerDashboard.aspx'><i class='bi bi-speedometer2 me-2 text-success'></i> Farmer Dashboard</a></li>
@@ -258,13 +265,13 @@ namespace KhedutRise
                     <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Buyer Profile' style='background: #0b6028; color: #ffffff;'>
                         <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
                     </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 220px; border-radius: 10px; z-index: 1050;'>
+                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 230px; border-radius: 10px; z-index: 1050;'>
                         <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>Dev Patel</strong>
+                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>" + System.Web.HttpUtility.HtmlEncode(userName) + @"</strong>
                             <span class='badge bg-primary-subtle text-primary'>Verified Buyer</span>
                         </li>
                         <li><a class='dropdown-item py-2 fw-semibold text-dark' href='BuyerDashboard.aspx'><i class='bi bi-speedometer2 me-2 text-success'></i> Buyer Dashboard</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='MyPurchases.aspx'><i class='bi bi-bag-check me-2 text-success'></i> My Orders</a></li>
+                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='MyPurchases.aspx'><i class='bi bi-bag-check me-2 text-success'></i> My Purchases</a></li>
                         <li><a class='dropdown-item py-2 fw-semibold text-dark' href='Wishlist.aspx'><i class='bi bi-heart me-2 text-danger'></i> My Wishlist</a></li>
                         <li><a class='dropdown-item py-2 fw-semibold text-dark' href='ProfileSettings.aspx'><i class='bi bi-person-gear me-2 text-success'></i> Profile & Settings</a></li>
                         <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminLogin.aspx'><i class='bi bi-shield-lock-fill me-2 text-danger'></i> Admin Portal Login</a></li>
