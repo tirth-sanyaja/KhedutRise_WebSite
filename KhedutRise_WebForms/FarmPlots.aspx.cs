@@ -20,15 +20,27 @@ namespace KhedutRise
         {
             try
             {
+                int farmerId = Session["UserId"] != null ? Convert.ToInt32(Session["UserId"]) : 0;
                 string sql = @"SELECT f.PlotId, f.PlotName, f.AreaAcres, f.Crop, f.Stage, f.Status, f.SoilType, f.FarmerId,
                                       ISNULL(u.FullName, 'Registered Farmer') AS FarmerName, 
                                       ISNULL(u.Location, 'Gujarat Farm') AS Village
                                FROM FarmPlots f
-                               LEFT JOIN Users u ON f.FarmerId = u.UserId
-                               ORDER BY f.PlotId ASC";
+                               LEFT JOIN Users u ON f.FarmerId = u.UserId";
 
-                DataTable dt = DbHelper.ExecuteQuery(sql);
-                if (dt.Rows.Count > 0)
+                DataTable dt;
+                if (farmerId > 0)
+                {
+                    sql += " WHERE f.FarmerId = @FId ORDER BY f.PlotId ASC";
+                    SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@FId", farmerId) };
+                    dt = DbHelper.ExecuteQuery(sql, prms);
+                }
+                else
+                {
+                    sql += " ORDER BY f.PlotId ASC";
+                    dt = DbHelper.ExecuteQuery(sql);
+                }
+
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     rptPlots.DataSource = dt;
                     rptPlots.DataBind();
@@ -37,7 +49,7 @@ namespace KhedutRise
             catch { }
         }
 
-        // CREATE: Add a new farmland plot to the database
+        // CREATE: Add a new farmland plot to the database linked to authenticated FarmerId
         protected void btnAddPlot_Click(object sender, EventArgs e)
         {
             string plotName = txtPlotName.Text.Trim();
@@ -52,17 +64,11 @@ namespace KhedutRise
 
             if (string.IsNullOrWhiteSpace(crop) || string.IsNullOrWhiteSpace(stage)) return;
 
+            int farmerId = Session["UserId"] != null ? Convert.ToInt32(Session["UserId"]) : 1001;
+
             try
             {
-                string sql = "INSERT INTO FarmPlots (PlotName, AreaAcres, Crop, Stage, Status) VALUES (@Name, @Area, @Crop, @Stage, 'Healthy')";
-                SqlParameter[] prms = new SqlParameter[]
-                {
-                    new SqlParameter("@Name", plotName),
-                    new SqlParameter("@Area", area),
-                    new SqlParameter("@Crop", crop),
-                    new SqlParameter("@Stage", stage)
-                };
-                DbHelper.ExecuteNonQuery(sql, prms);
+                FarmPlotRepository.AddPlot(farmerId, plotName, area, crop, stage, "Clayey Loam");
 
                 txtPlotName.Text = "";
                 txtArea.Text = "";
