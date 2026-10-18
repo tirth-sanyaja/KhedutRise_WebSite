@@ -8,6 +8,15 @@ namespace KhedutRise {
     
     public partial class MyBookings {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litUpcomingCount;
+        protected global::System.Web.UI.WebControls.Literal litTotalSpent;
+        protected global::System.Web.UI.WebControls.Panel pnlActiveBooking;
+        protected global::System.Web.UI.WebControls.Image imgActiveBooking;
+        protected global::System.Web.UI.WebControls.Literal litActiveTitle;
+        protected global::System.Web.UI.WebControls.Literal litActiveDetails;
+        protected global::System.Web.UI.WebControls.Literal litActiveStatus;
+        protected global::System.Web.UI.WebControls.Panel pnlNoBookings;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divBookingsTable;
         protected global::System.Web.UI.WebControls.Repeater rptBookings;
     }
 }
