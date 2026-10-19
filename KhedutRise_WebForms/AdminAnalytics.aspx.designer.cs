@@ -8,5 +8,19 @@ namespace KhedutRise {
     
     public partial class AdminAnalytics {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litGeneratedTime;
+        protected global::System.Web.UI.WebControls.Literal litTotalGmv;
+        protected global::System.Web.UI.WebControls.Literal litTotalOrders;
+        protected global::System.Web.UI.WebControls.Literal litActiveOrdersCount;
+        protected global::System.Web.UI.WebControls.Literal litTotalUsers;
+        protected global::System.Web.UI.WebControls.Literal litTotalRentals;
+        protected global::System.Web.UI.WebControls.Literal litBookingsCount;
+        protected global::System.Web.UI.WebControls.Literal litDemographicsTotal;
+        protected global::System.Web.UI.WebControls.Literal litProgressBar;
+        protected global::System.Web.UI.WebControls.Literal litFarmerCountText;
+        protected global::System.Web.UI.WebControls.Literal litBuyerCountText;
+        protected global::System.Web.UI.WebControls.Literal litOperatorCountText;
+        protected global::System.Web.UI.WebControls.Repeater rptCategoryBreakdown;
+        protected global::System.Web.UI.WebControls.Repeater rptRecentOrders;
     }
 }
