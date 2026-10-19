@@ -14,6 +14,10 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.Label lblPendingCount;
         protected global::System.Web.UI.WebControls.Label lblInquiriesCount;
         protected global::System.Web.UI.WebControls.Label lblVerificationRate;
+        protected global::System.Web.UI.WebControls.Literal litDashboardGmv;
+        protected global::System.Web.UI.WebControls.Literal litDashboardOrders;
+        protected global::System.Web.UI.WebControls.Literal litDashboardMachinery;
+        protected global::System.Web.UI.WebControls.Literal litDashboardBookings;
         protected global::System.Web.UI.WebControls.Panel pnlActionAlert;
         protected global::System.Web.UI.WebControls.Label lblActionMsg;
         protected global::System.Web.UI.WebControls.LinkButton btnFilterAll;

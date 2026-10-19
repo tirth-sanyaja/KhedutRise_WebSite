@@ -302,6 +302,37 @@
                     </div>
                 </div>
 
+                <!-- Live Platform Telemetry Strip -->
+                <div class="card p-3 mb-4 rounded-3 border bg-light shadow-sm">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #f0fdf4; color: #16a34a;">
+                                <i class="bi bi-graph-up-arrow fs-5"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted fw-bold d-block" style="font-size: 0.72rem; letter-spacing: 0.5px;">LIVE ECOSYSTEM GMV</small>
+                                <strong class="text-dark fs-6">₹<asp:Literal ID="litDashboardGmv" runat="server">0</asp:Literal></strong>
+                                <small class="text-muted"> across <asp:Literal ID="litDashboardOrders" runat="server">0</asp:Literal> harvest orders</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #fffbeb; color: #d97706;">
+                                <i class="bi bi-truck fs-5"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted fw-bold d-block" style="font-size: 0.72rem; letter-spacing: 0.5px;">MACHINERY FLEET</small>
+                                <strong class="text-dark fs-6"><asp:Literal ID="litDashboardMachinery" runat="server">3 Units</asp:Literal></strong>
+                                <small class="text-muted"> • <asp:Literal ID="litDashboardBookings" runat="server">0</asp:Literal> bookings</small>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="AdminAnalytics.aspx" class="btn btn-sm btn-outline-success fw-bold px-3 py-1 rounded-pill">
+                                View Full Analytics <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Action Notification Banner -->
                 <asp:Panel ID="pnlActionAlert" runat="server" Visible="false" CssClass="alert alert-success alert-dismissible fade show p-3 mb-4 rounded-3 shadow-sm border-0" role="alert">
                     <div class="d-flex align-items-center">

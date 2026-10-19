@@ -9,6 +9,13 @@ namespace KhedutRise
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Enforce administrator role security
+            if (Session["UserRole"] == null || Session["UserRole"].ToString() != "Admin")
+            {
+                Response.Redirect("AdminLogin.aspx?error=admin_required");
+                return;
+            }
+
             if (!IsPostBack)
             {
                 if (litCurrentDate != null)
@@ -108,6 +115,24 @@ namespace KhedutRise
                 DataTable dtInq = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM ContactInquiries");
                 int inqCount = dtInq.Rows.Count > 0 ? Convert.ToInt32(dtInq.Rows[0][0]) : 0;
                 lblInquiriesCount.Text = inqCount.ToString();
+
+                // Live Platform Telemetry Strip
+                DataTable dtOrders = DbHelper.ExecuteQuery("SELECT COUNT(*), ISNULL(SUM(TotalPrice), 0) FROM Orders");
+                if (dtOrders != null && dtOrders.Rows.Count > 0)
+                {
+                    int ordersCount = Convert.ToInt32(dtOrders.Rows[0][0]);
+                    decimal totalGmv = Convert.ToDecimal(dtOrders.Rows[0][1]);
+                    litDashboardGmv.Text = totalGmv.ToString("N0");
+                    litDashboardOrders.Text = ordersCount.ToString();
+                }
+
+                DataTable dtMachinery = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Equipments");
+                int totalUnits = dtMachinery.Rows.Count > 0 ? Convert.ToInt32(dtMachinery.Rows[0][0]) : 0;
+                litDashboardMachinery.Text = totalUnits.ToString() + " Units";
+
+                DataTable dtBookings = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Bookings");
+                int bookingsCount = dtBookings.Rows.Count > 0 ? Convert.ToInt32(dtBookings.Rows[0][0]) : 0;
+                litDashboardBookings.Text = bookingsCount.ToString();
             }
             catch { }
         }
