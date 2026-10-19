@@ -9,6 +9,13 @@ namespace KhedutRise
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Enforce administrator role security
+            if (Session["UserRole"] == null || Session["UserRole"].ToString() != "Admin")
+            {
+                Response.Redirect("AdminLogin.aspx?error=admin_required");
+                return;
+            }
+
             if (!IsPostBack)
             {
                 string tabQuery = Request.QueryString["tab"];
