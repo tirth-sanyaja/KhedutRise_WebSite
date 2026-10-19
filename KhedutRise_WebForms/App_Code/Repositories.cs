@@ -532,5 +532,21 @@ namespace KhedutRise
             SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@FId", farmerId) };
             return DbHelper.ExecuteQuery(sql, prms);
         }
+
+        // Live Recent Orders for Admin Telemetry
+        public static DataTable GetRecentPlatformOrders(int limit = 5)
+        {
+            string sql = @"
+            SELECT TOP (@Limit) 
+                o.OrderId, o.Commodity, o.Quantity, o.TotalPrice, o.OrderDate, o.Status,
+                ISNULL(uBuyer.FullName, o.BuyerName) AS BuyerName,
+                ISNULL(uFarmer.FullName, o.FarmerName) AS FarmerName
+            FROM Orders o
+            LEFT JOIN Users uBuyer ON o.BuyerId = uBuyer.UserId
+            LEFT JOIN Users uFarmer ON o.FarmerId = uFarmer.UserId
+            ORDER BY o.OrderId DESC";
+            SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Limit", limit) };
+            return DbHelper.ExecuteQuery(sql, prms);
+        }
     }
 }
