@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Web.UI.WebControls;
 
 namespace KhedutRise
 {
-    //  Platform Management & Moderation - Real Approve/Reject/Delete workflow across all fields
+    // Platform Management & Moderation - Clean approve, reject, and delete workflows
     public partial class AdminManagement : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
@@ -141,12 +143,14 @@ namespace KhedutRise
             }
         }
 
-        // 1. Fetch Users
+        // 1. Fetch Users & Counts in single queries
         private void LoadUsers(string roleCategory, string statusFilter)
         {
             try
             {
                 string sql = "SELECT * FROM Users WHERE 1=1";
+                List<SqlParameter> prms = new List<SqlParameter>();
+
                 if (roleCategory == "Farmer")
                 {
                     sql += " AND UserRole = 'Farmer'";
@@ -170,26 +174,32 @@ namespace KhedutRise
                 }
                 sql += " ORDER BY UserId DESC";
 
-                DataTable dt = DbHelper.ExecuteQuery(sql);
+                DataTable dt = DbHelper.ExecuteQuery(sql, prms.Count > 0 ? prms.ToArray() : null);
                 rptModeration.DataSource = dt;
                 rptModeration.DataBind();
 
-                // Compute counts
-                string roleClause = "";
-                if (roleCategory == "Farmer") roleClause = " WHERE UserRole = 'Farmer'";
-                else if (roleCategory == "Buyer") roleClause = " WHERE UserRole = 'Buyer'";
+                // Compute counts in a single efficient query
+                string roleFilterClause = "";
+                if (roleCategory == "Farmer") roleFilterClause = " WHERE UserRole = 'Farmer'";
+                else if (roleCategory == "Buyer") roleFilterClause = " WHERE UserRole = 'Buyer'";
 
-                string wherePrefix = string.IsNullOrEmpty(roleClause) ? " WHERE " : roleClause + " AND ";
+                string countSql = string.Format(@"
+                    SELECT 
+                        COUNT(*) AS TotalCount,
+                        ISNULL(SUM(CASE WHEN Status IN ('Verified', 'Approved') THEN 1 ELSE 0 END), 0) AS ApprovedCount,
+                        ISNULL(SUM(CASE WHEN Status = 'Pending' THEN 1 ELSE 0 END), 0) AS PendingCount,
+                        ISNULL(SUM(CASE WHEN Status = 'Rejected' THEN 1 ELSE 0 END), 0) AS RejectedCount
+                    FROM Users {0}", roleFilterClause);
 
-                DataTable dtTotal = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users" + roleClause);
-                DataTable dtApp = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users" + wherePrefix + "(Status = 'Verified' OR Status = 'Approved')");
-                DataTable dtPend = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users" + wherePrefix + "Status = 'Pending'");
-                DataTable dtRej = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users" + wherePrefix + "Status = 'Rejected'");
-
-                lblTotalCount.Text = dtTotal.Rows[0][0].ToString();
-                lblApprovedCount.Text = dtApp.Rows[0][0].ToString();
-                lblPendingCount.Text = dtPend.Rows[0][0].ToString();
-                lblRejectedCount.Text = dtRej.Rows[0][0].ToString();
+                DataTable dtCounts = DbHelper.ExecuteQuery(countSql);
+                if (dtCounts != null && dtCounts.Rows.Count > 0)
+                {
+                    DataRow r = dtCounts.Rows[0];
+                    lblTotalCount.Text = r["TotalCount"].ToString();
+                    lblApprovedCount.Text = r["ApprovedCount"].ToString();
+                    lblPendingCount.Text = r["PendingCount"].ToString();
+                    lblRejectedCount.Text = r["RejectedCount"].ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -197,7 +207,7 @@ namespace KhedutRise
             }
         }
 
-        // 2. Fetch Crop Products with SQL LEFT JOIN on Users (via FarmerId Foreign Key)
+        // 2. Fetch Crop Products with SQL LEFT JOIN on Users
         private void LoadProducts(string statusFilter)
         {
             try
@@ -224,14 +234,23 @@ namespace KhedutRise
                 rptProducts.DataSource = dt;
                 rptProducts.DataBind();
 
-                DataTable dtTotal = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Products");
-                DataTable dtApp = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Products WHERE IsApproved = 1");
-                DataTable dtRej = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Products WHERE IsApproved = 0");
+                // Compute product counts in a single query
+                string countSql = @"
+                    SELECT 
+                        COUNT(*) AS TotalCount,
+                        ISNULL(SUM(CASE WHEN IsApproved = 1 THEN 1 ELSE 0 END), 0) AS ApprovedCount,
+                        ISNULL(SUM(CASE WHEN IsApproved = 0 THEN 1 ELSE 0 END), 0) AS RejectedCount
+                    FROM Products";
 
-                lblTotalCount.Text = dtTotal.Rows[0][0].ToString();
-                lblApprovedCount.Text = dtApp.Rows[0][0].ToString();
-                lblPendingCount.Text = "0";
-                lblRejectedCount.Text = dtRej.Rows[0][0].ToString();
+                DataTable dtCounts = DbHelper.ExecuteQuery(countSql);
+                if (dtCounts != null && dtCounts.Rows.Count > 0)
+                {
+                    DataRow r = dtCounts.Rows[0];
+                    lblTotalCount.Text = r["TotalCount"].ToString();
+                    lblApprovedCount.Text = r["ApprovedCount"].ToString();
+                    lblPendingCount.Text = "0";
+                    lblRejectedCount.Text = r["RejectedCount"].ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -239,7 +258,7 @@ namespace KhedutRise
             }
         }
 
-        // 3. Fetch Land Listings with SQL LEFT JOIN on Users (via SellerId Foreign Key)
+        // 3. Fetch Land Listings with SQL LEFT JOIN on Users
         private void LoadLandListings(string statusFilter)
         {
             try
@@ -268,15 +287,24 @@ namespace KhedutRise
                 rptLand.DataSource = dt;
                 rptLand.DataBind();
 
-                DataTable dtTotal = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM LandListings");
-                DataTable dtApp = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM LandListings WHERE Status = 'Approved' OR Status = 'Verified'");
-                DataTable dtPend = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM LandListings WHERE Status = 'Pending'");
-                DataTable dtRej = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM LandListings WHERE Status = 'Rejected'");
+                // Compute land listing counts in a single query
+                string countSql = @"
+                    SELECT 
+                        COUNT(*) AS TotalCount,
+                        ISNULL(SUM(CASE WHEN Status IN ('Approved', 'Verified') THEN 1 ELSE 0 END), 0) AS ApprovedCount,
+                        ISNULL(SUM(CASE WHEN Status = 'Pending' THEN 1 ELSE 0 END), 0) AS PendingCount,
+                        ISNULL(SUM(CASE WHEN Status = 'Rejected' THEN 1 ELSE 0 END), 0) AS RejectedCount
+                    FROM LandListings";
 
-                lblTotalCount.Text = dtTotal.Rows[0][0].ToString();
-                lblApprovedCount.Text = dtApp.Rows[0][0].ToString();
-                lblPendingCount.Text = dtPend.Rows[0][0].ToString();
-                lblRejectedCount.Text = dtRej.Rows[0][0].ToString();
+                DataTable dtCounts = DbHelper.ExecuteQuery(countSql);
+                if (dtCounts != null && dtCounts.Rows.Count > 0)
+                {
+                    DataRow r = dtCounts.Rows[0];
+                    lblTotalCount.Text = r["TotalCount"].ToString();
+                    lblApprovedCount.Text = r["ApprovedCount"].ToString();
+                    lblPendingCount.Text = r["PendingCount"].ToString();
+                    lblRejectedCount.Text = r["RejectedCount"].ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -291,25 +319,28 @@ namespace KhedutRise
             try
             {
                 string userName = "User #" + userId;
-                DataTable dt = DbHelper.ExecuteQuery("SELECT FullName, UserRole FROM Users WHERE UserId = " + userId);
+                SqlParameter[] selPrms = new SqlParameter[] { new SqlParameter("@Id", userId) };
+                DataTable dt = DbHelper.ExecuteQuery("SELECT FullName, UserRole FROM Users WHERE UserId = @Id", selPrms);
                 if (dt.Rows.Count > 0)
                 {
                     userName = dt.Rows[0]["FullName"].ToString() + " (" + dt.Rows[0]["UserRole"].ToString() + ")";
                 }
 
+                SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Id", userId) };
+
                 if (e.CommandName == "Approve")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Verified' WHERE UserId = " + userId);
+                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Verified' WHERE UserId = @Id", prms);
                     ShowAlert(" APPROVED: Account for <b>" + userName + "</b> has been approved successfully!", true);
                 }
                 else if (e.CommandName == "Reject")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Rejected' WHERE UserId = " + userId);
+                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Rejected' WHERE UserId = @Id", prms);
                     ShowAlert(" REJECTED: Account for <b>" + userName + "</b> has been marked as Rejected.", false);
                 }
                 else if (e.CommandName == "DeleteUser")
                 {
-                    DbHelper.ExecuteNonQuery("DELETE FROM Users WHERE UserId = " + userId);
+                    DbHelper.ExecuteNonQuery("DELETE FROM Users WHERE UserId = @Id", prms);
                     ShowAlert(" DELETED: Account for <b>" + userName + "</b> was permanently removed.", false);
                 }
 
@@ -328,22 +359,25 @@ namespace KhedutRise
             try
             {
                 string pName = "Product #" + productId;
-                DataTable dt = DbHelper.ExecuteQuery("SELECT ProductName FROM Products WHERE ProductId = " + productId);
+                SqlParameter[] selPrms = new SqlParameter[] { new SqlParameter("@Id", productId) };
+                DataTable dt = DbHelper.ExecuteQuery("SELECT ProductName FROM Products WHERE ProductId = @Id", selPrms);
                 if (dt.Rows.Count > 0) pName = dt.Rows[0]["ProductName"].ToString();
+
+                SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Id", productId) };
 
                 if (e.CommandName == "ApproveProduct")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Products SET IsApproved = 1 WHERE ProductId = " + productId);
+                    DbHelper.ExecuteNonQuery("UPDATE Products SET IsApproved = 1 WHERE ProductId = @Id", prms);
                     ShowAlert(" APPROVED: Crop listing <b>" + pName + "</b> is now approved and visible in the Marketplace!", true);
                 }
                 else if (e.CommandName == "RejectProduct")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Products SET IsApproved = 0 WHERE ProductId = " + productId);
+                    DbHelper.ExecuteNonQuery("UPDATE Products SET IsApproved = 0 WHERE ProductId = @Id", prms);
                     ShowAlert(" REJECTED: Crop listing <b>" + pName + "</b> has been rejected.", false);
                 }
                 else if (e.CommandName == "DeleteProduct")
                 {
-                    DbHelper.ExecuteNonQuery("DELETE FROM Products WHERE ProductId = " + productId);
+                    DbHelper.ExecuteNonQuery("DELETE FROM Products WHERE ProductId = @Id", prms);
                     ShowAlert(" DELETED: Crop listing <b>" + pName + "</b> was removed.", false);
                 }
 
@@ -362,22 +396,25 @@ namespace KhedutRise
             try
             {
                 string title = "Land #" + landId;
-                DataTable dt = DbHelper.ExecuteQuery("SELECT Title FROM LandListings WHERE LandId = " + landId);
+                SqlParameter[] selPrms = new SqlParameter[] { new SqlParameter("@Id", landId) };
+                DataTable dt = DbHelper.ExecuteQuery("SELECT Title FROM LandListings WHERE LandId = @Id", selPrms);
                 if (dt.Rows.Count > 0) title = dt.Rows[0]["Title"].ToString();
+
+                SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Id", landId) };
 
                 if (e.CommandName == "ApproveLand")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE LandListings SET Status = 'Approved' WHERE LandId = " + landId);
+                    DbHelper.ExecuteNonQuery("UPDATE LandListings SET Status = 'Approved' WHERE LandId = @Id", prms);
                     ShowAlert(" APPROVED: Land plot <b>" + title + "</b> has been approved!", true);
                 }
                 else if (e.CommandName == "RejectLand")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE LandListings SET Status = 'Rejected' WHERE LandId = " + landId);
+                    DbHelper.ExecuteNonQuery("UPDATE LandListings SET Status = 'Rejected' WHERE LandId = @Id", prms);
                     ShowAlert(" REJECTED: Land plot <b>" + title + "</b> has been rejected.", false);
                 }
                 else if (e.CommandName == "DeleteLand")
                 {
-                    DbHelper.ExecuteNonQuery("DELETE FROM LandListings WHERE LandId = " + landId);
+                    DbHelper.ExecuteNonQuery("DELETE FROM LandListings WHERE LandId = @Id", prms);
                     ShowAlert(" DELETED: Land plot <b>" + title + "</b> was removed.", false);
                 }
 
@@ -398,30 +435,23 @@ namespace KhedutRise
             pnlAlert.Visible = true;
         }
 
+        private void SetPillStyle(LinkButton btn, bool isActive)
+        {
+            if (btn == null) return;
+            btn.CssClass = isActive 
+                ? "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none" 
+                : "btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark";
+            btn.Style["background-color"] = isActive ? "#0b6028" : "#ffffff";
+            btn.Style["border"] = isActive ? "1px solid #0b6028" : "1px solid #d1d5db";
+        }
+
         private void UpdatePillStyles(string cat)
         {
-            string activeStyle = "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none";
-            string inactiveStyle = "btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark";
-
-            btnFarmers.CssClass = (cat == "Farmer") ? activeStyle : inactiveStyle;
-            btnFarmers.Style["background-color"] = (cat == "Farmer") ? "#0b6028" : "#ffffff";
-            btnFarmers.Style["border"] = (cat == "Farmer") ? "1px solid #0b6028" : "1px solid #d1d5db";
-
-            btnBuyers.CssClass = (cat == "Buyer") ? activeStyle : inactiveStyle;
-            btnBuyers.Style["background-color"] = (cat == "Buyer") ? "#0b6028" : "#ffffff";
-            btnBuyers.Style["border"] = (cat == "Buyer") ? "1px solid #0b6028" : "1px solid #d1d5db";
-
-            btnModeration.CssClass = (cat == "Moderation") ? activeStyle : inactiveStyle;
-            btnModeration.Style["background-color"] = (cat == "Moderation") ? "#0b6028" : "#ffffff";
-            btnModeration.Style["border"] = (cat == "Moderation") ? "1px solid #0b6028" : "1px solid #d1d5db";
-
-            btnProducts.CssClass = (cat == "Products") ? activeStyle : inactiveStyle;
-            btnProducts.Style["background-color"] = (cat == "Products") ? "#0b6028" : "#ffffff";
-            btnProducts.Style["border"] = (cat == "Products") ? "1px solid #0b6028" : "1px solid #d1d5db";
-
-            btnLandListings.CssClass = (cat == "LandListings") ? activeStyle : inactiveStyle;
-            btnLandListings.Style["background-color"] = (cat == "LandListings") ? "#0b6028" : "#ffffff";
-            btnLandListings.Style["border"] = (cat == "LandListings") ? "1px solid #0b6028" : "1px solid #d1d5db";
+            SetPillStyle(btnFarmers, cat == "Farmer");
+            SetPillStyle(btnBuyers, cat == "Buyer");
+            SetPillStyle(btnModeration, cat == "Moderation");
+            SetPillStyle(btnProducts, cat == "Products");
+            SetPillStyle(btnLandListings, cat == "LandListings");
         }
 
         private void UpdateStatusButtonStyles(string status)

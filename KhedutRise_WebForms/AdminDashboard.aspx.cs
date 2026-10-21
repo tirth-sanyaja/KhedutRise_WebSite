@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Web.UI.WebControls;
 
 namespace KhedutRise
@@ -36,9 +38,11 @@ namespace KhedutRise
             try
             {
                 string sql = "SELECT * FROM Users WHERE 1=1";
+                List<SqlParameter> prms = new List<SqlParameter>();
+
                 if (statusFilter == "Pending")
                 {
-                    sql += " AND (Status = 'Pending')";
+                    sql += " AND Status = 'Pending'";
                 }
                 else if (statusFilter == "Verified")
                 {
@@ -46,18 +50,18 @@ namespace KhedutRise
                 }
                 else if (statusFilter == "Rejected")
                 {
-                    sql += " AND (Status = 'Rejected')";
+                    sql += " AND Status = 'Rejected'";
                 }
 
                 if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
-                    string safeTerm = searchTerm.Trim().Replace("'", "''");
-                    sql += " AND (FullName LIKE '%" + safeTerm + "%' OR MobileNo LIKE '%" + safeTerm + "%' OR Location LIKE '%" + safeTerm + "%' OR UserRole LIKE '%" + safeTerm + "%')";
+                    sql += " AND (FullName LIKE @Search OR MobileNo LIKE @Search OR Location LIKE @Search OR UserRole LIKE @Search)";
+                    prms.Add(new SqlParameter("@Search", "%" + searchTerm.Trim() + "%"));
                 }
 
                 sql += " ORDER BY UserId DESC";
 
-                DataTable dt = DbHelper.ExecuteQuery(sql);
+                DataTable dt = DbHelper.ExecuteQuery(sql, prms.Count > 0 ? prms.ToArray() : null);
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     rptPending.Visible = true;
@@ -79,60 +83,64 @@ namespace KhedutRise
             }
         }
 
-        // Calculate and display live counts across the platform
+        // Calculate and display live counts across the platform using clean consolidated queries
         private void UpdateKpis()
         {
             try
             {
-                // Total users count
-                DataTable dtTotal = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users");
-                int totalUsers = dtTotal.Rows.Count > 0 ? Convert.ToInt32(dtTotal.Rows[0][0]) : 0;
-                lblTotalUsers.Text = totalUsers.ToString();
-                litAllCount.Text = totalUsers.ToString();
+                // 1. Single query for all user status metrics
+                string userMetricsSql = @"
+                    SELECT 
+                        COUNT(*) AS TotalUsers,
+                        ISNULL(SUM(CASE WHEN Status IN ('Verified', 'Approved') THEN 1 ELSE 0 END), 0) AS ApprovedUsers,
+                        ISNULL(SUM(CASE WHEN Status = 'Pending' THEN 1 ELSE 0 END), 0) AS PendingUsers,
+                        ISNULL(SUM(CASE WHEN Status = 'Rejected' THEN 1 ELSE 0 END), 0) AS RejectedUsers
+                    FROM Users";
+                DataTable dtUsers = DbHelper.ExecuteQuery(userMetricsSql);
+                if (dtUsers != null && dtUsers.Rows.Count > 0)
+                {
+                    DataRow r = dtUsers.Rows[0];
+                    int totalUsers = Convert.ToInt32(r["TotalUsers"]);
+                    int approvedUsers = Convert.ToInt32(r["ApprovedUsers"]);
+                    int pendingUsers = Convert.ToInt32(r["PendingUsers"]);
+                    int rejectedUsers = Convert.ToInt32(r["RejectedUsers"]);
 
-                // Approved / Verified users count
-                DataTable dtApproved = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users WHERE Status = 'Verified' OR Status = 'Approved'");
-                int approvedUsers = dtApproved.Rows.Count > 0 ? Convert.ToInt32(dtApproved.Rows[0][0]) : 0;
-                lblApprovedCount.Text = approvedUsers.ToString();
-                litVerifiedCount.Text = approvedUsers.ToString();
+                    lblTotalUsers.Text = totalUsers.ToString();
+                    litAllCount.Text = totalUsers.ToString();
 
-                // Pending users count
-                DataTable dtPending = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users WHERE Status = 'Pending'");
-                int pendingUsers = dtPending.Rows.Count > 0 ? Convert.ToInt32(dtPending.Rows[0][0]) : 0;
-                lblPendingCount.Text = pendingUsers.ToString();
-                litPendingCount.Text = pendingUsers.ToString();
+                    lblApprovedCount.Text = approvedUsers.ToString();
+                    litVerifiedCount.Text = approvedUsers.ToString();
 
-                // Rejected users count
-                DataTable dtRejected = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Users WHERE Status = 'Rejected'");
-                int rejectedUsers = dtRejected.Rows.Count > 0 ? Convert.ToInt32(dtRejected.Rows[0][0]) : 0;
-                litRejectedCount.Text = rejectedUsers.ToString();
+                    lblPendingCount.Text = pendingUsers.ToString();
+                    litPendingCount.Text = pendingUsers.ToString();
 
-                // Verification percentage
-                int verRate = totalUsers > 0 ? (int)Math.Round((double)approvedUsers / totalUsers * 100) : 100;
-                lblVerificationRate.Text = verRate + "% Verified";
+                    litRejectedCount.Text = rejectedUsers.ToString();
 
-                // Inquiries count
-                DataTable dtInq = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM ContactInquiries");
-                int inqCount = dtInq.Rows.Count > 0 ? Convert.ToInt32(dtInq.Rows[0][0]) : 0;
-                lblInquiriesCount.Text = inqCount.ToString();
+                    int verRate = totalUsers > 0 ? (int)Math.Round((double)approvedUsers / totalUsers * 100) : 100;
+                    lblVerificationRate.Text = verRate + "% Verified";
+                }
 
-                // Live Platform Telemetry Strip
+                // 2. Orders telemetry
                 DataTable dtOrders = DbHelper.ExecuteQuery("SELECT COUNT(*), ISNULL(SUM(TotalPrice), 0) FROM Orders");
                 if (dtOrders != null && dtOrders.Rows.Count > 0)
                 {
-                    int ordersCount = Convert.ToInt32(dtOrders.Rows[0][0]);
-                    decimal totalGmv = Convert.ToDecimal(dtOrders.Rows[0][1]);
-                    litDashboardGmv.Text = totalGmv.ToString("N0");
-                    litDashboardOrders.Text = ordersCount.ToString();
+                    litDashboardOrders.Text = dtOrders.Rows[0][0].ToString();
+                    litDashboardGmv.Text = Convert.ToDecimal(dtOrders.Rows[0][1]).ToString("N0");
                 }
 
-                DataTable dtMachinery = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Equipments");
-                int totalUnits = dtMachinery.Rows.Count > 0 ? Convert.ToInt32(dtMachinery.Rows[0][0]) : 0;
-                litDashboardMachinery.Text = totalUnits.ToString() + " Units";
-
-                DataTable dtBookings = DbHelper.ExecuteQuery("SELECT COUNT(*) FROM Bookings");
-                int bookingsCount = dtBookings.Rows.Count > 0 ? Convert.ToInt32(dtBookings.Rows[0][0]) : 0;
-                litDashboardBookings.Text = bookingsCount.ToString();
+                // 3. Consolidated counts for machinery, bookings, and inquiries
+                string telemetrySql = @"
+                    SELECT 
+                        (SELECT COUNT(*) FROM Equipments) AS MachineryCount,
+                        (SELECT COUNT(*) FROM Bookings) AS BookingsCount,
+                        (SELECT COUNT(*) FROM ContactInquiries) AS InquiriesCount";
+                DataTable dtTelemetry = DbHelper.ExecuteQuery(telemetrySql);
+                if (dtTelemetry != null && dtTelemetry.Rows.Count > 0)
+                {
+                    litDashboardMachinery.Text = dtTelemetry.Rows[0]["MachineryCount"].ToString() + " Units";
+                    litDashboardBookings.Text = dtTelemetry.Rows[0]["BookingsCount"].ToString();
+                    lblInquiriesCount.Text = dtTelemetry.Rows[0]["InquiriesCount"].ToString();
+                }
             }
             catch { }
         }
@@ -264,22 +272,25 @@ namespace KhedutRise
             try
             {
                 string userName = "User #" + userId;
-                DataTable dtUser = DbHelper.ExecuteQuery("SELECT FullName, UserRole FROM Users WHERE UserId = " + userId);
+                SqlParameter[] selPrms = new SqlParameter[] { new SqlParameter("@Id", userId) };
+                DataTable dtUser = DbHelper.ExecuteQuery("SELECT FullName, UserRole FROM Users WHERE UserId = @Id", selPrms);
                 if (dtUser.Rows.Count > 0)
                 {
                     userName = dtUser.Rows[0]["FullName"].ToString() + " (" + dtUser.Rows[0]["UserRole"].ToString() + ")";
                 }
 
+                SqlParameter[] updPrms = new SqlParameter[] { new SqlParameter("@Id", userId) };
+
                 if (e.CommandName == "Approve")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Verified' WHERE UserId = " + userId);
+                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Verified' WHERE UserId = @Id", updPrms);
                     lblActionMsg.Text = " <strong>Success!</strong> " + userName + " has been approved and granted active platform status.";
                     pnlActionAlert.CssClass = "alert alert-success alert-dismissible fade show p-3 mb-4 rounded-3 shadow-sm";
                     pnlActionAlert.Visible = true;
                 }
                 else if (e.CommandName == "Reject")
                 {
-                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Rejected' WHERE UserId = " + userId);
+                    DbHelper.ExecuteNonQuery("UPDATE Users SET Status = 'Rejected' WHERE UserId = @Id", updPrms);
                     lblActionMsg.Text = " <strong>Notice:</strong> " + userName + " registration has been marked as Rejected.";
                     pnlActionAlert.CssClass = "alert alert-danger alert-dismissible fade show p-3 mb-4 rounded-3 shadow-sm";
                     pnlActionAlert.Visible = true;

@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="mb-4">
             <small class="text-muted"><a href="Default.aspx" class="text-decoration-none text-muted">Home</a> / Buyer Dashboard</small>
-            <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">Good Morning, Dev Patel</h2>
+            <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">Good Morning, <asp:Literal ID="litBuyerGreeting" runat="server">Buyer</asp:Literal></h2>
             <p class="text-muted small mb-0">Manage your purchases, direct orders and escrow payments.</p>
         </div>
 

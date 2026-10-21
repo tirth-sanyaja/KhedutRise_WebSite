@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Web.UI;
 
 namespace KhedutRise
@@ -7,6 +9,32 @@ namespace KhedutRise
     // Master page logic: Manages user roles, enforces route protection, and renders clean desktop & mobile navigation
     public partial class Site : System.Web.UI.MasterPage
     {
+        private class NavItem
+        {
+            public string Url { get; set; }
+            public string Title { get; set; }
+            public NavItem(string url, string title) { Url = url; Title = title; }
+        }
+
+        private class DropdownItem
+        {
+            public string Url { get; set; }
+            public string Title { get; set; }
+            public string Icon { get; set; }
+            public string TextColor { get; set; }
+            public bool IsDivider { get; set; }
+
+            public DropdownItem(string url, string title, string icon, string textColor = "text-dark")
+            {
+                Url = url; Title = title; Icon = icon; TextColor = textColor; IsDivider = false;
+            }
+
+            public DropdownItem(bool isDivider)
+            {
+                IsDivider = isDivider;
+            }
+        }
+
         protected void Page_Init(object sender, EventArgs e)
         {
             // Handle user logout action when requested via query parameter
@@ -23,36 +51,14 @@ namespace KhedutRise
             // Read active role from Session
             string activeRole = Session["UserRole"] != null ? Session["UserRole"].ToString() : "";
 
-            // =========================================================================
-            // ROUTE-LEVEL ACCESS CONTROL
-            // =========================================================================
+            // Route-level page definitions
+            string[] farmerPages = { "FarmerDashboard.aspx", "FarmPlots.aspx", "MyCrops.aspx", "SellHarvest.aspx" };
+            string[] buyerPages = { "BuyerDashboard.aspx", "MyPurchases.aspx", "OrderDetails.aspx", "Wishlist.aspx" };
+            string[] operatorPages = { "MyBookings.aspx" };
+            string[] adminPages = { "AdminDashboard.aspx", "AdminManagement.aspx", "AdminAnalytics.aspx", "AdminSettings.aspx" };
+            string[] authenticatedActionPages = { "BookingConfirm.aspx", "ProfileSettings.aspx" };
 
-            // List of pages strictly exclusive to the Farmer role
-            string[] farmerPages = {
-                "FarmerDashboard.aspx", "FarmPlots.aspx", "MyCrops.aspx", "SellHarvest.aspx"
-            };
-
-            // List of pages strictly exclusive to the Buyer role
-            string[] buyerPages = {
-                "BuyerDashboard.aspx", "MyPurchases.aspx", "OrderDetails.aspx", "Wishlist.aspx"
-            };
-
-            // List of pages strictly exclusive to the Operator role
-            string[] operatorPages = {
-                "MyBookings.aspx"
-            };
-
-            // List of pages strictly exclusive to the Admin role
-            string[] adminPages = {
-                "AdminDashboard.aspx", "AdminManagement.aspx", "AdminAnalytics.aspx", "AdminSettings.aspx"
-            };
-
-            // Pages that require ANY authenticated role (Guest cannot proceed with actions)
-            string[] authenticatedActionPages = {
-                "BookingConfirm.aspx", "ProfileSettings.aspx"
-            };
-
-            // 1. PostBack Protection: Actions/mutations on role-exclusive routes require registration/login
+            // 1. PostBack Protection: Actions on role-exclusive routes require registration/login
             if (Page.IsPostBack)
             {
                 if (Array.IndexOf(adminPages, currentPage) >= 0 && activeRole != "Admin")
@@ -74,7 +80,6 @@ namespace KhedutRise
             }
 
             // 2. Read-Only / Preview Mode for Guest:
-            // Guest users are allowed to VIEW all 32 pages, but are notified of read-only mode on role-specific pages
             if (string.IsNullOrEmpty(activeRole))
             {
                 bool isRoleExclusive = Array.IndexOf(farmerPages, currentPage) >= 0 ||
@@ -98,102 +103,95 @@ namespace KhedutRise
             BuildNavigation(currentPage, activeRole);
         }
 
-        // Dynamically build single-line navigation matching active role
         private void BuildNavigation(string currentPage, string activeRole)
         {
-            string navHtml = "";
-            string authHtml = "";
-            string userIconsHtml = "";
-
             string userName = Session["UserName"] != null ? Session["UserName"].ToString() : "User";
+            List<NavItem> navItems = GetNavItemsForRole(activeRole);
 
-            if (activeRole == "Farmer")
+            // Render navigation links
+            StringBuilder sbNav = new StringBuilder();
+            sbNav.Append("<ul class='kr-nav-list'>");
+            foreach (var item in navItems)
             {
-                // Active Role: Farmer Navigation
-                navHtml = "<ul class='kr-nav-list'>" +
-                    "<li><a href='FarmerDashboard.aspx' class='kr-nav-link " + (currentPage == "FarmerDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
-                    "<li><a href='MyCrops.aspx' class='kr-nav-link " + (currentPage == "MyCrops.aspx" ? "active" : "") + "'>My Crops</a></li>" +
-                    "<li><a href='SellHarvest.aspx' class='kr-nav-link " + (currentPage == "SellHarvest.aspx" ? "active" : "") + "'>Sell Harvest</a></li>" +
-                    "<li><a href='TractorRentals.aspx' class='kr-nav-link " + (currentPage == "TractorRentals.aspx" ? "active" : "") + "'>Tractor Rentals</a></li>" +
-                    "<li><a href='MyBookings.aspx' class='kr-nav-link " + (currentPage == "MyBookings.aspx" ? "active" : "") + "'>My Bookings</a></li>" +
-                    "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile Settings</a></li>" +
-                    "</ul>";
-
-                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Farmer)</span>" +
-                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of farmer account'>LOGOUT</a>";
-                userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
+                string activeClass = (currentPage == item.Url) ? "active" : "";
+                sbNav.AppendFormat("<li><a href='{0}' class='kr-nav-link {1}'>{2}</a></li>", item.Url, activeClass, item.Title);
             }
-            else if (activeRole == "Buyer")
-            {
-                // Active Role: Buyer Navigation
-                navHtml = "<ul class='kr-nav-list'>" +
-                    "<li><a href='BuyerDashboard.aspx' class='kr-nav-link " + (currentPage == "BuyerDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
-                    "<li><a href='Marketplace.aspx' class='kr-nav-link " + (currentPage == "Marketplace.aspx" ? "active" : "") + "'>Marketplace</a></li>" +
-                    "<li><a href='MyPurchases.aspx' class='kr-nav-link " + (currentPage == "MyPurchases.aspx" ? "active" : "") + "'>My Purchases</a></li>" +
-                    "<li><a href='OrderDetails.aspx' class='kr-nav-link " + (currentPage == "OrderDetails.aspx" ? "active" : "") + "'>Order Tracking</a></li>" +
-                    "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile Settings</a></li>" +
-                    "</ul>";
+            sbNav.Append("</ul>");
 
-                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Buyer)</span>" +
-                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of buyer account'>LOGOUT</a>";
-                userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
-            }
-            else if (activeRole == "Operator")
+            // Render auth buttons
+            string authHtml = "";
+            if (!string.IsNullOrEmpty(activeRole))
             {
-                // Active Role: Equipment Operator Navigation
-                navHtml = "<ul class='kr-nav-list'>" +
-                    "<li><a href='TractorRentals.aspx' class='kr-nav-link " + (currentPage == "TractorRentals.aspx" ? "active" : "") + "'>Tractors & Machinery</a></li>" +
-                    "<li><a href='MyBookings.aspx' class='kr-nav-link " + (currentPage == "MyBookings.aspx" ? "active" : "") + "'>My Bookings</a></li>" +
-                    "<li><a href='AgriServices.aspx' class='kr-nav-link " + (currentPage == "AgriServices.aspx" ? "active" : "") + "'>Agri Services</a></li>" +
-                    "<li><a href='ProfileSettings.aspx' class='kr-nav-link " + (currentPage == "ProfileSettings.aspx" ? "active" : "") + "'>Profile</a></li>" +
-                    "</ul>";
-
-                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Operator)</span>" +
-                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of operator account'>LOGOUT</a>";
-                userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
-            }
-            else if (activeRole == "Admin")
-            {
-                // Active Role: Admin Navigation
-                navHtml = "<ul class='kr-nav-list'>" +
-                    "<li><a href='AdminDashboard.aspx' class='kr-nav-link " + (currentPage == "AdminDashboard.aspx" ? "active" : "") + "'>Dashboard</a></li>" +
-                    "<li><a href='AdminManagement.aspx' class='kr-nav-link " + (currentPage == "AdminManagement.aspx" ? "active" : "") + "'>Platform Management</a></li>" +
-                    "<li><a href='AdminAnalytics.aspx' class='kr-nav-link " + (currentPage == "AdminAnalytics.aspx" ? "active" : "") + "'>Analytics</a></li>" +
-                    "<li><a href='AdminSettings.aspx' class='kr-nav-link " + (currentPage == "AdminSettings.aspx" ? "active" : "") + "'>Settings</a></li>" +
-                    "</ul>";
-
-                authHtml = "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, " + Server.HtmlEncode(userName) + " (Admin)</span>" +
-                           "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of admin session'>LOGOUT</a>";
-                userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
+                authHtml = string.Format(
+                    "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, {0} ({1})</span>" +
+                    "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of account'>LOGOUT</a>",
+                    Server.HtmlEncode(userName),
+                    activeRole);
             }
             else
             {
-                // Guest / Public Desktop Navigation
-                navHtml = "<ul class='kr-nav-list'>" +
-                    "<li><a href='Default.aspx' class='kr-nav-link " + (currentPage == "Default.aspx" ? "active" : "") + "'>Home</a></li>" +
-                    "<li><a href='Marketplace.aspx' class='kr-nav-link " + (currentPage == "Marketplace.aspx" ? "active" : "") + "'>Marketplace</a></li>" +
-                    "<li><a href='ApmcRates.aspx' class='kr-nav-link " + (currentPage == "ApmcRates.aspx" ? "active" : "") + "'>APMC Rates</a></li>" +
-                    "<li><a href='LandPortal.aspx' class='kr-nav-link " + (currentPage == "LandPortal.aspx" ? "active" : "") + "'>Land Portal</a></li>" +
-                    "<li><a href='About.aspx' class='kr-nav-link " + (currentPage == "About.aspx" ? "active" : "") + "'>About Us</a></li>" +
-                    "<li><a href='Contact.aspx' class='kr-nav-link " + (currentPage == "Contact.aspx" ? "active" : "") + "'>Contact</a></li>" +
-                    "</ul>";
-
-                authHtml = "<a href='Login.aspx' class='btn-kr-login " + (currentPage == "Login.aspx" ? "active" : "") + "'>Login</a>" +
-                           "<a href='SelectRole.aspx' class='btn-kr-register " + (currentPage.Contains("Register") || currentPage == "SelectRole.aspx" ? "active" : "") + "'>Register</a>";
-
-                userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole);
+                authHtml = string.Format(
+                    "<a href='Login.aspx' class='btn-kr-login {0}'>Login</a>" +
+                    "<a href='SelectRole.aspx' class='btn-kr-register {1}'>Register</a>",
+                    currentPage == "Login.aspx" ? "active" : "",
+                    (currentPage.Contains("Register") || currentPage == "SelectRole.aspx") ? "active" : "");
             }
 
-            // Render controls into Master page placeholders
-            phNavLinks.Controls.Add(new LiteralControl(navHtml));
+            phNavLinks.Controls.Add(new LiteralControl(sbNav.ToString()));
             phNavAuth.Controls.Add(new LiteralControl(authHtml));
-            if (!string.IsNullOrEmpty(userIconsHtml))
-            {
-                phUserIcons.Controls.Add(new LiteralControl(userIconsHtml));
-            }
+
+            string userIconsHtml = GetNotificationBellHtml() + GetProfileDropdownHtml(activeRole, userName);
+            phUserIcons.Controls.Add(new LiteralControl(userIconsHtml));
         }
 
-        // Generate interactive Notifications Dropdown
+        private List<NavItem> GetNavItemsForRole(string role)
+        {
+            List<NavItem> items = new List<NavItem>();
+            switch (role)
+            {
+                case "Farmer":
+                    items.Add(new NavItem("FarmerDashboard.aspx", "Dashboard"));
+                    items.Add(new NavItem("MyCrops.aspx", "My Crops"));
+                    items.Add(new NavItem("SellHarvest.aspx", "Sell Harvest"));
+                    items.Add(new NavItem("TractorRentals.aspx", "Tractor Rentals"));
+                    items.Add(new NavItem("MyBookings.aspx", "My Bookings"));
+                    items.Add(new NavItem("ProfileSettings.aspx", "Profile Settings"));
+                    break;
+
+                case "Buyer":
+                    items.Add(new NavItem("BuyerDashboard.aspx", "Dashboard"));
+                    items.Add(new NavItem("Marketplace.aspx", "Marketplace"));
+                    items.Add(new NavItem("MyPurchases.aspx", "My Purchases"));
+                    items.Add(new NavItem("OrderDetails.aspx", "Order Tracking"));
+                    items.Add(new NavItem("ProfileSettings.aspx", "Profile Settings"));
+                    break;
+
+                case "Operator":
+                    items.Add(new NavItem("TractorRentals.aspx", "Tractors & Machinery"));
+                    items.Add(new NavItem("MyBookings.aspx", "My Bookings"));
+                    items.Add(new NavItem("AgriServices.aspx", "Agri Services"));
+                    items.Add(new NavItem("ProfileSettings.aspx", "Profile"));
+                    break;
+
+                case "Admin":
+                    items.Add(new NavItem("AdminDashboard.aspx", "Dashboard"));
+                    items.Add(new NavItem("AdminManagement.aspx", "Platform Management"));
+                    items.Add(new NavItem("AdminAnalytics.aspx", "Analytics"));
+                    items.Add(new NavItem("AdminSettings.aspx", "Settings"));
+                    break;
+
+                default:
+                    items.Add(new NavItem("Default.aspx", "Home"));
+                    items.Add(new NavItem("Marketplace.aspx", "Marketplace"));
+                    items.Add(new NavItem("ApmcRates.aspx", "APMC Rates"));
+                    items.Add(new NavItem("LandPortal.aspx", "Land Portal"));
+                    items.Add(new NavItem("About.aspx", "About Us"));
+                    items.Add(new NavItem("Contact.aspx", "Contact"));
+                    break;
+            }
+            return items;
+        }
+
         private string GetNotificationBellHtml()
         {
             return @"<div class='dropdown d-inline-block'>
@@ -233,113 +231,114 @@ namespace KhedutRise
             </div>";
         }
 
-        // Generate interactive User Profile Dropdown
-        private string GetProfileDropdownHtml(string activeRole)
+        private string GetProfileDropdownHtml(string activeRole, string userName)
         {
-            string userName = Session["UserName"] != null ? Session["UserName"].ToString() : "User";
+            string roleBadgeText = "Guest User";
+            string roleBadgeClass = "text-muted";
+            string displayName = "Guest User";
+            string titleAttr = "Account";
 
-            if (activeRole == "Farmer")
+            List<DropdownItem> menuItems = new List<DropdownItem>();
+
+            switch (activeRole)
             {
-                return @"<div class='dropdown d-inline-block'>
-                    <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Farmer Profile' style='background: #0b6028; color: #ffffff;'>
-                        <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
-                    </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 230px; border-radius: 10px; z-index: 1050;'>
-                        <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>" + System.Web.HttpUtility.HtmlEncode(userName) + @"</strong>
-                            <span class='badge bg-success-subtle text-success'>Verified Farmer</span>
-                        </li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='FarmerDashboard.aspx'><i class='bi bi-speedometer2 me-2 text-success'></i> Farmer Dashboard</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='FarmPlots.aspx'><i class='bi bi-grid-fill me-2 text-success'></i> My Farm & Plots</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='MyCrops.aspx'><i class='bi bi-flower1 me-2 text-success'></i> My Crops</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='ProfileSettings.aspx'><i class='bi bi-person-gear me-2 text-success'></i> Profile & Settings</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminLogin.aspx'><i class='bi bi-shield-lock-fill me-2 text-danger'></i> Admin Portal Login</a></li>
-                        <li><hr class='dropdown-divider'></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-danger' href='Default.aspx?action=logout'><i class='bi bi-box-arrow-right me-2'></i> Logout</a></li>
-                    </ul>
-                </div>";
+                case "Farmer":
+                    titleAttr = "Farmer Profile";
+                    displayName = userName;
+                    roleBadgeText = "Verified Farmer";
+                    roleBadgeClass = "badge bg-success-subtle text-success";
+                    menuItems.Add(new DropdownItem("FarmerDashboard.aspx", "Farmer Dashboard", "bi bi-speedometer2 text-success"));
+                    menuItems.Add(new DropdownItem("FarmPlots.aspx", "My Farm & Plots", "bi bi-grid-fill text-success"));
+                    menuItems.Add(new DropdownItem("MyCrops.aspx", "My Crops", "bi bi-flower1 text-success"));
+                    menuItems.Add(new DropdownItem("ProfileSettings.aspx", "Profile & Settings", "bi bi-person-gear text-success"));
+                    menuItems.Add(new DropdownItem("AdminLogin.aspx", "Admin Portal Login", "bi bi-shield-lock-fill text-danger"));
+                    menuItems.Add(new DropdownItem(true));
+                    menuItems.Add(new DropdownItem("Default.aspx?action=logout", "Logout", "bi bi-box-arrow-right", "text-danger"));
+                    break;
+
+                case "Buyer":
+                    titleAttr = "Buyer Profile";
+                    displayName = userName;
+                    roleBadgeText = "Verified Buyer";
+                    roleBadgeClass = "badge bg-primary-subtle text-primary";
+                    menuItems.Add(new DropdownItem("BuyerDashboard.aspx", "Buyer Dashboard", "bi bi-speedometer2 text-success"));
+                    menuItems.Add(new DropdownItem("MyPurchases.aspx", "My Purchases", "bi bi-bag-check text-success"));
+                    menuItems.Add(new DropdownItem("Wishlist.aspx", "My Wishlist", "bi bi-heart text-danger"));
+                    menuItems.Add(new DropdownItem("ProfileSettings.aspx", "Profile & Settings", "bi bi-person-gear text-success"));
+                    menuItems.Add(new DropdownItem("AdminLogin.aspx", "Admin Portal Login", "bi bi-shield-lock-fill text-danger"));
+                    menuItems.Add(new DropdownItem(true));
+                    menuItems.Add(new DropdownItem("Default.aspx?action=logout", "Logout", "bi bi-box-arrow-right", "text-danger"));
+                    break;
+
+                case "Operator":
+                    titleAttr = "Operator Profile";
+                    displayName = userName;
+                    roleBadgeText = "Machinery Operator";
+                    roleBadgeClass = "badge bg-warning-subtle text-warning";
+                    menuItems.Add(new DropdownItem("TractorRentals.aspx", "Tractors & Machinery", "bi bi-truck text-success"));
+                    menuItems.Add(new DropdownItem("MyBookings.aspx", "My Bookings", "bi bi-calendar-check text-success"));
+                    menuItems.Add(new DropdownItem("ProfileSettings.aspx", "Profile & Settings", "bi bi-person-gear text-success"));
+                    menuItems.Add(new DropdownItem("AdminLogin.aspx", "Admin Portal Login", "bi bi-shield-lock-fill text-danger"));
+                    menuItems.Add(new DropdownItem(true));
+                    menuItems.Add(new DropdownItem("Default.aspx?action=logout", "Logout", "bi bi-box-arrow-right", "text-danger"));
+                    break;
+
+                case "Admin":
+                    titleAttr = "Admin Profile";
+                    displayName = !string.IsNullOrEmpty(userName) ? userName : "System Admin";
+                    roleBadgeText = "Super Administrator";
+                    roleBadgeClass = "badge bg-danger-subtle text-danger";
+                    menuItems.Add(new DropdownItem("AdminDashboard.aspx", "Admin Dashboard", "bi bi-speedometer2 text-success"));
+                    menuItems.Add(new DropdownItem("AdminManagement.aspx", "Platform Management", "bi bi-sliders text-success"));
+                    menuItems.Add(new DropdownItem("AdminAnalytics.aspx", "Platform Analytics", "bi bi-bar-chart-line text-success"));
+                    menuItems.Add(new DropdownItem(true));
+                    menuItems.Add(new DropdownItem("Default.aspx?action=logout", "Logout", "bi bi-box-arrow-right", "text-danger"));
+                    break;
+
+                default:
+                    titleAttr = "Account";
+                    displayName = "Guest User";
+                    roleBadgeText = "Browsing Public Mode";
+                    roleBadgeClass = "small text-muted";
+                    menuItems.Add(new DropdownItem("Login.aspx", "Login", "bi bi-box-arrow-in-right text-success"));
+                    menuItems.Add(new DropdownItem("SelectRole.aspx", "Register (Choose Role)", "bi bi-person-plus-fill text-success"));
+                    menuItems.Add(new DropdownItem("AdminLogin.aspx", "Admin Login", "bi bi-shield-lock-fill text-danger"));
+                    menuItems.Add(new DropdownItem(true));
+                    menuItems.Add(new DropdownItem("About.aspx", "About KhedutRise", "bi bi-info-circle text-secondary", "text-secondary"));
+                    menuItems.Add(new DropdownItem("Contact.aspx", "Help & Support", "bi bi-headset text-secondary", "text-secondary"));
+                    break;
             }
-            else if (activeRole == "Buyer")
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat(@"<div class='dropdown d-inline-block'>
+                <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='{0}' style='background: #0b6028; color: #ffffff;'>
+                    <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
+                </a>
+                <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 230px; border-radius: 10px; z-index: 1050;'>
+                    <li class='px-3 py-2 border-bottom mb-1'>
+                        <strong class='d-block text-dark' style='font-size: 0.95rem;'>{1}</strong>
+                        <span class='{2}'>{3}</span>
+                    </li>",
+                titleAttr,
+                Server.HtmlEncode(displayName),
+                roleBadgeClass,
+                roleBadgeText);
+
+            foreach (var item in menuItems)
             {
-                return @"<div class='dropdown d-inline-block'>
-                    <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Buyer Profile' style='background: #0b6028; color: #ffffff;'>
-                        <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
-                    </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 230px; border-radius: 10px; z-index: 1050;'>
-                        <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>" + System.Web.HttpUtility.HtmlEncode(userName) + @"</strong>
-                            <span class='badge bg-primary-subtle text-primary'>Verified Buyer</span>
-                        </li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='BuyerDashboard.aspx'><i class='bi bi-speedometer2 me-2 text-success'></i> Buyer Dashboard</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='MyPurchases.aspx'><i class='bi bi-bag-check me-2 text-success'></i> My Purchases</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='Wishlist.aspx'><i class='bi bi-heart me-2 text-danger'></i> My Wishlist</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='ProfileSettings.aspx'><i class='bi bi-person-gear me-2 text-success'></i> Profile & Settings</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminLogin.aspx'><i class='bi bi-shield-lock-fill me-2 text-danger'></i> Admin Portal Login</a></li>
-                        <li><hr class='dropdown-divider'></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-danger' href='Default.aspx?action=logout'><i class='bi bi-box-arrow-right me-2'></i> Logout</a></li>
-                    </ul>
-                </div>";
+                if (item.IsDivider)
+                {
+                    sb.Append("<li><hr class='dropdown-divider'></li>");
+                }
+                else
+                {
+                    sb.AppendFormat("<li><a class='dropdown-item py-2 fw-semibold {0}' href='{1}'><i class='{2} me-2'></i> {3}</a></li>",
+                        item.TextColor, item.Url, item.Icon, item.Title);
+                }
             }
-            else if (activeRole == "Operator")
-            {
-                return @"<div class='dropdown d-inline-block'>
-                    <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Operator Profile' style='background: #0b6028; color: #ffffff;'>
-                        <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
-                    </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 220px; border-radius: 10px; z-index: 1050;'>
-                        <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>Dilip Parmar</strong>
-                            <span class='badge bg-warning-subtle text-warning'>Machinery Operator</span>
-                        </li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='TractorRentals.aspx'><i class='bi bi-truck me-2 text-success'></i> Tractors & Machinery</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='MyBookings.aspx'><i class='bi bi-calendar-check me-2 text-success'></i> My Bookings</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='ProfileSettings.aspx'><i class='bi bi-person-gear me-2 text-success'></i> Profile & Settings</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminLogin.aspx'><i class='bi bi-shield-lock-fill me-2 text-danger'></i> Admin Portal Login</a></li>
-                        <li><hr class='dropdown-divider'></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-danger' href='Default.aspx?action=logout'><i class='bi bi-box-arrow-right me-2'></i> Logout</a></li>
-                    </ul>
-                </div>";
-            }
-            else if (activeRole == "Admin")
-            {
-                return @"<div class='dropdown d-inline-block'>
-                    <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Admin Profile' style='background: #0b6028; color: #ffffff;'>
-                        <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
-                    </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 220px; border-radius: 10px; z-index: 1050;'>
-                        <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>System Admin</strong>
-                            <span class='badge bg-danger-subtle text-danger'>Super Administrator</span>
-                        </li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminDashboard.aspx'><i class='bi bi-speedometer2 me-2 text-success'></i> Admin Dashboard</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminManagement.aspx'><i class='bi bi-sliders me-2 text-success'></i> Platform Management</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminAnalytics.aspx'><i class='bi bi-bar-chart-line me-2 text-success'></i> Platform Analytics</a></li>
-                        <li><hr class='dropdown-divider'></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-danger' href='Default.aspx?action=logout'><i class='bi bi-box-arrow-right me-2'></i> Logout</a></li>
-                    </ul>
-                </div>";
-            }
-            else
-            {
-                // Guest User Dropdown: No blind registration redirect
-                return @"<div class='dropdown d-inline-block'>
-                    <a href='#' class='icon-circle-btn' data-bs-toggle='dropdown' aria-expanded='false' title='Account' style='background: #0b6028; color: #ffffff;'>
-                        <i class='bi bi-person-fill' style='font-size: 1.1rem;'></i>
-                    </a>
-                    <ul class='dropdown-menu dropdown-menu-end shadow border-0 p-2' style='width: 220px; border-radius: 10px; z-index: 1050;'>
-                        <li class='px-3 py-2 border-bottom mb-1'>
-                            <strong class='d-block text-dark' style='font-size: 0.95rem;'>Guest User</strong>
-                            <small class='text-muted'>Browsing Public Mode</small>
-                        </li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='Login.aspx'><i class='bi bi-box-arrow-in-right me-2 text-success'></i> Login</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='SelectRole.aspx'><i class='bi bi-person-plus-fill me-2 text-success'></i> Register (Choose Role)</a></li>
-                        <li><a class='dropdown-item py-2 fw-semibold text-dark' href='AdminLogin.aspx'><i class='bi bi-shield-lock-fill me-2 text-danger'></i> Admin Login</a></li>
-                        <li><hr class='dropdown-divider'></li>
-                        <li><a class='dropdown-item py-2 text-secondary' href='About.aspx'><i class='bi bi-info-circle me-2'></i> About KhedutRise</a></li>
-                        <li><a class='dropdown-item py-2 text-secondary' href='Contact.aspx'><i class='bi bi-headset me-2'></i> Help & Support</a></li>
-                    </ul>
-                </div>";
-            }
+
+            sb.Append("</ul></div>");
+            return sb.ToString();
         }
     }
 }

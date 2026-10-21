@@ -8,6 +8,7 @@ namespace KhedutRise {
     
     public partial class BuyerDashboard {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litBuyerGreeting;
         protected global::System.Web.UI.WebControls.Repeater rptRecentOrders;
     }
 }

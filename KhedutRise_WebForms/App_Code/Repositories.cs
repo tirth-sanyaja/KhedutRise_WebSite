@@ -371,7 +371,7 @@ namespace KhedutRise
         // Create booking for farmer
         public static string CreateBooking(int userId, int equipmentId, string serviceType, string providerName, string customerName, decimal amount)
         {
-            string bookingId = "#KR-BK-" + new Random().Next(100, 999);
+            string bookingId = string.Format("#KR-BK-{0:yyMMdd}-{1:D4}", DateTime.Now, new Random().Next(1000, 9999));
             string sql = @"INSERT INTO Bookings (BookingId, UserId, EquipmentId, ServiceType, ProviderName, CustomerName, BookingDate, Amount, Status)
                            VALUES (@BId, @UId, @EqId, @Type, @Prov, @Cust, GETDATE(), @Amt, 'Confirmed')";
             SqlParameter[] prms = new SqlParameter[]
