@@ -100,9 +100,19 @@
         .brand-title {
             font-size: 1.35rem;
             font-weight: 800;
-            color: #111827;
             line-height: 1.1;
             letter-spacing: -0.4px;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        .brand-khedut, .text-khedut {
+            color: #16a34a !important; /* Fresh Agriculture Green */
+            font-weight: 800;
+        }
+        .brand-rise, .text-rise {
+            color: #0b6028 !important; /* Deep Rich Dark Green */
+            font-weight: 800;
         }
         .brand-subtitle {
             font-size: 0.7rem;
@@ -447,7 +457,7 @@ footer {
                     <a class="brand-container" href="Default.aspx">
                         <img src="Images/logo.png" alt="KhedutRise Logo" height="42" width="42" class="me-2 rounded-circle" style="object-fit: cover;" />
                         <div>
-                            <span class="brand-title">KhedutRise</span>
+                            <span class="brand-title"><span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span></span>
                             <span class="brand-subtitle">Smart Farming. Better Future.</span>
                         </div>
                     </a>
@@ -479,7 +489,7 @@ footer {
                     <div class="col-lg-3 col-md-6">
                         <div class="d-flex align-items-center mb-2">
                             <img src="Images/logo.png" alt="KhedutRise" height="36" width="36" class="me-2 rounded-circle" style="object-fit: cover;" />
-                            <h5 class="text-white mb-0 fw-bold">KhedutRise</h5>
+                            <h5 class="mb-0 fw-bold"><span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span></h5>
                         </div>
                         <p class="footer-desc mb-2 fw-semibold text-white-50">Smart Farming. Better Future.</p>
                         <p class="footer-desc" style="max-width: 320px;">Empowering farmers with smarter technology, better markets and connected agricultural services.</p>

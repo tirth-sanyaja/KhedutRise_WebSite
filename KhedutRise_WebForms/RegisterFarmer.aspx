@@ -9,7 +9,7 @@
                 <div class="card border-0 rounded-4 overflow-hidden position-relative text-white shadow-sm h-100" style="min-height: 640px; background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.8) 100%), url('Images/green_rows.jpg') center/cover no-repeat;">
                     <div class="p-4 p-lg-5 mt-auto" style="text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
                         <span class="badge bg-success mb-2 px-3 py-1">Farmer Registration</span>
-                        <h3 class="fw-bold mb-1 fs-2">Join KhedutRise</h3>
+                        <h3 class="fw-bold mb-1 fs-2">Join <span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span></h3>
                         <p class="small text-white-50 mb-3">Sell crops directly at fair APMC rates, rent modern tractors, and get soil test advisories.</p>
                         <div class="d-flex flex-column gap-2 small text-white-70 mt-3">
                             <div><i class="bi bi-check-circle-fill text-success me-2"></i>Zero middleman commission</div>

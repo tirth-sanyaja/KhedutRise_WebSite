@@ -12,7 +12,7 @@
         <% } %>
 
         <div class="text-center mb-5">
-            <h2 class="fw-bold mb-2 text-dark" style="font-size: 2.2rem;">How would you like to use KhedutRise?</h2>
+            <h2 class="fw-bold mb-2 text-dark" style="font-size: 2.2rem;">How would you like to use <span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span>?</h2>
             <p class="text-secondary" style="font-size: 1.05rem;">Choose your customized workspace configuration to proceed onboarding.</p>
         </div>
 

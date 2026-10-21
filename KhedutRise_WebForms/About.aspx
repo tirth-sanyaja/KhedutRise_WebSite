@@ -7,7 +7,7 @@
         <!--Header -->
         <div class="mb-4">
             <small class="text-muted"><a href="Default.aspx" class="text-decoration-none text-muted">Home</a> / About Us</small>
-            <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">About KhedutRise</h2>
+            <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">About <span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span></h2>
             <p class="text-muted small mb-0">Revolutionizing Indian agriculture through transparent technology.</p>
         </div>
 

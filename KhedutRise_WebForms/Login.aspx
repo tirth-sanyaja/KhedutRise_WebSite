@@ -58,7 +58,7 @@
                 <div class="card p-4 p-md-5 border rounded-3 shadow-none h-100 d-flex flex-column" style="border-color: #e2e8f0 !important; background: #ffffff;">
                     <div class="mb-4">
                         <small class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">ACCOUNT SIGN IN</small>
-                        <h3 class="fw-bold mt-1 text-dark" style="font-size: 1.85rem;">Sign In to KhedutRise</h3>
+                        <h3 class="fw-bold mt-1 text-dark" style="font-size: 1.85rem;">Sign In to <span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span></h3>
                     </div>
 
                     <!-- Server Message Alert -->

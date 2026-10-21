@@ -60,7 +60,7 @@
                             <i class="bi bi-shield-check fs-4"></i>
                         </div>
                         <div>
-                            <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px;">KhedutRise Pro</h6>
+                            <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px;"><span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span> Pro</h6>
                             <small class="text-success fw-semibold" style="font-size: 0.75rem;">Super Administrator</small>
                         </div>
                     </div>
