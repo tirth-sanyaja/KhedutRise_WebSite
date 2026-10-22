@@ -122,11 +122,7 @@ namespace KhedutRise
             string authHtml = "";
             if (!string.IsNullOrEmpty(activeRole))
             {
-                authHtml = string.Format(
-                    "<span class='d-none d-lg-inline-block text-dark fw-bold me-2' style='font-size: 0.9rem;'>Welcome, {0} ({1})</span>" +
-                    "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of account'>LOGOUT</a>",
-                    Server.HtmlEncode(userName),
-                    activeRole);
+                authHtml = "<a href='Default.aspx?action=logout' class='btn-kr-logout' title='Log out of account'>LOGOUT</a>";
             }
             else
             {
