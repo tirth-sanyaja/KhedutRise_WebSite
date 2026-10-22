@@ -31,6 +31,7 @@
                             <asp:ListItem Value="Cotton" Selected="True">Cotton (કપાસ)</asp:ListItem>
                             <asp:ListItem Value="Groundnut">Groundnut (મગફળી)</asp:ListItem>
                             <asp:ListItem Value="Wheat">Wheat (ઘઉં)</asp:ListItem>
+                            <asp:ListItem Value="Vegetables">Vegetables (શાકભાજી)</asp:ListItem>
                             <asp:ListItem Value="Spices">Spices & Oilseeds (જીરું, રાયડો)</asp:ListItem>
                         </asp:DropDownList>
                     </div>

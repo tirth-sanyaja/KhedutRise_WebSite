@@ -92,15 +92,16 @@ BEGIN
     CREATE TABLE Products (
         ProductId INT PRIMARY KEY IDENTITY(1, 1),
         FarmerId INT NULL CONSTRAINT FK_Products_Users REFERENCES Users(UserId),
-        ProductName NVARCHAR(100) NOT NULL,             -- e.g. 'Premium Groundnut', 'Organic Bt Cotton'
-        Category NVARCHAR(50) NOT NULL,                -- 'Groundnut', 'Cotton', 'Wheat', 'Spices'
+        ProductName NVARCHAR(100) NOT NULL,             -- e.g. 'Premium Groundnut', 'Organic Bt Cotton', 'Fresh Desi Tomatoes'
+        Category NVARCHAR(50) NOT NULL,                -- 'Groundnut', 'Cotton', 'Wheat', 'Vegetables', 'Spices'
         QuantityInQuintal DECIMAL(10, 2) NOT NULL,      -- Available harvest in quintals
         PricePerQuintal DECIMAL(10, 2) NOT NULL,        -- Price in INR per quintal
         FarmerName NVARCHAR(100) NOT NULL,             -- Fallback display name
         Location NVARCHAR(100) NOT NULL,               -- Village / APMC market location
         Grade NVARCHAR(20) CONSTRAINT DF_Products_Grade DEFAULT 'Grade A',
         IsApproved BIT CONSTRAINT DF_Products_IsApproved DEFAULT 1,
-        CreatedDate DATETIME CONSTRAINT DF_Products_CreatedDate DEFAULT GETDATE()
+        CreatedDate DATETIME CONSTRAINT DF_Products_CreatedDate DEFAULT GETDATE(),
+        ImagePath NVARCHAR(300) NULL CONSTRAINT DF_Products_ImagePath DEFAULT 'Images/groundnut_harvest.jpg'
     );
 END
 GO
@@ -302,3 +303,16 @@ FROM FarmPlots f
 LEFT JOIN Users u ON f.FarmerId = u.UserId
 ORDER BY f.PlotId ASC;
 */
+
+-- =========================================================================================
+-- SEED DATA: Vegetables & Fresh Produce Catalog
+-- =========================================================================================
+IF NOT EXISTS (SELECT 1 FROM Products WHERE Category = 'Vegetables')
+BEGIN
+    INSERT INTO Products (FarmerId, ProductName, Category, QuantityInQuintal, PricePerQuintal, FarmerName, Location, Grade, IsApproved, CreatedDate, ImagePath)
+    VALUES 
+    (1021, 'Fresh Desi Tomatoes (Grade A)', 'Vegetables', 35.00, 1850.00, 'Ramesh Patel', 'Rajkot Rural', 'Grade A', 1, GETDATE(), 'Images/vegetables_tomatoes.jpg'),
+    (1022, 'Mahuva Red Onions (Premium)', 'Vegetables', 50.00, 2150.00, 'Savjibhai Patel', 'Gondal Sub-district', 'Grade A+', 1, GETDATE(), 'Images/vegetables_onions.jpg'),
+    (1021, 'Organic Green Chillies & Okra', 'Vegetables', 20.00, 3200.00, 'Ramesh Patel', 'Rajkot APMC', 'Grade A', 1, GETDATE(), 'Images/vegetables_green.jpg');
+END
+GO
