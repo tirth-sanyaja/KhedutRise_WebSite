@@ -70,8 +70,8 @@
                 <asp:Repeater ID="rptFarmerCrops" runat="server">
                     <ItemTemplate>
                         <div class="card card-custom p-3 mb-3 d-flex flex-row gap-3 align-items-center border shadow-sm">
-                            <img src='<%# Eval("Crop").ToString().ToLower().Contains("cotton") ? "Images/green_rows.jpg" : "Images/groundnut_harvest.jpg" %>' 
-                                 class="rounded-3 object-fit-cover flex-shrink-0" width="130" height="95" alt="Crop" />
+                            <img src='<%# GetCropImage(Eval("Crop")) %>' 
+                                 class="rounded-3 object-fit-cover flex-shrink-0" width="130" height="95" alt='<%# Eval("Crop") %>' />
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;"><%# Eval("Crop") %></h5>

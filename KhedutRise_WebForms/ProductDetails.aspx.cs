@@ -64,7 +64,10 @@ namespace KhedutRise
                 lblLocation.Text = location;
                 lblFarmerContact.Text = contact;
                 lblInitials.Text = GetInitials(farmer);
-                imgMainProduct.ImageUrl = img;
+                imgMainProduct.ImageUrl = ResolveUrl(img);
+                imgThumb1.ImageUrl = ResolveUrl(img);
+                imgThumb2.ImageUrl = ResolveUrl(img);
+                imgThumb3.ImageUrl = ResolveUrl("Images/apmc_yard.jpg");
 
                 if (stock <= 0)
                 {

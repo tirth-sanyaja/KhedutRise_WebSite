@@ -6,6 +6,9 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.Panel pnlNotFound;
         protected global::System.Web.UI.WebControls.Panel pnlProductContent;
         protected global::System.Web.UI.WebControls.Image imgMainProduct;
+        protected global::System.Web.UI.WebControls.Image imgThumb1;
+        protected global::System.Web.UI.WebControls.Image imgThumb2;
+        protected global::System.Web.UI.WebControls.Image imgThumb3;
         protected global::System.Web.UI.WebControls.Label lblCategory;
         protected global::System.Web.UI.WebControls.Label lblGrade;
         protected global::System.Web.UI.WebControls.Label lblCropTitle;

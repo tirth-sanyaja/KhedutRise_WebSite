@@ -30,7 +30,7 @@
             <div class="card p-3 bg-white" style="border: 2px solid #ea580c; border-radius: 8px;">
                 <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
                     <div class="d-flex gap-3 align-items-center">
-                        <img src="Images/groundnut_harvest.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Groundnut" />
+                        <img src="Images/groundnut.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Groundnut" />
                         <div>
                             <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;">Premium Groundnut — Grade A</h5>
                             <small class="text-muted d-block mb-2" style="font-size: 0.85rem;">Farmer: Ramesh Patel | Rajkot</small>
@@ -48,7 +48,7 @@
             <div class="card card-custom p-3 bg-white">
                 <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
                     <div class="d-flex gap-3 align-items-center">
-                        <img src="Images/green_rows.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Cotton" />
+                        <img src="Images/cotton.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Cotton" />
                         <div>
                             <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;">Organic Bt Cotton</h5>
                             <small class="text-muted d-block" style="font-size: 0.85rem;">Farmer: Savjibhai | Gondal | ₹7,150 / Q</small>

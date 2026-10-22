@@ -101,7 +101,7 @@ BEGIN
         Grade NVARCHAR(20) CONSTRAINT DF_Products_Grade DEFAULT 'Grade A',
         IsApproved BIT CONSTRAINT DF_Products_IsApproved DEFAULT 1,
         CreatedDate DATETIME CONSTRAINT DF_Products_CreatedDate DEFAULT GETDATE(),
-        ImagePath NVARCHAR(300) NULL CONSTRAINT DF_Products_ImagePath DEFAULT 'Images/groundnut_harvest.jpg'
+        ImagePath NVARCHAR(300) NULL CONSTRAINT DF_Products_ImagePath DEFAULT 'Images/groundnut.jpg'
     );
 END
 GO
@@ -311,8 +311,8 @@ IF NOT EXISTS (SELECT 1 FROM Products WHERE Category = 'Vegetables')
 BEGIN
     INSERT INTO Products (FarmerId, ProductName, Category, QuantityInQuintal, PricePerQuintal, FarmerName, Location, Grade, IsApproved, CreatedDate, ImagePath)
     VALUES 
-    (1021, 'Fresh Desi Tomatoes (Grade A)', 'Vegetables', 35.00, 1850.00, 'Ramesh Patel', 'Rajkot Rural', 'Grade A', 1, GETDATE(), 'Images/vegetables_tomatoes.jpg'),
-    (1022, 'Mahuva Red Onions (Premium)', 'Vegetables', 50.00, 2150.00, 'Savjibhai Patel', 'Gondal Sub-district', 'Grade A+', 1, GETDATE(), 'Images/vegetables_onions.jpg'),
-    (1021, 'Organic Green Chillies & Okra', 'Vegetables', 20.00, 3200.00, 'Ramesh Patel', 'Rajkot APMC', 'Grade A', 1, GETDATE(), 'Images/vegetables_green.jpg');
+    (1021, 'Fresh Desi Tomatoes (Grade A)', 'Vegetables', 35.00, 1850.00, 'Ramesh Patel', 'Rajkot Rural', 'Grade A', 1, GETDATE(), 'Images/tomato.jpg'),
+    (1022, 'Mahuva Red Onions (Premium)', 'Vegetables', 50.00, 2150.00, 'Savjibhai Patel', 'Gondal Sub-district', 'Grade A+', 1, GETDATE(), 'Images/onion.jpg'),
+    (1021, 'Organic Green Chillies & Okra', 'Vegetables', 20.00, 3200.00, 'Ramesh Patel', 'Rajkot APMC', 'Grade A', 1, GETDATE(), 'Images/green_chilli.jpg');
 END
 GO

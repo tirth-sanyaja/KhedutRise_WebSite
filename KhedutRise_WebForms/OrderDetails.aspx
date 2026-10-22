@@ -56,7 +56,7 @@
             <div class="col-lg-7">
                 <div class="card card-custom p-4 h-100 d-flex flex-column border shadow-sm">
                     <div class="d-flex gap-3 align-items-center mb-4">
-                        <asp:Image ID="imgProduct" runat="server" ImageUrl="Images/groundnut_harvest.jpg" CssClass="rounded-3 object-fit-cover flex-shrink-0" Width="160" Height="110" />
+                        <asp:Image ID="imgProduct" runat="server" ImageUrl="Images/groundnut.jpg" CssClass="rounded-3 object-fit-cover flex-shrink-0" Width="160" Height="110" />
                         <div>
                             <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;">
                                 <asp:Literal ID="litProductName" runat="server">Premium Groundnut</asp:Literal>

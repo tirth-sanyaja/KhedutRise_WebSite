@@ -89,7 +89,7 @@
                     <h5 class="fw-bold mb-4 text-dark" style="font-size: 1.25rem;">Live Listing Preview (Buyer's view)</h5>
 
                     <div class="rounded-3 overflow-hidden border mb-4">
-                        <img src="Images/green_rows.jpg" class="img-fluid object-fit-cover" style="height: 220px; width: 100%;" alt="Cotton Field" />
+                        <img src="Images/cotton.jpg" class="img-fluid object-fit-cover" style="height: 220px; width: 100%;" alt="Cotton Harvest" />
                         <div class="p-3 bg-white">
                             <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;">Premium Cotton G-10 (Grade A)</h5>
                             <small class="text-muted d-block mb-2" style="font-size: 0.85rem;">Seller: Sanjay Tirth | Location: Rajkot, Gujarat</small>

@@ -81,5 +81,19 @@ namespace KhedutRise
                 pnlNoCrops.Visible = true;
             }
         }
+
+        // Return real-world photograph matching the specific crop
+        public string GetCropImage(object cropObj)
+        {
+            if (cropObj == null) return "Images/groundnut.jpg";
+            string c = cropObj.ToString().ToLower();
+            if (c.Contains("cotton") || c.Contains("કપાસ")) return "Images/cotton.jpg";
+            if (c.Contains("wheat") || c.Contains("ઘઉં")) return "Images/wheat.jpg";
+            if (c.Contains("tomato") || c.Contains("ટામેટા")) return "Images/tomato.jpg";
+            if (c.Contains("onion") || c.Contains("ડુંગળી")) return "Images/onion.jpg";
+            if (c.Contains("chilli") || c.Contains("મરચા") || c.Contains("vegetable") || c.Contains("શાકભાજી") || c.Contains("okra")) return "Images/green_chilli.jpg";
+            if (c.Contains("cumin") || c.Contains("jeera") || c.Contains("જીરું") || c.Contains("spice")) return "Images/cumin_spices.jpg";
+            return "Images/groundnut.jpg";
+        }
     }
 }

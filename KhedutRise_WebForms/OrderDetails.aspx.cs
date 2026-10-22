@@ -71,7 +71,7 @@ namespace KhedutRise
                     string deliveryAddr = r["DeliveryAddress"] != DBNull.Value ? r["DeliveryAddress"].ToString() : "Buyer Verified Address, Gujarat";
                     litDeliveryAddress.Text = deliveryAddr;
 
-                    string img = r["ImagePath"] != DBNull.Value ? r["ImagePath"].ToString() : "Images/groundnut_harvest.jpg";
+                    string img = r["ImagePath"] != DBNull.Value ? r["ImagePath"].ToString() : "Images/groundnut.jpg";
                     imgProduct.ImageUrl = ResolveUrl(img);
 
                     string status = r["Status"].ToString();

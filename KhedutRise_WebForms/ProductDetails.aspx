@@ -32,13 +32,13 @@
                     </div>
                     <div class="row g-2">
                         <div class="col-4">
-                            <img src="Images/groundnut_harvest.jpg" class="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" alt="thumb1" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
+                            <asp:Image ID="imgThumb1" runat="server" CssClass="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" AlternateText="thumb1" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
                         </div>
                         <div class="col-4">
-                            <img src="Images/hero_farmer.jpg" class="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" alt="thumb2" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
+                            <asp:Image ID="imgThumb2" runat="server" CssClass="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" AlternateText="thumb2" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
                         </div>
                         <div class="col-4">
-                            <img src="Images/green_rows.jpg" class="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" alt="thumb3" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
+                            <asp:Image ID="imgThumb3" runat="server" CssClass="img-fluid rounded border object-fit-cover" style="height: 85px; width: 100%; cursor: pointer;" AlternateText="thumb3" onclick="document.getElementById('<%= imgMainProduct.ClientID %>').src=this.src;" />
                         </div>
                     </div>
                 </div>

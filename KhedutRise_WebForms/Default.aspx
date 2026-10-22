@@ -64,7 +64,7 @@
                 <div class="col-md-4">
                     <div class="card card-custom h-100 p-4 border shadow-sm">
                         <div class="d-flex gap-3 mb-3">
-                            <img src="Images/groundnut_harvest.jpg" class="rounded-3 object-fit-cover shadow-sm" style="width: 120px; height: 90px; flex-shrink: 0;" alt="Farmer Marketplace" />
+                            <img src="Images/groundnut.jpg" class="rounded-3 object-fit-cover shadow-sm" style="width: 120px; height: 90px; flex-shrink: 0;" alt="Farmer Marketplace" />
                             <div>
                                 <h5 class="fw-bold mb-1 text-dark">Farmer Marketplace</h5>
                                 <p class="text-muted small mb-0" style="line-height: 1.4;">Direct trade platform for cotton, groundnut & seeds.</p>

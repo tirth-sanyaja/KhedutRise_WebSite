@@ -141,7 +141,14 @@ namespace KhedutRise
         {
             string sql = @"SELECT p.ProductId, p.ProductName, p.Category, p.QuantityInQuintal, p.PricePerQuintal, 
                                   p.Grade, p.IsApproved, p.CreatedDate, p.FarmerId,
-                                  ISNULL(p.ImagePath, 'Images/groundnut_harvest.jpg') AS ImagePath,
+                                  COALESCE(NULLIF(p.ImagePath, ''), 
+                                      CASE 
+                                          WHEN p.Category = 'Cotton' THEN 'Images/cotton.jpg'
+                                          WHEN p.Category = 'Wheat' THEN 'Images/wheat.jpg'
+                                          WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
+                                          WHEN p.Category = 'Spices' THEN 'Images/cumin_spices.jpg'
+                                          ELSE 'Images/groundnut.jpg'
+                                      END) AS ImagePath,
                                   ISNULL(u.FullName, p.FarmerName) AS FarmerName, 
                                   ISNULL(u.Location, p.Location) AS Location, 
                                   u.MobileNo AS FarmerContact 
@@ -175,7 +182,14 @@ namespace KhedutRise
         {
             string sql = @"SELECT p.ProductId, p.ProductName, p.Category, p.QuantityInQuintal, p.PricePerQuintal, 
                                   p.Grade, p.IsApproved, p.CreatedDate, p.FarmerId,
-                                  ISNULL(p.ImagePath, 'Images/groundnut_harvest.jpg') AS ImagePath,
+                                  COALESCE(NULLIF(p.ImagePath, ''), 
+                                      CASE 
+                                          WHEN p.Category = 'Cotton' THEN 'Images/cotton.jpg'
+                                          WHEN p.Category = 'Wheat' THEN 'Images/wheat.jpg'
+                                          WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
+                                          WHEN p.Category = 'Spices' THEN 'Images/cumin_spices.jpg'
+                                          ELSE 'Images/groundnut.jpg'
+                                      END) AS ImagePath,
                                   ISNULL(u.FullName, p.FarmerName) AS FarmerName, 
                                   ISNULL(u.Location, p.Location) AS Location, 
                                   u.MobileNo AS FarmerContact,
@@ -203,7 +217,7 @@ namespace KhedutRise
                 new SqlParameter("@FarmerName", farmerName),
                 new SqlParameter("@Loc", location),
                 new SqlParameter("@Grade", (object)grade ?? "Grade A"),
-                new SqlParameter("@Img", (object)imagePath ?? "Images/groundnut_harvest.jpg")
+                new SqlParameter("@Img", (object)imagePath ?? "Images/groundnut.jpg")
             };
             object res = DbHelper.ExecuteScalar(sql, prms);
             return res != null ? Convert.ToInt32(res) : 0;
@@ -309,7 +323,16 @@ namespace KhedutRise
         {
             string sql = @"SELECT o.OrderId, o.TotalPrice, o.OrderDate, o.Status, o.Quantity, o.DeliveryAddress,
                                   ISNULL(p.ProductName, o.Commodity) AS Commodity,
-                                  ISNULL(p.ImagePath, 'Images/groundnut_harvest.jpg') AS ImagePath,
+                                  COALESCE(NULLIF(p.ImagePath, ''),
+                                      CASE 
+                                          WHEN p.Category = 'Cotton' OR o.Commodity LIKE '%Cotton%' THEN 'Images/cotton.jpg'
+                                          WHEN p.Category = 'Wheat' OR o.Commodity LIKE '%Wheat%' THEN 'Images/wheat.jpg'
+                                          WHEN p.Category = 'Vegetables' OR o.Commodity LIKE '%Tomato%' THEN 'Images/tomato.jpg'
+                                          WHEN o.Commodity LIKE '%Onion%' THEN 'Images/onion.jpg'
+                                          WHEN o.Commodity LIKE '%Chill%' OR o.Commodity LIKE '%Okra%' THEN 'Images/green_chilli.jpg'
+                                          WHEN p.Category = 'Spices' OR o.Commodity LIKE '%Cumin%' THEN 'Images/cumin_spices.jpg'
+                                          ELSE 'Images/groundnut.jpg'
+                                      END) AS ImagePath,
                                   ISNULL(uFarmer.FullName, o.FarmerName) AS FarmerName,
                                   ISNULL(uBuyer.FullName, o.BuyerName) AS BuyerName,
                                   uFarmer.MobileNo AS FarmerContact
@@ -328,7 +351,16 @@ namespace KhedutRise
         {
             string sql = @"SELECT o.*, 
                                   ISNULL(p.ProductName, o.Commodity) AS ProductName,
-                                  ISNULL(p.ImagePath, 'Images/groundnut_harvest.jpg') AS ImagePath,
+                                  COALESCE(NULLIF(p.ImagePath, ''),
+                                      CASE 
+                                          WHEN p.Category = 'Cotton' OR o.Commodity LIKE '%Cotton%' THEN 'Images/cotton.jpg'
+                                          WHEN p.Category = 'Wheat' OR o.Commodity LIKE '%Wheat%' THEN 'Images/wheat.jpg'
+                                          WHEN p.Category = 'Vegetables' OR o.Commodity LIKE '%Tomato%' THEN 'Images/tomato.jpg'
+                                          WHEN o.Commodity LIKE '%Onion%' THEN 'Images/onion.jpg'
+                                          WHEN o.Commodity LIKE '%Chill%' OR o.Commodity LIKE '%Okra%' THEN 'Images/green_chilli.jpg'
+                                          WHEN p.Category = 'Spices' OR o.Commodity LIKE '%Cumin%' THEN 'Images/cumin_spices.jpg'
+                                          ELSE 'Images/groundnut.jpg'
+                                      END) AS ImagePath,
                                   uFarmer.FullName AS FarmerFullName, uFarmer.MobileNo AS FarmerMobile,
                                   uBuyer.FullName AS BuyerFullName, uBuyer.MobileNo AS BuyerMobile
                            FROM Orders o

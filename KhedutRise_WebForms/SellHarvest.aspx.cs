@@ -79,11 +79,35 @@ namespace KhedutRise
                 return;
             }
 
-            // Select appropriate image path by category
-            string imagePath = "Images/groundnut_harvest.jpg";
-            if (category == "Cotton") imagePath = "Images/green_rows.jpg";
-            else if (category == "Wheat") imagePath = "Images/hero_farmer.jpg";
-            else if (category == "Spices") imagePath = "Images/groundnut_harvest.jpg";
+            // Select genuine real-world photograph matching the crop category and commodity
+            string imagePath = "Images/groundnut.jpg";
+            string lowerName = (name ?? "").ToLower();
+
+            if (category == "Cotton")
+            {
+                imagePath = "Images/cotton.jpg";
+            }
+            else if (category == "Wheat")
+            {
+                imagePath = "Images/wheat.jpg";
+            }
+            else if (category == "Vegetables")
+            {
+                if (lowerName.Contains("onion") || lowerName.Contains("ડુંગળી"))
+                    imagePath = "Images/onion.jpg";
+                else if (lowerName.Contains("chilli") || lowerName.Contains("chili") || lowerName.Contains("મરચા") || lowerName.Contains("okra") || lowerName.Contains("bhindi"))
+                    imagePath = "Images/green_chilli.jpg";
+                else
+                    imagePath = "Images/tomato.jpg";
+            }
+            else if (category == "Spices")
+            {
+                imagePath = "Images/cumin_spices.jpg";
+            }
+            else if (category == "Groundnut")
+            {
+                imagePath = "Images/groundnut.jpg";
+            }
 
             // 2. Insert into database using ProductRepository
             try
