@@ -22,7 +22,6 @@
             <asp:LinkButton ID="btnGroundnut" runat="server" CssClass="btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Groundnut">Groundnut</asp:LinkButton>
             <asp:LinkButton ID="btnCotton" runat="server" CssClass="btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Cotton">Cotton</asp:LinkButton>
             <asp:LinkButton ID="btnWheat" runat="server" CssClass="btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Wheat">Wheat</asp:LinkButton>
-            <asp:LinkButton ID="btnSpices" runat="server" CssClass="btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Spices">Spices / Cumin</asp:LinkButton>
             <asp:LinkButton ID="btnVegetables" runat="server" CssClass="btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Vegetables">Vegetables</asp:LinkButton>
         </div>
 

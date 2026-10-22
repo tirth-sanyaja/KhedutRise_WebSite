@@ -16,7 +16,7 @@ namespace KhedutRise
             }
         }
 
-        // Handle category tab clicks (All, Groundnut, Cotton, Wheat, Spices, Vegetables)
+        // Handle category tab clicks (All, Groundnut, Cotton, Wheat,Vegetables)
         protected void FilterCategory_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
@@ -57,7 +57,7 @@ namespace KhedutRise
 
         private void ResetCategoryStyles()
         {
-            LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnSpices, btnVegetables };
+            LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnVegetables };
             foreach (var b in buttons)
             {
                 if (b != null)
