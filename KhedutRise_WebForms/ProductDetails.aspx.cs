@@ -67,7 +67,7 @@ namespace KhedutRise
                 imgMainProduct.ImageUrl = ResolveUrl(img);
                 imgThumb1.ImageUrl = ResolveUrl(img);
                 imgThumb2.ImageUrl = ResolveUrl(img);
-                imgThumb3.ImageUrl = ResolveUrl("Images/apmc_yard.jpg");
+                imgThumb3.ImageUrl = ResolveUrl(img);
 
                 if (stock <= 0)
                 {

@@ -71,7 +71,22 @@ namespace KhedutRise
                     string deliveryAddr = r["DeliveryAddress"] != DBNull.Value ? r["DeliveryAddress"].ToString() : "Buyer Verified Address, Gujarat";
                     litDeliveryAddress.Text = deliveryAddr;
 
-                    string img = r["ImagePath"] != DBNull.Value ? r["ImagePath"].ToString() : "Images/groundnut.jpg";
+                    string img = "";
+                    if (r["ImagePath"] != DBNull.Value && !string.IsNullOrWhiteSpace(r["ImagePath"].ToString()))
+                    {
+                        img = r["ImagePath"].ToString();
+                    }
+                    else
+                    {
+                        string comm = (r["Commodity"] != DBNull.Value ? r["Commodity"].ToString() : (r["ProductName"] != DBNull.Value ? r["ProductName"].ToString() : "")).ToLower();
+                        if (comm.Contains("cotton") || comm.Contains("કપાસ")) img = "Images/cotton.jpg";
+                        else if (comm.Contains("wheat") || comm.Contains("ઘઉં")) img = "Images/wheat.jpg";
+                        else if (comm.Contains("tomato") || comm.Contains("ટામેટા")) img = "Images/tomato.jpg";
+                        else if (comm.Contains("onion") || comm.Contains("ડુંગળી")) img = "Images/onion.jpg";
+                        else if (comm.Contains("chilli") || comm.Contains("મરચા") || comm.Contains("okra") || comm.Contains("vegetable")) img = "Images/green_chilli.jpg";
+                        else if (comm.Contains("cumin") || comm.Contains("jeera") || comm.Contains("spice")) img = "Images/cumin_spices.jpg";
+                        else img = "Images/groundnut.jpg";
+                    }
                     imgProduct.ImageUrl = ResolveUrl(img);
 
                     string status = r["Status"].ToString();

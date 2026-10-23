@@ -75,7 +75,7 @@
                         <ItemTemplate>
                             <div class="col-md-6 col-xl-4">
                                 <div class="card card-custom h-100 overflow-hidden d-flex flex-column border shadow-sm">
-                                    <img src='<%# ResolveUrl(Eval("ImagePath").ToString()) %>' class="img-fluid object-fit-cover" style="height: 180px; width: 100%;" alt='<%# Eval("ProductName") %>' onerror="this.src='Images/groundnut_harvest.jpg';" />
+                                    <img src='<%# ResolveUrl(Eval("ImagePath").ToString()) %>' class="img-fluid object-fit-cover" style="height: 180px; width: 100%;" alt='<%# Eval("ProductName") %>' onerror='this.onerror=null; this.src="<%# ResolveUrl(GetFallbackImage(Eval("Category"), Eval("ProductName"))) %>";' />
                                     <div class="p-3 d-flex flex-column flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-start mb-1">
                                             <span class="badge bg-success-subtle text-success border border-success-subtle small fw-bold"><%# Eval("Category") %></span>

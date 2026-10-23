@@ -57,6 +57,34 @@
                     <a href="OrderDetails.aspx" class="btn btn-kr-primary px-4 py-2 fw-bold text-nowrap" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Buy Now</a>
                 </div>
             </div>
+
+            <!-- Wishlist Item 3: Lokwan Golden Wheat -->
+            <div class="card card-custom p-3 bg-white">
+                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+                    <div class="d-flex gap-3 align-items-center">
+                        <img src="Images/wheat.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Wheat" />
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;">Lokwan Golden Wheat</h5>
+                            <small class="text-muted d-block" style="font-size: 0.85rem;">Farmer: Hareshbhai | Junagadh | ₹2,450 / Q</small>
+                        </div>
+                    </div>
+                    <a href="OrderDetails.aspx" class="btn btn-kr-primary px-4 py-2 fw-bold text-nowrap" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Buy Now</a>
+                </div>
+            </div>
+
+            <!-- Wishlist Item 4: Fresh Desi Tomatoes -->
+            <div class="card card-custom p-3 bg-white">
+                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
+                    <div class="d-flex gap-3 align-items-center">
+                        <img src="Images/tomato.jpg" class="rounded-3 object-fit-cover flex-shrink-0" width="140" height="95" alt="Tomatoes" />
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;">Fresh Desi Tomatoes (Grade A)</h5>
+                            <small class="text-muted d-block" style="font-size: 0.85rem;">Farmer: Ramesh Patel | Rajkot Rural | ₹1,850 / Q</small>
+                        </div>
+                    </div>
+                    <a href="OrderDetails.aspx" class="btn btn-kr-primary px-4 py-2 fw-bold text-nowrap" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Buy Now</a>
+                </div>
+            </div>
         </div>
     </div>
 </asp:Content>
