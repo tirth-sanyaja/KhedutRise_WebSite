@@ -1,7 +1,7 @@
 <%@ Page Title="Tractor & Agricultural Equipment" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="TractorRentals.aspx.cs" Inherits="KhedutRise.TractorRentals" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- 100% Dynamic Tractor & Agricultural Equipment Marketplace -->
+    <!-- Tractor & Agricultural Equipment Marketplace -->
     <div class="kr-page-container py-4">
         <!-- Header -->
         <div class="mb-4">
@@ -39,27 +39,147 @@
             <asp:Repeater ID="rptEquipments" runat="server">
                 <ItemTemplate>
                     <div class="col-lg-4 col-md-6">
-                        <div class="card card-custom p-4 h-100 d-flex flex-column border shadow-sm">
-                            <img src='<%# ResolveUrl(Eval("ImagePath").ToString()) %>' class="rounded-3 mb-3 img-fluid object-fit-cover" style="height: 200px; width: 100%;" alt='<%# Eval("ModelName") %>' onerror="this.src='Images/massey_tractor.jpg';" />
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="badge bg-success-subtle text-success border border-success-subtle small fw-bold"><%# Eval("Horsepower") %></span>
-                                <small class="text-warning fw-bold"><i class="bi bi-star-fill me-1"></i><%# Eval("Rating", "{0:F1}") %></small>
-                            </div>
-                            <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.25rem;"><%# Eval("ModelName") %></h5>
-                            <small class="text-muted mb-3 d-block" style="font-size: 0.85rem;">
-                                Owner: <strong><%# Eval("OwnerName") %></strong> | Location: <%# Eval("Location") %>
-                            </small>
-                            <h3 class="fw-bold mb-3" style="color: #0b6028; font-size: 1.6rem;">
-                                ₹<%# Eval("HourlyRate", "{0:N0}") %> <small class="fs-6 text-muted fw-normal">/ Hour</small>
-                            </h3>
+                        <div class="card card-custom h-100 d-flex flex-column border shadow-sm overflow-hidden" style="border-radius: 12px;">
+                            <!-- Tractor Photo – unique per model -->
+                            <img src='<%# ResolveUrl(Eval("ImagePath").ToString()) %>'
+                                 class="img-fluid object-fit-cover"
+                                 style="height: 210px; width: 100%;"
+                                 alt='<%# Eval("ModelName") %>'
+                                 onerror='this.onerror=null; this.src="Images/massey_tractor.jpg";' />
 
-                            <div class="mt-auto pt-2 border-top">
-                                <a href='BookingConfirm.aspx?eqId=<%# Eval("EquipmentId") %>' class="btn btn-kr-primary w-100 py-2 fw-bold" style="background-color: #0b6028 !important; border-color: #0b6028 !important; border-radius: 6px;">Book Rental Now</a>
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <!-- Badge + Rating -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle small fw-bold"><%# Eval("Horsepower") %></span>
+                                    <small class="text-warning fw-bold"><i class="bi bi-star-fill me-1"></i><%# Eval("Rating", "{0:F1}") %></small>
+                                </div>
+
+                                <!-- Model Name -->
+                                <h5 class="fw-bold mb-1 text-dark" style="font-size: 1.2rem;"><%# Eval("ModelName") %></h5>
+
+                                <!-- Description -->
+                                <small class="text-muted mb-2 d-block" style="font-size: 0.82rem; line-height: 1.4;"><%# Eval("Description") %></small>
+
+                                <!-- Owner & Location -->
+                                <small class="text-muted mb-3 d-block" style="font-size: 0.83rem;">
+                                    <i class="bi bi-person-fill me-1 text-success"></i><strong><%# Eval("OwnerName") %></strong>
+                                    &nbsp;|&nbsp;<i class="bi bi-geo-alt-fill me-1 text-success"></i><%# Eval("Location") %>
+                                </small>
+
+                                <!-- Attachments Section -->
+                                <div class="mb-3 p-2 rounded-2" style="background: #f0faf3; border: 1px solid #c3e6cb;">
+                                    <small class="fw-bold text-success d-block mb-1" style="font-size: 0.8rem;">
+                                        <i class="bi bi-tools me-1"></i> Available Attachments
+                                    </small>
+                                    <%# BuildAttachmentBadges(Eval("Attachments")) %>
+                                </div>
+
+                                <!-- Price -->
+                                <h4 class="fw-bold mb-3 mt-auto" style="color: #0b6028; font-size: 1.5rem;">
+                                    ₹<%# Eval("HourlyRate", "{0:N0}") %> <small class="fs-6 text-muted fw-normal">/ Hour</small>
+                                </h4>
+
+                                <!-- Book Button -->
+                                <div class="border-top pt-2">
+                                    <a href='BookingConfirm.aspx?eqId=<%# Eval("EquipmentId") %>'
+                                       class="btn w-100 py-2 fw-bold text-white"
+                                       style="background-color: #0b6028; border-color: #0b6028; border-radius: 6px;">
+                                        <i class="bi bi-calendar-check me-1"></i> Book Rental Now
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </ItemTemplate>
             </asp:Repeater>
+        </div>
+
+        <!-- Attachments Reference Guide -->
+        <div class="card card-custom p-4 mb-4 border shadow-sm">
+            <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-tools me-2 text-success"></i>Common Tractor Attachments</h5>
+            <div class="row g-3">
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🔄</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Rotavator</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Breaks and tills soil, ideal for cotton, wheat & vegetable beds</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🌾</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Seed Drill</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Precision row sowing of wheat, cumin, mustard & oilseeds</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🪛</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Cultivator</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Weeding between crop rows, inter-cultivation for aeration</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">💧</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Boom Sprayer</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Wide-coverage pesticide & fertiliser spraying for large fields</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">⚖️</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">MB Plough</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Deep primary tillage; turns soil, buries weeds and crop residue</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">📐</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Laser Leveler</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">GPS-guided land levelling for paddy and sugarcane fields</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🟤</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Disc Harrow</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Secondary tillage to break clods and prepare seedbed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🏗️</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Front Loader</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Lifting and loading loose material, manure, sand and gravel</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
+                        <span style="font-size:2rem;">🌿</span>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size:0.9rem;">Ridger / Bund Former</strong>
+                            <small class="text-muted" style="font-size:0.8rem;">Creates furrows for irrigation channels and earthen bunds</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Verified Guarantee -->

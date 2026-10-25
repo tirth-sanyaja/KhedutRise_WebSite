@@ -183,10 +183,37 @@ BEGIN
         HourlyRate DECIMAL(10, 2) NOT NULL,             -- Rental rate per hour
         OwnerName NVARCHAR(100) NOT NULL,
         Location NVARCHAR(100) NOT NULL,
-        Rating DECIMAL(3, 1) CONSTRAINT DF_Equipments_Rating DEFAULT 4.8
+        Rating DECIMAL(3, 1) CONSTRAINT DF_Equipments_Rating DEFAULT 4.8,
+        IsAvailable BIT CONSTRAINT DF_Equipments_IsAvailable DEFAULT 1,
+        ImagePath NVARCHAR(300) NULL,                   -- Unique photo per tractor model
+        Attachments NVARCHAR(500) NULL,                 -- Comma-separated implements
+        Description NVARCHAR(300) NULL                  -- Brief tractor description
     );
 END
 GO
+
+-- Seed tractor data with unique photos and attachments per model
+IF NOT EXISTS (SELECT 1 FROM Equipments WHERE ModelName = 'Massey Ferguson 241DI')
+BEGIN
+    INSERT INTO Equipments (ModelName, Horsepower, HourlyRate, OwnerName, Location, Rating, IsAvailable, ImagePath, Attachments, Description)
+    VALUES
+    ('Massey Ferguson 241DI', '41 HP', 800.00, 'Mansukhbhai Patel', 'Rajkot, Gujarat', 4.8, 1,
+     'Images/massey_ferguson_241di.jpg',
+     'Rotavator, Disc Harrow, Cultivator',
+     'Ideal for cotton and groundnut farms. Reliable 2WD tractor with powerful PTO.'),
+
+    ('Mahindra Yuvo 575', '45 HP', 750.00, 'Hareshbhai Mer', 'Junagadh, Gujarat', 4.7, 1,
+     'Images/mahindra_yuvo_575.jpg',
+     'Seed Drill, MB Plough, Boom Sprayer',
+     'Modern 2WD tractor suited for wheat and vegetable farming. Excellent fuel efficiency.'),
+
+    ('Swaraj 744 FE', '48 HP', 780.00, 'Dineshbhai Solanki', 'Anand, Gujarat', 4.9, 1,
+     'Images/swaraj_744fe.jpg',
+     'Rotavator, Laser Leveler, Seed Drill',
+     'Heavy duty 4WD tractor with higher ground clearance. Best for large farms and paddy fields.');
+END
+GO
+
 
 -- =========================================================================================
 -- 7. BOOKINGS TABLE (Farm Soil Testing & Drone Spraying Service Requests)

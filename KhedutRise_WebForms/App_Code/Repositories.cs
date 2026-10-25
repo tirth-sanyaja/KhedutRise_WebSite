@@ -385,7 +385,15 @@ namespace KhedutRise
                                   ISNULL(u.FullName, e.OwnerName) AS OwnerName, 
                                   ISNULL(u.Location, e.Location) AS Location,
                                   e.Rating, e.IsAvailable,
-                                  ISNULL(e.ImagePath, 'Images/tractor_hero.jpg') AS ImagePath
+                                  ISNULL(e.Attachments, '') AS Attachments,
+                                  ISNULL(e.Description, '') AS Description,
+                                  ISNULL(NULLIF(e.ImagePath, ''), 
+                                      CASE 
+                                          WHEN e.ModelName LIKE '%Massey%' THEN 'Images/massey_ferguson_241di.jpg'
+                                          WHEN e.ModelName LIKE '%Mahindra%' THEN 'Images/mahindra_yuvo_575.jpg'
+                                          WHEN e.ModelName LIKE '%Swaraj%' THEN 'Images/swaraj_744fe.jpg'
+                                          ELSE 'Images/massey_tractor.jpg'
+                                      END) AS ImagePath
                            FROM Equipments e
                            LEFT JOIN Users u ON e.OwnerId = u.UserId
                            WHERE e.IsAvailable = 1";
