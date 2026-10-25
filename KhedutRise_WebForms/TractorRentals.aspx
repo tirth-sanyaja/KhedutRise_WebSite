@@ -100,7 +100,7 @@
             <div class="row g-3">
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🔄</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Rotavator</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Breaks and tills soil, ideal for cotton, wheat & vegetable beds</small>
@@ -109,7 +109,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🌾</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Seed Drill</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Precision row sowing of wheat, cumin, mustard & oilseeds</small>
@@ -118,7 +118,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🪛</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Cultivator</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Weeding between crop rows, inter-cultivation for aeration</small>
@@ -127,7 +127,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">💧</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Boom Sprayer</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Wide-coverage pesticide & fertiliser spraying for large fields</small>
@@ -136,7 +136,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">⚖️</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">MB Plough</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Deep primary tillage; turns soil, buries weeds and crop residue</small>
@@ -145,7 +145,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">📐</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Laser Leveler</strong>
                             <small class="text-muted" style="font-size:0.8rem;">GPS-guided land levelling for paddy and sugarcane fields</small>
@@ -154,7 +154,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🟤</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Disc Harrow</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Secondary tillage to break clods and prepare seedbed</small>
@@ -163,7 +163,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🏗️</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Front Loader</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Lifting and loading loose material, manure, sand and gravel</small>
@@ -172,7 +172,7 @@
                 </div>
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex gap-3 align-items-start p-3 rounded-3" style="background:#f8f9fa; border:1px solid #dee2e6;">
-                        <span style="font-size:2rem;">🌿</span>
+                        <span style="font-size:2rem;"></span>
                         <div>
                             <strong class="d-block text-dark" style="font-size:0.9rem;">Ridger / Bund Former</strong>
                             <small class="text-muted" style="font-size:0.8rem;">Creates furrows for irrigation channels and earthen bunds</small>
