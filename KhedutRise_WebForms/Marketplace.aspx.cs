@@ -113,10 +113,11 @@ namespace KhedutRise
 
             if (cat == "Cotton") return "Images/cotton.jpg";
             if (cat == "Wheat") return "Images/wheat.jpg";
+            if (cat == "Groundnut") return "Images/groundnut.jpg";
             if (cat == "Vegetables")
             {
                 if (name.Contains("onion") || name.Contains("ડુંગળી")) return "Images/onion.jpg";
-                if (name.Contains("chilli") || name.Contains("મરચા") || name.Contains("okra")) return "Images/green_chilli.jpg";
+                if (name.Contains("chilli") || name.Contains("chili") || name.Contains("મરચા") || name.Contains("okra") || name.Contains("bhindi")) return "Images/green_chilli.jpg";
                 return "Images/tomato.jpg";
             }
             if (cat == "Spices") return "Images/cumin_spices.jpg";

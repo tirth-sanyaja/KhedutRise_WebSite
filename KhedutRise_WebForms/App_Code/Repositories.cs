@@ -145,7 +145,9 @@ namespace KhedutRise
                                       CASE 
                                           WHEN p.Category = 'Cotton' THEN 'Images/cotton.jpg'
                                           WHEN p.Category = 'Wheat' THEN 'Images/wheat.jpg'
-                                          WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
+                                          WHEN p.Category = 'Vegetables' AND p.ProductName LIKE '%Onion%' THEN 'Images/onion.jpg'
+                                           WHEN p.Category = 'Vegetables' AND (p.ProductName LIKE '%Chilli%' OR p.ProductName LIKE '%Okra%' OR p.ProductName LIKE '%Bhindi%') THEN 'Images/green_chilli.jpg'
+                                           WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
                                           WHEN p.Category = 'Spices' THEN 'Images/cumin_spices.jpg'
                                           ELSE 'Images/groundnut.jpg'
                                       END) AS ImagePath,
@@ -186,7 +188,9 @@ namespace KhedutRise
                                       CASE 
                                           WHEN p.Category = 'Cotton' THEN 'Images/cotton.jpg'
                                           WHEN p.Category = 'Wheat' THEN 'Images/wheat.jpg'
-                                          WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
+                                          WHEN p.Category = 'Vegetables' AND p.ProductName LIKE '%Onion%' THEN 'Images/onion.jpg'
+                                           WHEN p.Category = 'Vegetables' AND (p.ProductName LIKE '%Chilli%' OR p.ProductName LIKE '%Okra%' OR p.ProductName LIKE '%Bhindi%') THEN 'Images/green_chilli.jpg'
+                                           WHEN p.Category = 'Vegetables' THEN 'Images/tomato.jpg'
                                           WHEN p.Category = 'Spices' THEN 'Images/cumin_spices.jpg'
                                           ELSE 'Images/groundnut.jpg'
                                       END) AS ImagePath,
@@ -448,7 +452,13 @@ namespace KhedutRise
             string sql = @"SELECT b.BookingId, b.ServiceType, b.ProviderName, b.CustomerName, b.BookingDate, b.Amount, b.Status,
                                   ISNULL(e.ModelName, b.ServiceType) AS EquipmentModel,
                                   ISNULL(e.HourlyRate, 850) AS HourlyRate,
-                                  ISNULL(e.ImagePath, 'Images/tractor_hero.jpg') AS ImagePath
+                                  COALESCE(NULLIF(e.ImagePath,''),
+                                       CASE 
+                                           WHEN e.ModelName LIKE '%Massey%' THEN 'Images/massey_ferguson_241di.jpg'
+                                           WHEN e.ModelName LIKE '%Mahindra%' THEN 'Images/mahindra_yuvo_575.jpg'
+                                           WHEN e.ModelName LIKE '%Swaraj%' THEN 'Images/swaraj_744fe.jpg'
+                                           ELSE 'Images/massey_tractor.jpg'
+                                       END) AS ImagePath
                            FROM Bookings b
                            LEFT JOIN Equipments e ON b.EquipmentId = e.EquipmentId
                            WHERE b.UserId = @UId
