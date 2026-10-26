@@ -2,169 +2,298 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <style>
+        /* Shared Enterprise Admin Panel Styles */
         .admin-sidebar {
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3);
+            background: #0f172a;
+            color: #ffffff;
+            border-right: 1px solid #1e293b;
         }
-        .admin-nav-item {
-            color: #94a3b8;
-            font-weight: 500;
-            font-size: 0.92rem;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
+        .admin-sidebar-brand {
             display: flex;
             align-items: center;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            position: relative;
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid #1e293b;
         }
-        .admin-nav-item:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(4px);
-        }
-        .admin-nav-item.active {
-            color: #4ade80 !important;
-            background: rgba(34, 197, 94, 0.15);
+        .admin-sidebar-section-title {
+            color: #475569;
+            font-size: 0.68rem;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
         }
-        .admin-nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 15%;
-            bottom: 15%;
-            width: 4px;
-            background: #22c55e;
-            border-radius: 0 4px 4px 0;
+        .admin-nav-item,
+        .admin-sidebar a.d-block {
+            color: #94a3b8 !important;
+            font-weight: 500;
+            font-size: 0.88rem;
+            padding: 0.68rem 0.85rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            text-decoration: none !important;
+            transition: all 0.15s ease-in-out;
+            margin-bottom: 0.25rem;
+            border: 1px solid transparent;
+        }
+        .admin-nav-item:hover,
+        .admin-sidebar a.d-block:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .admin-nav-item.active,
+        .admin-sidebar a.d-block.fw-bold {
+            color: #22c55e !important;
+            background: rgba(34, 197, 94, 0.12) !important;
+            border-color: rgba(34, 197, 94, 0.25) !important;
+            font-weight: 600 !important;
+        }
+        .admin-nav-item i,
+        .admin-sidebar a.d-block i {
+            font-size: 1.15rem;
+            margin-right: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+        }
+        .admin-sidebar-footer {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid #1e293b;
+        }
+
+        /* Top Header Bar */
+        .admin-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .admin-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+            margin: 0;
+        }
+        .admin-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0.25rem 0 0 0;
+        }
+
+        /* Modern Cards */
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 1.75rem;
+        }
+        .admin-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+        }
+        .admin-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+        .admin-card-subtitle {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0.2rem 0 0 0;
+        }
+        .admin-card-body {
+            padding: 1.5rem;
+        }
+        .form-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #0b6028;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        .admin-form-control {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.65rem 0.95rem;
+            font-size: 0.92rem;
+            transition: all 0.15s ease-in-out;
+        }
+        .admin-form-control:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+            outline: none;
+        }
+        .policy-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .policy-toggle-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        @media (max-width: 991.98px) {
+            .admin-layout-container {
+                flex-direction: column !important;
+            }
+            .admin-sidebar {
+                width: 100% !important;
+                border-right: none !important;
+                border-bottom: 1px solid #1e293b;
+            }
+            .admin-main {
+                padding: 1.25rem 1rem !important;
+            }
         }
     </style>
 
-    <!-- Admin Settings: Platform configuration, Moderation policies, and Security -->
-    <div class="kr-page-container py-4">
-        <!-- Header -->
-        <div class="mb-4">
-            <small class="text-muted"><a href="Default.aspx" class="text-decoration-none text-muted">Home</a> / <a href="AdminDashboard.aspx" class="text-decoration-none text-muted">Admin Portal</a> / Platform Settings</small>
-            <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">Platform Settings & Configuration</h2>
-            <p class="text-muted small mb-0">Manage moderation policies, platform commission fees, notifications, and security controls.</p>
-        </div>
-
-        <div class="row g-4">
-            <!-- LEFT: Modern Enterprise Sidebar -->
-            <div class="col-lg-3">
-                <div class="admin-sidebar p-4 h-100 d-flex flex-column">
-                    <!-- Brand Section -->
-                    <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 44px; height: 44px; background: rgba(34, 197, 94, 0.2); color: #4ade80;">
-                            <i class="bi bi-shield-check fs-4"></i>
-                        </div>
-                        <div>
-                            <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px;"><span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span> Pro</h6>
-                            <small class="text-success fw-semibold" style="font-size: 0.75rem;">Super Administrator</small>
-                        </div>
-                    </div>
-
-                    <!-- Navigation Links Group -->
-                    <div class="mb-2">
-                        <small class="text-uppercase fw-bold text-muted mb-2 d-block" style="font-size: 0.7rem; letter-spacing: 1px;">Main Console</small>
-                    </div>
-                    <nav class="d-flex flex-column gap-2 mb-4">
-                        <a href="AdminDashboard.aspx" class="admin-nav-item">
-                            <i class="bi bi-grid-1x2-fill me-3 fs-5"></i>
-                            <span>Dashboard Overview</span>
-                        </a>
-                        <a href="AdminManagement.aspx?tab=Farmers" class="admin-nav-item">
-                            <i class="bi bi-people-fill me-3 fs-5"></i>
-                            <span>Farmers Directory</span>
-                        </a>
-                        <a href="AdminManagement.aspx?tab=Buyers" class="admin-nav-item">
-                            <i class="bi bi-shop me-3 fs-5"></i>
-                            <span>Buyers & Traders</span>
-                        </a>
-                        <a href="AdminManagement.aspx?tab=Moderation" class="admin-nav-item">
-                            <i class="bi bi-shield-lock-fill me-3 fs-5"></i>
-                            <span>All Moderation</span>
-                        </a>
-                    </nav>
-
-                    <div class="mb-2">
-                        <small class="text-uppercase fw-bold text-muted mb-2 d-block" style="font-size: 0.7rem; letter-spacing: 1px;">Analytics & System</small>
-                    </div>
-                    <nav class="d-flex flex-column gap-2 mb-auto">
-                        <a href="AdminAnalytics.aspx" class="admin-nav-item">
-                            <i class="bi bi-graph-up-arrow me-3 fs-5"></i>
-                            <span>Telemetry & Reports</span>
-                        </a>
-                        <a href="AdminSettings.aspx" class="admin-nav-item active">
-                            <i class="bi bi-sliders me-3 fs-5"></i>
-                            <span>Platform Settings</span>
-                        </a>
-                    </nav>
-
-                    <!-- Sidebar Footer Admin Identity -->
-                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    SA
-                                </div>
-                                <div style="line-height: 1.2;">
-                                    <span class="d-block text-white small fw-bold">System Admin</span>
-                                    <span class="text-muted" style="font-size: 0.72rem;">admin@khedutrise.com</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="admin-layout-container" style="display: flex; min-height: calc(100vh - 80px);">
+        <!-- Sidebar: fixed 240px wide -->
+        <div class="admin-sidebar" style="width: 240px; flex-shrink: 0; background: #0f172a; color: #ffffff; display: flex; flex-direction: column; padding: 1.5rem 1rem; border-right: 1px solid #1e293b;">
+            <!-- Brand Section -->
+            <div class="admin-sidebar-brand">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">
+                    <i class="bi bi-shield-check fs-5"></i>
+                </div>
+                <div style="min-width: 0;">
+                    <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px; font-size: 0.95rem;">
+                        <span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span> <span class="badge bg-success-subtle text-success ms-1 px-1 py-0" style="font-size: 0.65rem;">PRO</span>
+                    </h6>
+                    <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">Admin Console</small>
                 </div>
             </div>
 
-            <!-- RIGHT: Settings Form Cards -->
-            <div class="col-lg-9">
-                <!-- Action Alert Banner -->
-                <asp:Panel ID="pnlSettingsAlert" runat="server" Visible="false" CssClass="alert alert-success alert-dismissible fade show p-3 mb-4 rounded-3 shadow-sm" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-                        <div>
-                            <asp:Label ID="lblSettingsMsg" runat="server" CssClass="fw-bold"></asp:Label>
+            <!-- Navigation Links: Main Console -->
+            <div class="admin-sidebar-section-title">Core Console</div>
+            <nav class="d-flex flex-column mb-3">
+                <a href="AdminDashboard.aspx" class="admin-nav-item">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="AdminManagement.aspx?tab=Farmers" class="admin-nav-item">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Farmers</span>
+                </a>
+                <a href="AdminManagement.aspx?tab=Buyers" class="admin-nav-item">
+                    <i class="bi bi-shop"></i>
+                    <span>Buyers</span>
+                </a>
+                <a href="AdminManagement.aspx?tab=Moderation" class="admin-nav-item">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Moderation</span>
+                </a>
+            </nav>
+
+            <!-- Navigation Links: System & Analytics -->
+            <div class="admin-sidebar-section-title">Analytics & Config</div>
+            <nav class="d-flex flex-column mb-auto">
+                <a href="AdminAnalytics.aspx" class="admin-nav-item">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="AdminSettings.aspx" class="admin-nav-item active">
+                    <i class="bi bi-sliders"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <!-- Bottom of sidebar: Admin avatar, name, email, logout link -->
+            <div class="admin-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center" style="min-width: 0;">
+                        <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.8rem; background: #22c55e;">
+                            SA
+                        </div>
+                        <div style="line-height: 1.2; min-width: 0;">
+                            <span class="d-block text-white small fw-bold text-truncate">System Admin</span>
+                            <span class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">admin@khedutrise.com</span>
                         </div>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </asp:Panel>
+                    <a href="Default.aspx?action=logout" class="btn btn-sm btn-outline-secondary border-0 p-1 text-danger-emphasis ms-2" title="Sign Out" onclick="window.location.href='Default.aspx?action=logout'; return false;">
+                        <i class="bi bi-power fs-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <!-- 1. GENERAL PLATFORM CONFIGURATION -->
-                <div class="card card-custom p-4 mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #f0fdf4; color: #0b6028;">
-                            <i class="bi bi-building fs-5"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-0 text-dark">General Platform Configuration</h5>
-                            <small class="text-muted">Basic system identity and contact details</small>
-                        </div>
+        <!-- Main content: takes remaining space -->
+        <div class="admin-main" style="flex: 1; min-width: 0; padding: 2rem 2.25rem; background-color: #f8fafc;">
+            <!-- Top Header Bar inside Main Content -->
+            <div class="admin-header">
+                <div>
+                    <small class="text-muted"><a href="Default.aspx" class="text-decoration-none text-muted">Home</a> / <a href="AdminDashboard.aspx" class="text-decoration-none text-muted">Admin Portal</a> / Platform Settings</small>
+                    <h2 class="admin-title mt-1">Platform Settings & Configuration</h2>
+                    <p class="admin-subtitle">Manage moderation policies, platform commission fees, notifications, and security controls</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="AdminDashboard.aspx" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-semibold shadow-sm bg-white">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Action Alert Banner -->
+            <asp:Panel ID="pnlSettingsAlert" runat="server" Visible="false" CssClass="alert alert-success alert-dismissible fade show p-3 mb-4 rounded-3 shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+                    <div>
+                        <asp:Label ID="lblSettingsMsg" runat="server" CssClass="fw-bold"></asp:Label>
                     </div>
-                    <hr class="my-3 text-muted" />
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </asp:Panel>
 
+            <!-- 1. GENERAL PLATFORM CONFIGURATION -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #f0fdf4; color: #0b6028;">
+                        <i class="bi bi-building fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="admin-card-title">General Platform Configuration</h5>
+                        <p class="admin-card-subtitle">Basic system identity and public contact details</p>
+                    </div>
+                </div>
+                <div class="admin-card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">PORTAL NAME</label>
-                            <asp:TextBox ID="txtPortalName" runat="server" CssClass="form-control" Text="KhedutRise - Smart Agriculture Ecosystem" required="required"></asp:TextBox>
+                            <label class="form-section-label">PORTAL NAME</label>
+                            <asp:TextBox ID="txtPortalName" runat="server" CssClass="form-control admin-form-control" Text="KhedutRise - Smart Agriculture Ecosystem" required="required"></asp:TextBox>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">OFFICIAL ADMIN EMAIL</label>
-                            <asp:TextBox ID="txtAdminEmail" runat="server" type="email" CssClass="form-control" Text="admin@khedutrise.com" required="required"></asp:TextBox>
+                            <label class="form-section-label">OFFICIAL ADMIN EMAIL</label>
+                            <asp:TextBox ID="txtAdminEmail" runat="server" type="email" CssClass="form-control admin-form-control" Text="admin@khedutrise.com" required="required"></asp:TextBox>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">SUPPORT HELPLINE</label>
-                            <asp:TextBox ID="txtHelpline" runat="server" CssClass="form-control" Text="+91 1800 233 5555" required="required"></asp:TextBox>
+                            <label class="form-section-label">SUPPORT HELPLINE</label>
+                            <asp:TextBox ID="txtHelpline" runat="server" CssClass="form-control admin-form-control" Text="+91 1800 233 5555" required="required"></asp:TextBox>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">MARKET COMMISSION FEE (%)</label>
-                            <asp:TextBox ID="txtCommissionFee" runat="server" type="number" step="0.01" min="0" max="100" CssClass="form-control" Text="1.50" required="required"></asp:TextBox>
+                            <label class="form-section-label">MARKET COMMISSION FEE (%)</label>
+                            <asp:TextBox ID="txtCommissionFee" runat="server" type="number" step="0.01" min="0" max="100" CssClass="form-control admin-form-control" Text="1.50" required="required"></asp:TextBox>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">PRIMARY APMC MARKET</label>
-                            <asp:DropDownList ID="ddlPrimaryApmc" runat="server" CssClass="form-select">
+                            <label class="form-section-label">PRIMARY APMC MARKET</label>
+                            <asp:DropDownList ID="ddlPrimaryApmc" runat="server" CssClass="form-select admin-form-control">
                                 <asp:ListItem Text="Unjha APMC (Main Mandi)" Value="Unjha" Selected="True"></asp:ListItem>
                                 <asp:ListItem Text="Rajkot APMC" Value="Rajkot"></asp:ListItem>
                                 <asp:ListItem Text="Gondal APMC" Value="Gondal"></asp:ListItem>
@@ -173,80 +302,78 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 2. APPROVAL & MODERATION POLICIES -->
-                <div class="card card-custom p-4 mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #eff6ff; color: #0284c7;">
-                            <i class="bi bi-shield-check fs-5"></i>
+            <!-- 2. APPROVAL & MODERATION POLICIES -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #eff6ff; color: #0284c7;">
+                        <i class="bi bi-shield-check fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="admin-card-title">Moderation & Approval Policies</h5>
+                        <p class="admin-card-subtitle">Configure automated verification thresholds and alert triggers</p>
+                    </div>
+                </div>
+                <div class="admin-card-body">
+                    <div class="policy-toggle-row">
+                        <div class="pe-4">
+                            <div class="fw-bold text-dark mb-1">Auto-Approve Farmers with Valid 7/12 Land Records</div>
+                            <div class="text-muted small">Automatically mark farmer registrations as Approved when document hash verification passes.</div>
                         </div>
-                        <div>
-                            <h5 class="fw-bold mb-0 text-dark">Moderation & Approval Policies</h5>
-                            <small class="text-muted">Configure automatic approval criteria and notification triggers</small>
+                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                            <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
                         </div>
                     </div>
-                    <hr class="my-3 text-muted" />
 
-                    <div class="d-flex flex-column gap-0">
-                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                            <div class="pe-4">
-                                <div class="fw-bold text-dark mb-1">Auto-Approve Farmers with Valid 7/12 Land Records</div>
-                                <div class="text-muted small">Automatically mark farmer registrations as Approved when document hash verification passes.</div>
-                            </div>
-                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                                <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                            </div>
+                    <div class="policy-toggle-row">
+                        <div class="pe-4">
+                            <div class="fw-bold text-dark mb-1">Require Mandatory GST Verification for Bulk Grain Buyers</div>
+                            <div class="text-muted small">Buyers must provide valid GSTIN before placing bulk crop bids above &#8377;1 Lakh.</div>
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                            <div class="pe-4">
-                                <div class="fw-bold text-dark mb-1">Require Mandatory GST Verification for Bulk Grain Buyers</div>
-                                <div class="text-muted small">Buyers must provide valid GSTIN before placing bulk crop bids above &#8377;1 Lakh.</div>
-                            </div>
-                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                                <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                            </div>
+                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                            <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
                         </div>
+                    </div>
 
-                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                            <div class="pe-4">
-                                <div class="fw-bold text-dark mb-1">Auto-Approve Verified Farmer Crop Listings under &#8377;50,000</div>
-                                <div class="text-muted small">Allows verified farmers to publish small-to-medium harvest batches directly to the marketplace.</div>
-                            </div>
-                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                                <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                            </div>
+                    <div class="policy-toggle-row">
+                        <div class="pe-4">
+                            <div class="fw-bold text-dark mb-1">Auto-Approve Verified Farmer Crop Listings under &#8377;50,000</div>
+                            <div class="text-muted small">Allows verified farmers to publish small-to-medium harvest batches directly to the marketplace.</div>
                         </div>
+                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                            <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
+                        </div>
+                    </div>
 
-                        <div class="d-flex justify-content-between align-items-center py-3">
-                            <div class="pe-4">
-                                <div class="fw-bold text-dark mb-1">Send Instant SMS Alerts to Users on Approval / Rejection</div>
-                                <div class="text-muted small">Notify farmers and buyers instantly via SMS when admin approves or rejects their account.</div>
-                            </div>
-                            <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                                <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                            </div>
+                    <div class="policy-toggle-row">
+                        <div class="pe-4">
+                            <div class="fw-bold text-dark mb-1">Send Instant SMS Alerts to Users on Approval / Rejection</div>
+                            <div class="text-muted small">Notify farmers and buyers instantly via SMS when admin approves or rejects their account.</div>
+                        </div>
+                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
+                            <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 3. SYSTEM MAINTENANCE & DATABASE TOOLS -->
-                <div class="card card-custom p-4 mb-4">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #fff7ed; color: #ea580c;">
-                            <i class="bi bi-database-gear fs-5"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-0 text-dark">System Security & Database Maintenance</h5>
-                            <small class="text-muted">Maintenance mode, session timeouts, and database backups</small>
-                        </div>
+            <!-- 3. SYSTEM MAINTENANCE & DATABASE TOOLS -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: #fff7ed; color: #ea580c;">
+                        <i class="bi bi-database-gear fs-5"></i>
                     </div>
-                    <hr class="my-3 text-muted" />
-
+                    <div>
+                        <h5 class="admin-card-title">System Security & Database Maintenance</h5>
+                        <p class="admin-card-subtitle">Maintenance mode, session timeouts, and database backups</p>
+                    </div>
+                </div>
+                <div class="admin-card-body">
                     <div class="row g-3 align-items-center mb-4">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold" style="color: #0b6028; font-size: 0.75rem;">ADMIN SESSION TIMEOUT</label>
-                            <asp:DropDownList ID="ddlSessionTimeout" runat="server" CssClass="form-select">
+                            <label class="form-section-label">ADMIN SESSION TIMEOUT</label>
+                            <asp:DropDownList ID="ddlSessionTimeout" runat="server" CssClass="form-select admin-form-control">
                                 <asp:ListItem Text="15 Minutes" Value="15"></asp:ListItem>
                                 <asp:ListItem Text="30 Minutes (Recommended)" Value="30" Selected="True"></asp:ListItem>
                                 <asp:ListItem Text="1 Hour" Value="60"></asp:ListItem>
@@ -254,7 +381,7 @@
                             </asp:DropDownList>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold mb-2" style="color:#0b6028;font-size:0.75rem;">MAINTENANCE MODE</label>
+                            <label class="form-section-label">MAINTENANCE MODE</label>
                             <div class="d-flex justify-content-between align-items-center border rounded-3 p-3 bg-light">
                                 <div class="pe-3">
                                     <div class="fw-bold text-dark" style="font-size:0.92rem;">Enable Maintenance Mode (System Downtime)</div>
@@ -273,17 +400,17 @@
                             <small class="text-muted">Take immediate backup of SQL Server database `KhedutRiseDB`</small>
                         </div>
                         <div class="d-flex gap-2">
-                            <asp:Button ID="btnBackupDb" runat="server" Text="Backup Database Now" CssClass="btn btn-outline-dark btn-sm fw-semibold" formnovalidate="formnovalidate" OnClick="btnBackupDb_Click" />
-                            <asp:Button ID="btnClearCache" runat="server" Text="Clear Cache" CssClass="btn btn-outline-secondary btn-sm" formnovalidate="formnovalidate" OnClick="btnClearCache_Click" />
+                            <asp:Button ID="btnBackupDb" runat="server" Text="Backup Database Now" CssClass="btn btn-outline-dark btn-sm fw-semibold rounded-2" formnovalidate="formnovalidate" OnClick="btnBackupDb_Click" />
+                            <asp:Button ID="btnClearCache" runat="server" Text="Clear Cache" CssClass="btn btn-outline-secondary btn-sm rounded-2" formnovalidate="formnovalidate" OnClick="btnClearCache_Click" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- SAVE BUTTONS -->
-                <div class="d-flex justify-content-end gap-2 mb-4">
-                    <asp:Button ID="btnResetDefaults" runat="server" Text="Reset to Defaults" CssClass="btn btn-light px-4 fw-semibold text-secondary" formnovalidate="formnovalidate" OnClick="btnResetDefaults_Click" />
-                    <asp:Button ID="btnSaveSettings" runat="server" Text="Save Platform Settings" CssClass="btn text-white fw-bold px-4" style="background-color: #0b6028; border-radius: 6px; border: none;" OnClick="btnSaveSettings_Click" />
-                </div>
+            <!-- SAVE BUTTONS -->
+            <div class="d-flex justify-content-end gap-2 mb-4">
+                <asp:Button ID="btnResetDefaults" runat="server" Text="Reset to Defaults" CssClass="btn btn-light px-4 fw-semibold text-secondary rounded-2" formnovalidate="formnovalidate" OnClick="btnResetDefaults_Click" />
+                <asp:Button ID="btnSaveSettings" runat="server" Text="Save Platform Settings" CssClass="btn text-white fw-bold px-4 rounded-2" style="background-color: #0b6028; border: none;" OnClick="btnSaveSettings_Click" />
             </div>
         </div>
     </div>
