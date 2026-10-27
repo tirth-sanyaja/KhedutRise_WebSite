@@ -191,11 +191,11 @@ namespace KhedutRise
         private string GetNotificationBellHtml()
         {
             return @"<div class='dropdown d-inline-block notif-wrapper'>
-                <a href='#' class='notif-bell-btn position-relative' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false' title='Notifications'>
+                <a href='#' class='notif-bell-btn position-relative' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false' title='Notifications' id='notifBellBtn'>
                     <i class='bi bi-bell-fill notif-bell-icon'></i>
-                    <span class='notif-count-badge'>3</span>
+                    <span class='notif-count-badge' id='notifCountBadge'>3</span>
                 </a>
-                <div class='dropdown-menu dropdown-menu-end notif-panel p-0 shadow-lg border-0'>
+                <div class='dropdown-menu dropdown-menu-end notif-panel p-0 shadow-lg border-0' id='notifDropdown'>
                     <!-- Panel Header -->
                     <div class='notif-panel-header d-flex justify-content-between align-items-center px-3 py-3'>
                         <div class='d-flex align-items-center gap-2'>
@@ -204,19 +204,26 @@ namespace KhedutRise
                             </div>
                             <div>
                                 <h6 class='mb-0 fw-bold text-dark' style='font-size:0.92rem;'>Notifications</h6>
-                                <small class='text-muted' style='font-size:0.72rem;'>3 unread updates</small>
+                                <small class='text-muted' id='notifSubtitle' style='font-size:0.72rem;'>3 unread updates</small>
                             </div>
                         </div>
-                        <span class='badge rounded-pill px-2 py-1 fw-bold' style='background:#dcfce7;color:#15803d;font-size:0.72rem;'>3 New</span>
+                        <div class='d-flex align-items-center gap-2'>
+                            <span class='badge rounded-pill px-2 py-1 fw-bold' id='notifHeaderBadge' style='background:#dcfce7;color:#15803d;font-size:0.72rem;'>3 New</span>
+                            <button type='button' onclick='krMarkAllRead(event)' title='Mark all as read'
+                                style='background:none;border:none;color:#94a3b8;font-size:1rem;cursor:pointer;padding:0 2px;line-height:1;'>
+                                <i class='bi bi-check2-all'></i>
+                            </button>
+                        </div>
                     </div>
                     <!-- Notification Items -->
-                    <div class='notif-list'>
+                    <div class='notif-list' id='notifList'>
                         <!-- Notif 1: APMC -->
-                        <a href='ApmcRates.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                        <a href='ApmcRates.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
+                           data-notif-id='kr-notif-1' onclick='krReadNotif(event,this)'>
                             <div class='notif-icon-box' style='background:#dcfce7;color:#16a34a;flex-shrink:0;'>
                                 <i class='bi bi-graph-up-arrow'></i>
                             </div>
-                            <div style='min-width:0;'>
+                            <div style='min-width:0;flex:1;'>
                                 <div class='d-flex justify-content-between align-items-center mb-1'>
                                     <span class='notif-tag' style='background:#dcfce7;color:#15803d;'>APMC Rates</span>
                                     <small class='text-muted notif-time'>12:45 PM</small>
@@ -226,11 +233,12 @@ namespace KhedutRise
                             <span class='notif-unread-dot' style='flex-shrink:0;'></span>
                         </a>
                         <!-- Notif 2: Weather -->
-                        <a href='WeatherForecast.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                        <a href='WeatherForecast.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
+                           data-notif-id='kr-notif-2' onclick='krReadNotif(event,this)'>
                             <div class='notif-icon-box' style='background:#dbeafe;color:#2563eb;flex-shrink:0;'>
                                 <i class='bi bi-cloud-rain-fill'></i>
                             </div>
-                            <div style='min-width:0;'>
+                            <div style='min-width:0;flex:1;'>
                                 <div class='d-flex justify-content-between align-items-center mb-1'>
                                     <span class='notif-tag' style='background:#dbeafe;color:#1d4ed8;'>Weather</span>
                                     <small class='text-muted notif-time'>Today</small>
@@ -240,11 +248,12 @@ namespace KhedutRise
                             <span class='notif-unread-dot' style='flex-shrink:0;'></span>
                         </a>
                         <!-- Notif 3: Market -->
-                        <a href='Marketplace.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                        <a href='Marketplace.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
+                           data-notif-id='kr-notif-3' onclick='krReadNotif(event,this)'>
                             <div class='notif-icon-box' style='background:#fef9c3;color:#ca8a04;flex-shrink:0;'>
                                 <i class='bi bi-shop-window'></i>
                             </div>
-                            <div style='min-width:0;'>
+                            <div style='min-width:0;flex:1;'>
                                 <div class='d-flex justify-content-between align-items-center mb-1'>
                                     <span class='notif-tag' style='background:#fef9c3;color:#92400e;'>New Listing</span>
                                     <small class='text-muted notif-time'>2 hrs ago</small>
@@ -253,6 +262,11 @@ namespace KhedutRise
                             </div>
                             <span class='notif-unread-dot' style='flex-shrink:0;'></span>
                         </a>
+                        <!-- Empty state (hidden by default) -->
+                        <div id='notifEmptyState' style='display:none;' class='text-center py-4 px-3'>
+                            <i class='bi bi-bell-slash text-muted' style='font-size:2rem;'></i>
+                            <p class='text-muted small mt-2 mb-0 fw-semibold'>All caught up!<br>No new notifications.</p>
+                        </div>
                     </div>
                     <!-- Panel Footer -->
                     <div class='notif-panel-footer text-center py-2 px-3'>
@@ -261,7 +275,98 @@ namespace KhedutRise
                         </a>
                     </div>
                 </div>
-            </div>";
+            </div>
+
+            <script>
+            (function() {
+                var STORAGE_KEY = 'kr_read_notifs';
+
+                function getRead() {
+                    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+                }
+                function saveRead(arr) {
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+                }
+
+                function updateUI() {
+                    var items   = document.querySelectorAll('#notifList .notif-item[data-notif-id]');
+                    var badge   = document.getElementById('notifCountBadge');
+                    var hBadge  = document.getElementById('notifHeaderBadge');
+                    var subtitle = document.getElementById('notifSubtitle');
+                    var empty   = document.getElementById('notifEmptyState');
+                    var bell    = document.getElementById('notifBellBtn');
+                    var read    = getRead();
+                    var unread  = 0;
+
+                    items.forEach(function(el) {
+                        var id = el.getAttribute('data-notif-id');
+                        if (read.indexOf(id) !== -1) {
+                            el.style.display = 'none';
+                        } else {
+                            unread++;
+                        }
+                    });
+
+                    /* badge count */
+                    if (badge) {
+                        badge.textContent = unread;
+                        badge.style.display = unread > 0 ? '' : 'none';
+                    }
+                    /* header badge */
+                    if (hBadge) {
+                        hBadge.textContent = unread + ' New';
+                        hBadge.style.display = unread > 0 ? '' : 'none';
+                    }
+                    /* subtitle */
+                    if (subtitle) {
+                        subtitle.textContent = unread > 0 ? (unread + ' unread update' + (unread > 1 ? 's' : '')) : 'No new notifications';
+                    }
+                    /* bell animation: stop when all read */
+                    if (bell) {
+                        var bellIcon = bell.querySelector('.notif-bell-icon');
+                        if (bellIcon) bellIcon.style.animationPlayState = unread > 0 ? 'running' : 'paused';
+                    }
+                    /* empty state */
+                    if (empty) empty.style.display = unread === 0 ? '' : 'none';
+                }
+
+                /* Called on individual notif click */
+                window.krReadNotif = function(e, el) {
+                    var id   = el.getAttribute('data-notif-id');
+                    var href = el.getAttribute('href');
+                    var read = getRead();
+                    if (read.indexOf(id) === -1) read.push(id);
+                    saveRead(read);
+
+                    /* Animate out then navigate */
+                    el.style.transition = 'opacity 0.25s, max-height 0.3s';
+                    el.style.overflow   = 'hidden';
+                    el.style.opacity    = '0';
+                    el.style.maxHeight  = el.scrollHeight + 'px';
+                    setTimeout(function() { el.style.maxHeight = '0'; el.style.padding = '0'; }, 20);
+                    setTimeout(function() {
+                        el.style.display = 'none';
+                        updateUI();
+                        if (href && href !== '#') window.location.href = href;
+                    }, 320);
+                    e.preventDefault();
+                };
+
+                /* Mark all read */
+                window.krMarkAllRead = function(e) {
+                    e.stopPropagation();
+                    var ids = [];
+                    document.querySelectorAll('#notifList .notif-item[data-notif-id]').forEach(function(el) {
+                        ids.push(el.getAttribute('data-notif-id'));
+                    });
+                    saveRead(ids);
+                    updateUI();
+                };
+
+                /* Run on page load */
+                document.addEventListener('DOMContentLoaded', updateUI);
+            })();
+            </script>";
         }
 
         private string GetProfileDropdownHtml(string activeRole, string userName)
