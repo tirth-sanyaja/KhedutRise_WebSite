@@ -190,37 +190,74 @@ namespace KhedutRise
 
         private string GetNotificationBellHtml()
         {
-            return @"<div class='dropdown d-inline-block'>
-                <a href='#' class='icon-circle-btn position-relative' data-bs-toggle='dropdown' aria-expanded='false' title='Notifications' style='background: #e2e8f0; color: #475569;'>
-                    <i class='bi bi-bell-fill' style='font-size: 0.95rem;'></i>
-                    <span class='position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle'></span>
+            return @"<div class='dropdown d-inline-block notif-wrapper'>
+                <a href='#' class='notif-bell-btn position-relative' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false' title='Notifications'>
+                    <i class='bi bi-bell-fill notif-bell-icon'></i>
+                    <span class='notif-count-badge'>3</span>
                 </a>
-                <div class='dropdown-menu dropdown-menu-end shadow border-0 p-0' style='width: 320px; border-radius: 12px; overflow: hidden; z-index: 1050;'>
-                    <div class='p-3 bg-light border-bottom d-flex justify-content-between align-items-center'>
-                        <h6 class='mb-0 fw-bold text-dark' style='font-size: 0.95rem;'>Live Notifications</h6>
-                        <span class='badge bg-success-subtle text-success'>3 New</span>
+                <div class='dropdown-menu dropdown-menu-end notif-panel p-0 shadow-lg border-0'>
+                    <!-- Panel Header -->
+                    <div class='notif-panel-header d-flex justify-content-between align-items-center px-3 py-3'>
+                        <div class='d-flex align-items-center gap-2'>
+                            <div class='notif-header-icon'>
+                                <i class='bi bi-bell-fill'></i>
+                            </div>
+                            <div>
+                                <h6 class='mb-0 fw-bold text-dark' style='font-size:0.92rem;'>Notifications</h6>
+                                <small class='text-muted' style='font-size:0.72rem;'>3 unread updates</small>
+                            </div>
+                        </div>
+                        <span class='badge rounded-pill px-2 py-1 fw-bold' style='background:#dcfce7;color:#15803d;font-size:0.72rem;'>3 New</span>
                     </div>
-                    <div class='list-group list-group-flush' style='font-size: 0.85rem;'>
-                        <a href='ApmcRates.aspx' class='list-group-item list-group-item-action p-3'>
-                            <div class='d-flex align-items-center mb-1'>
-                                <span class='badge bg-success-subtle text-success me-2'>APMC Rates</span>
-                                <small class='text-muted'>12:45 PM</small>
+                    <!-- Notification Items -->
+                    <div class='notif-list'>
+                        <!-- Notif 1: APMC -->
+                        <a href='ApmcRates.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                            <div class='notif-icon-box' style='background:#dcfce7;color:#16a34a;flex-shrink:0;'>
+                                <i class='bi bi-graph-up-arrow'></i>
                             </div>
-                            <p class='mb-0 text-dark fw-semibold'>Highest Cotton rate ₹7,250/Q recorded at Gondal APMC yard.</p>
+                            <div style='min-width:0;'>
+                                <div class='d-flex justify-content-between align-items-center mb-1'>
+                                    <span class='notif-tag' style='background:#dcfce7;color:#15803d;'>APMC Rates</span>
+                                    <small class='text-muted notif-time'>12:45 PM</small>
+                                </div>
+                                <p class='notif-text mb-0'>Cotton hits <strong>₹7,250/Q</strong> — highest rate recorded at Gondal APMC yard today.</p>
+                            </div>
+                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
                         </a>
-                        <a href='WeatherForecast.aspx' class='list-group-item list-group-item-action p-3'>
-                            <div class='d-flex align-items-center mb-1'>
-                                <span class='badge bg-primary-subtle text-primary me-2'>Weather</span>
-                                <small class='text-muted'>Today</small>
+                        <!-- Notif 2: Weather -->
+                        <a href='WeatherForecast.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                            <div class='notif-icon-box' style='background:#dbeafe;color:#2563eb;flex-shrink:0;'>
+                                <i class='bi bi-cloud-rain-fill'></i>
                             </div>
-                            <p class='mb-0 text-dark fw-semibold'>Rain probability 78% expected tomorrow. Complete groundnut irrigation.</p>
+                            <div style='min-width:0;'>
+                                <div class='d-flex justify-content-between align-items-center mb-1'>
+                                    <span class='notif-tag' style='background:#dbeafe;color:#1d4ed8;'>Weather</span>
+                                    <small class='text-muted notif-time'>Today</small>
+                                </div>
+                                <p class='notif-text mb-0'>Rain probability <strong>78%</strong> expected tomorrow — complete groundnut irrigation early.</p>
+                            </div>
+                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
                         </a>
-                        <a href='Marketplace.aspx' class='list-group-item list-group-item-action p-3'>
-                            <div class='d-flex align-items-center mb-1'>
-                                <span class='badge bg-warning-subtle text-warning me-2'>Market</span>
-                                <small class='text-muted'>New Listing</small>
+                        <!-- Notif 3: Market -->
+                        <a href='Marketplace.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'>
+                            <div class='notif-icon-box' style='background:#fef9c3;color:#ca8a04;flex-shrink:0;'>
+                                <i class='bi bi-shop-window'></i>
                             </div>
-                            <p class='mb-0 text-dark fw-semibold'>Premium Groundnut (Grade A) listed by verified farmers in Rajkot.</p>
+                            <div style='min-width:0;'>
+                                <div class='d-flex justify-content-between align-items-center mb-1'>
+                                    <span class='notif-tag' style='background:#fef9c3;color:#92400e;'>New Listing</span>
+                                    <small class='text-muted notif-time'>2 hrs ago</small>
+                                </div>
+                                <p class='notif-text mb-0'>Premium Groundnut <strong>Grade A</strong> listed by verified farmers in Rajkot.</p>
+                            </div>
+                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
+                        </a>
+                    </div>
+                    <!-- Panel Footer -->
+                    <div class='notif-panel-footer text-center py-2 px-3'>
+                        <a href='Default.aspx' class='text-decoration-none fw-bold' style='color:#15803d;font-size:0.83rem;'>
+                            <i class='bi bi-list-check me-1'></i>View All Activity
                         </a>
                     </div>
                 </div>
