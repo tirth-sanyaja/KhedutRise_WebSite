@@ -10,10 +10,6 @@
                 <h2 class="fw-bold mt-1 text-dark" style="font-size: 2rem;">Fresh From Farmers</h2>
                 <p class="text-muted small mb-0">Buy high grade agricultural products directly from verified farmers across Gujarat.</p>
             </div>
-            <div class="mt-3 mt-md-0 d-flex gap-2 align-items-center">
-                <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control form-control-sm" placeholder="Search crop or village..." style="max-width: 220px;"></asp:TextBox>
-                <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-sm btn-success px-3 fw-bold" OnClick="btnSearch_Click" style="background-color: #0b6028; border-color: #0b6028;" />
-            </div>
         </div>
 
         <!-- Filter Category Chips -->
