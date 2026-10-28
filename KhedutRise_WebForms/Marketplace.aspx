@@ -27,9 +27,8 @@
             object-fit: cover;
             transition: transform 0.4s ease;
         }
-        .product-card:hover .product-img-wrapper img {
-            transform: scale(1.05);
-        }
+       
+        
         .filter-sidebar-card {
             border: 1px solid #e5e7eb;
             border-radius: 14px;
