@@ -73,19 +73,19 @@
                 <i class="bi bi-grid-fill"></i> All Crops
             </asp:LinkButton>
             <asp:LinkButton ID="btnGroundnut" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Groundnut">
-                🥜 Groundnut
+                 Groundnut
             </asp:LinkButton>
             <asp:LinkButton ID="btnCotton" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Cotton">
-                🌾 Cotton
+                 Cotton
             </asp:LinkButton>
             <asp:LinkButton ID="btnWheat" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Wheat">
-                🌾 Wheat
+                 Wheat
             </asp:LinkButton>
             <asp:LinkButton ID="btnVegetables" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Vegetables">
-                🍅 Vegetables
+                 Vegetables
             </asp:LinkButton>
             <asp:LinkButton ID="btnSpices" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Spices">
-                🌿 Spices (Cumin)
+                 Spices (Cumin)
             </asp:LinkButton>
         </div>
 
