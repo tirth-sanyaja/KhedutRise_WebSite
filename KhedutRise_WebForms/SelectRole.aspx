@@ -55,7 +55,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="card h-100 p-4 border rounded-3 shadow-none d-flex flex-column" style="border-color: #e2e8f0 !important; background: #ffffff;">
                     <img src="Images/massey_tractor.jpg" class="rounded-3 mb-4 object-fit-cover shadow-sm" height="190" alt="Operator" />
-                    <h4 class="fw-bold mb-3" style="color: #f95700; font-size: 1.35rem; letter-spacing: 0.5px;">OPERATOR</h4>
+                    <h4 class="fw-bold mb-3" style="color: #ff0000; font-size: 1.35rem; letter-spacing: 0.5px;">OPERATOR</h4>
                     <p class="text-secondary mb-4" style="font-size: 0.95rem; line-height: 1.5;">Provide tractor & equipment services to local farmers.</p>
                     <ul class="list-unstyled mb-5" style="font-size: 0.95rem; line-height: 1.9;">
                         <li class="fw-bold text-dark">• Machinery Rent Listings Creation</li>
@@ -63,7 +63,7 @@
                         <li class="fw-bold text-dark">• Verified Payouts & Earnings Log</li>
                     </ul>
                     <div class="mt-auto">
-                        <a href="RegisterOperator.aspx" class="btn w-100 py-2 fw-bold text-white shadow-sm" style="background-color: #f95700; border-radius: 6px; font-size: 0.95rem;">Register as Operator</a>
+                        <a href="RegisterOperator.aspx" class="btn w-100 py-2 fw-bold text-white shadow-sm" style="background-color: #ff0000; border-radius: 6px; font-size: 0.95rem;">Register as Operator</a>
                     </div>
                 </div>
             </div>
