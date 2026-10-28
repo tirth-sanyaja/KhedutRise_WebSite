@@ -16,7 +16,7 @@ namespace KhedutRise
             }
         }
 
-        // Handle category tab clicks (All, Groundnut, Cotton, Wheat,Vegetables)
+        // Handle category tab clicks (All, Groundnut, Cotton, Wheat, Vegetables, Spices)
         protected void FilterCategory_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
@@ -25,7 +25,7 @@ namespace KhedutRise
 
             // Highlight selected chip
             ResetCategoryStyles();
-            btn.CssClass = "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none";
+            btn.CssClass = "category-chip fw-bold text-white shadow-sm";
             btn.Style["background-color"] = "#0b6028";
             btn.Style["border"] = "1px solid #0b6028";
 
@@ -45,24 +45,24 @@ namespace KhedutRise
 
         protected void btnResetFilter_Click(object sender, EventArgs e)
         {
-            txtSearch.Text = "";
             txtLocationFilter.Text = "";
             ddlSort.SelectedIndex = 0;
             ViewState["ActiveCategory"] = "";
             ResetCategoryStyles();
-            btnAll.CssClass = "btn btn-sm rounded-pill px-4 fw-bold text-white shadow-none";
+            btnAll.CssClass = "category-chip fw-bold text-white shadow-sm";
             btnAll.Style["background-color"] = "#0b6028";
+            btnAll.Style["border"] = "1px solid #0b6028";
             LoadProducts();
         }
 
         private void ResetCategoryStyles()
         {
-            LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnVegetables };
+            LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnVegetables, btnSpices };
             foreach (var b in buttons)
             {
                 if (b != null)
                 {
-                    b.CssClass = "btn btn-sm rounded-pill px-4 fw-semibold shadow-none bg-white text-dark";
+                    b.CssClass = "category-chip fw-semibold bg-white text-dark";
                     b.Style["border"] = "1px solid #d1d5db";
                     b.Style["background-color"] = "#ffffff";
                 }
@@ -75,15 +75,10 @@ namespace KhedutRise
             try
             {
                 string category = ViewState["ActiveCategory"] != null ? ViewState["ActiveCategory"].ToString() : "";
-                string search = txtSearch.Text.Trim();
                 string location = txtLocationFilter.Text.Trim();
-                if (!string.IsNullOrEmpty(location))
-                {
-                    search = string.IsNullOrEmpty(search) ? location : (search + " " + location);
-                }
                 string sort = ddlSort.SelectedValue;
 
-                DataTable dt = ProductRepository.GetMarketplaceProducts(category, search, sort);
+                DataTable dt = ProductRepository.GetMarketplaceProducts(category, location, sort);
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -91,17 +86,25 @@ namespace KhedutRise
                     pnlNoProducts.Visible = false;
                     rptProducts.DataSource = dt;
                     rptProducts.DataBind();
+
+                    lblProductCount.Text = string.Format("<i class='bi bi-box-seam me-1'></i> {0} Available Crop{1}", 
+                        dt.Rows.Count, dt.Rows.Count > 1 ? "s" : "");
+                    lblProductCount.CssClass = "badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-bold rounded-pill";
                 }
                 else
                 {
                     rptProducts.Visible = false;
                     pnlNoProducts.Visible = true;
+                    lblProductCount.Text = "<i class='bi bi-inbox me-1'></i> 0 Crops Found";
+                    lblProductCount.CssClass = "badge bg-secondary-subtle text-secondary border px-3 py-2 fw-bold rounded-pill";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 rptProducts.Visible = false;
                 pnlNoProducts.Visible = true;
+                lblProductCount.Text = "<i class='bi bi-exclamation-circle me-1'></i> Error Loading Catalog";
+                lblProductCount.CssClass = "badge bg-danger-subtle text-danger border px-3 py-2 fw-bold rounded-pill";
             }
         }
 
@@ -122,6 +125,27 @@ namespace KhedutRise
             }
             if (cat == "Spices") return "Images/cumin_spices.jpg";
             return "Images/groundnut.jpg";
+        }
+
+        // Return distinct badge style per category
+        public string GetCategoryBadgeClass(object categoryObj)
+        {
+            string cat = (categoryObj ?? "").ToString().Trim();
+            switch (cat)
+            {
+                case "Cotton":
+                    return "bg-info-subtle text-info-emphasis border border-info-subtle";
+                case "Wheat":
+                    return "bg-warning-subtle text-warning-emphasis border border-warning-subtle";
+                case "Groundnut":
+                    return "bg-primary-subtle text-primary border border-primary-subtle";
+                case "Vegetables":
+                    return "bg-success-subtle text-success border border-success-subtle";
+                case "Spices":
+                    return "bg-danger-subtle text-danger border border-danger-subtle";
+                default:
+                    return "bg-secondary-subtle text-secondary border border-secondary-subtle";
+            }
         }
     }
 }

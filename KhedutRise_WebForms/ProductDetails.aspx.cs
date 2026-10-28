@@ -76,7 +76,7 @@ namespace KhedutRise
                     btnConfirmOrder.CssClass = "btn w-100 py-3 fw-bold text-white bg-secondary border-0 shadow-sm";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ShowNotFound();
             }

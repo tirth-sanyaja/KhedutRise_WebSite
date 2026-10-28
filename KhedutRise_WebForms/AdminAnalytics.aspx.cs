@@ -83,7 +83,7 @@ namespace KhedutRise
                     rptRecentOrders.DataBind();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 litTotalGmv.Text = "₹0";
                 litTotalOrders.Text = "0 Orders";

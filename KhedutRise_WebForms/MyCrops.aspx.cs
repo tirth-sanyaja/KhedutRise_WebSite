@@ -75,7 +75,7 @@ namespace KhedutRise
                     lblNextHarvest.Text = "No Active Plots";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 rptFarmerCrops.Visible = false;
                 pnlNoCrops.Visible = true;
