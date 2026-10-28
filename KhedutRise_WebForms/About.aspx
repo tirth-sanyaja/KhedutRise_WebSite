@@ -11,13 +11,15 @@
             <p class="text-muted small mb-0">Revolutionizing Indian agriculture through transparent technology.</p>
         </div>
 
+       
         <!-- Wide Hero Banner  -->
-        <div class="card card-custom p-4 p-md-5 mb-4 text-white overflow-hidden position-relative" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.65)), url('Images/farmer_family.jpg') center/cover no-repeat; min-height: 220px; border-radius: 12px;">
-            <div class="my-auto">
-                <h2 class="display-6 fw-bold mb-2 text-white" style="font-size: 2.1rem;">Bridging the Gap Between Farmers & Buyers</h2>
-                <p class="text-white-50 mb-0" style="font-size: 1rem;">Empowering over 50,000 farmers in Gujarat with fair pricing and verified services.</p>
-            </div>
-        </div>
+<div class="card card-custom p-4 p-md-5 mb-4 text-white overflow-hidden position-relative" style="background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0)), url('Images/farmer_family.jpg') center/cover no-repeat; min-height: 420px; border-radius: 18px; display: flex !important; flex-direction: column !important; justify-content: flex-start !important;">
+    <div style="margin-top: 0 !important; margin-bottom: auto !important;">
+        <h2 class="display-6 fw-bold mb-2 text-white" style="font-size: 2.1rem;">Bridging the Gap Between Farmers & Buyers</h2>
+        <p class="text-white-50 mb-0" style="font-size: 1rem;">Empowering over 50,000 farmers in Gujarat with fair pricing and verified services.</p>
+    </div>
+</div>
+
 
         <div class="row g-4">
             <!-- LEFT: Our Vision & Story -->
