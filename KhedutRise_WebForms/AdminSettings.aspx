@@ -151,6 +151,74 @@
             border-bottom: none;
             padding-bottom: 0;
         }
+
+        /* ── Custom Modern Switch Toggle (Zero Checkbox Overlap) ── */
+        .admin-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            margin: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+            vertical-align: middle;
+            user-select: none;
+        }
+        /* Completely hide the native checkbox input & any wrapper span without breaking form value */
+        .admin-switch input[type="checkbox"],
+        .admin-switch input,
+        .admin-switch span:not(.admin-switch-slider) input {
+            position: absolute !important;
+            opacity: 0 !important;
+            width: 1px !important;
+            height: 1px !important;
+            margin: -1px !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            border: 0 !important;
+            pointer-events: none !important;
+        }
+        .admin-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 26px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+        .admin-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        /* Active / Checked State */
+        .admin-switch:has(input:checked) .admin-switch-slider,
+        .admin-switch-slider.checked {
+            background-color: #16a34a !important;
+        }
+        .admin-switch:has(input:checked) .admin-switch-slider:before,
+        .admin-switch-slider.checked:before {
+            transform: translateX(22px);
+        }
+        .admin-switch:hover .admin-switch-slider {
+            filter: brightness(0.96);
+        }
+        .admin-switch:focus-within .admin-switch-slider {
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+        }
+
         @media (max-width: 991.98px) {
             .admin-layout-container {
                 flex-direction: column !important;
@@ -321,9 +389,10 @@
                             <div class="fw-bold text-dark mb-1">Auto-Approve Farmers with Valid 7/12 Land Records</div>
                             <div class="text-muted small">Automatically mark farmer registrations as Approved when document hash verification passes.</div>
                         </div>
-                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                            <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                        </div>
+                        <label class="admin-switch" title="Toggle Auto-Approve Farmers">
+                            <asp:CheckBox ID="chkAutoApproveFarmers" runat="server" Checked="true" />
+                            <span class="admin-switch-slider"></span>
+                        </label>
                     </div>
 
                     <div class="policy-toggle-row">
@@ -331,9 +400,10 @@
                             <div class="fw-bold text-dark mb-1">Require Mandatory GST Verification for Bulk Grain Buyers</div>
                             <div class="text-muted small">Buyers must provide valid GSTIN before placing bulk crop bids above &#8377;1 Lakh.</div>
                         </div>
-                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                            <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                        </div>
+                        <label class="admin-switch" title="Toggle Mandatory GST Verification">
+                            <asp:CheckBox ID="chkGstRequired" runat="server" Checked="true" />
+                            <span class="admin-switch-slider"></span>
+                        </label>
                     </div>
 
                     <div class="policy-toggle-row">
@@ -341,9 +411,10 @@
                             <div class="fw-bold text-dark mb-1">Auto-Approve Verified Farmer Crop Listings under &#8377;50,000</div>
                             <div class="text-muted small">Allows verified farmers to publish small-to-medium harvest batches directly to the marketplace.</div>
                         </div>
-                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                            <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                        </div>
+                        <label class="admin-switch" title="Toggle Auto-Approve Crops">
+                            <asp:CheckBox ID="chkAutoApproveCrops" runat="server" Checked="false" />
+                            <span class="admin-switch-slider"></span>
+                        </label>
                     </div>
 
                     <div class="policy-toggle-row">
@@ -351,9 +422,10 @@
                             <div class="fw-bold text-dark mb-1">Send Instant SMS Alerts to Users on Approval / Rejection</div>
                             <div class="text-muted small">Notify farmers and buyers instantly via SMS when admin approves or rejects their account.</div>
                         </div>
-                        <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                            <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                        </div>
+                        <label class="admin-switch" title="Toggle SMS Notifications">
+                            <asp:CheckBox ID="chkSmsNotification" runat="server" Checked="true" />
+                            <span class="admin-switch-slider"></span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -387,9 +459,10 @@
                                     <div class="fw-bold text-dark" style="font-size:0.92rem;">Enable Maintenance Mode (System Downtime)</div>
                                     <div class="text-muted small mt-1">When enabled, only administrators can access the portal.</div>
                                 </div>
-                                <div class="form-check form-switch mb-0 ps-0 flex-shrink-0">
-                                    <asp:CheckBox ID="chkMaintenanceMode" runat="server" Checked="false" CssClass="form-check-input" style="width:2.5em;height:1.4em;cursor:pointer;" />
-                                </div>
+                                <label class="admin-switch" title="Toggle Maintenance Mode">
+                                    <asp:CheckBox ID="chkMaintenanceMode" runat="server" Checked="false" />
+                                    <span class="admin-switch-slider"></span>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -414,4 +487,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Toggle Switch Synchronization Script -->
+    <script>
+        function syncAdminSwitches() {
+            document.querySelectorAll('.admin-switch').forEach(function(sw) {
+                var chk = sw.querySelector('input[type="checkbox"]');
+                var slider = sw.querySelector('.admin-switch-slider');
+                if (chk && slider) {
+                    if (chk.checked) {
+                        slider.classList.add('checked');
+                    } else {
+                        slider.classList.remove('checked');
+                    }
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', syncAdminSwitches);
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.type === 'checkbox' && e.target.closest('.admin-switch')) {
+                syncAdminSwitches();
+            }
+        });
+    </script>
 </asp:Content>
