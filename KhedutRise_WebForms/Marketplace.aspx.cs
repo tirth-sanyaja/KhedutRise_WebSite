@@ -11,7 +11,9 @@ namespace KhedutRise
         {
             if (!IsPostBack)
             {
-                ViewState["ActiveCategory"] = "";
+                string initialCat = Request.QueryString["cat"] != null ? Request.QueryString["cat"].Trim() : "";
+                ViewState["ActiveCategory"] = initialCat;
+                UpdateCategoryChipsStyle(initialCat);
                 LoadProducts();
             }
         }
@@ -20,15 +22,10 @@ namespace KhedutRise
         protected void FilterCategory_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
-            string categoryName = btn.CommandArgument;
+            string categoryName = btn.CommandArgument != null ? btn.CommandArgument.Trim() : "";
             ViewState["ActiveCategory"] = categoryName;
 
-            // Highlight selected chip
-            ResetCategoryStyles();
-            btn.CssClass = "category-chip fw-bold text-white shadow-sm";
-            btn.Style["background-color"] = "#0b6028";
-            btn.Style["border"] = "1px solid #0b6028";
-
+            UpdateCategoryChipsStyle(categoryName);
             LoadProducts();
         }
 
@@ -48,23 +45,34 @@ namespace KhedutRise
             txtLocationFilter.Text = "";
             ddlSort.SelectedIndex = 0;
             ViewState["ActiveCategory"] = "";
-            ResetCategoryStyles();
-            btnAll.CssClass = "category-chip fw-bold text-white shadow-sm";
-            btnAll.Style["background-color"] = "#0b6028";
-            btnAll.Style["border"] = "1px solid #0b6028";
+            UpdateCategoryChipsStyle("");
             LoadProducts();
         }
 
-        private void ResetCategoryStyles()
+        private void UpdateCategoryChipsStyle(string activeCategory)
         {
             LinkButton[] buttons = new LinkButton[] { btnAll, btnGroundnut, btnCotton, btnWheat, btnVegetables, btnSpices };
             foreach (var b in buttons)
             {
                 if (b != null)
                 {
-                    b.CssClass = "category-chip fw-semibold bg-white text-dark";
-                    b.Style["border"] = "1px solid #d1d5db";
-                    b.Style["background-color"] = "#ffffff";
+                    bool isActive = (string.IsNullOrEmpty(activeCategory) && string.IsNullOrEmpty(b.CommandArgument)) ||
+                                    (!string.IsNullOrEmpty(activeCategory) && string.Equals(b.CommandArgument, activeCategory, StringComparison.OrdinalIgnoreCase));
+
+                    if (isActive)
+                    {
+                        b.CssClass = "category-chip fw-bold text-white shadow-sm";
+                        b.Style["background-color"] = "#0b6028";
+                        b.Style["border"] = "1px solid #0b6028";
+                        b.Style["color"] = "#ffffff";
+                    }
+                    else
+                    {
+                        b.CssClass = "category-chip fw-semibold bg-white text-dark";
+                        b.Style["border"] = "1px solid #d1d5db";
+                        b.Style["background-color"] = "#ffffff";
+                        b.Style["color"] = "#212529";
+                    }
                 }
             }
         }
@@ -77,6 +85,9 @@ namespace KhedutRise
                 string category = ViewState["ActiveCategory"] != null ? ViewState["ActiveCategory"].ToString() : "";
                 string location = txtLocationFilter.Text.Trim();
                 string sort = ddlSort.SelectedValue;
+
+                // Sync category buttons state
+                UpdateCategoryChipsStyle(category);
 
                 DataTable dt = ProductRepository.GetMarketplaceProducts(category, location, sort);
 

@@ -27,8 +27,9 @@
             object-fit: cover;
             transition: transform 0.4s ease;
         }
-       
-        
+        .product-card:hover .product-img-wrapper img {
+            transform: scale(1.05);
+        }
         .filter-sidebar-card {
             border: 1px solid #e5e7eb;
             border-radius: 14px;
@@ -43,7 +44,7 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.45rem;
         }
         .category-chip:hover {
             transform: translateY(-1px);
@@ -72,19 +73,19 @@
                 <i class="bi bi-grid-fill"></i> All Crops
             </asp:LinkButton>
             <asp:LinkButton ID="btnGroundnut" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Groundnut">
-                 Groundnut
+                <i class="bi bi-circle-fill text-warning small"></i> Groundnut
             </asp:LinkButton>
             <asp:LinkButton ID="btnCotton" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Cotton">
-                 Cotton
+                <i class="bi bi-cloud-fill text-info small"></i> Cotton
             </asp:LinkButton>
             <asp:LinkButton ID="btnWheat" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Wheat">
-                 Wheat
+                <i class="bi bi-flower1 text-warning small"></i> Wheat
             </asp:LinkButton>
             <asp:LinkButton ID="btnVegetables" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Vegetables">
-                 Vegetables
+                <i class="bi bi-basket-fill text-success small"></i> Vegetables
             </asp:LinkButton>
             <asp:LinkButton ID="btnSpices" runat="server" CssClass="category-chip fw-semibold bg-white text-dark" style="border: 1px solid #d1d5db;" OnClick="FilterCategory_Click" CommandArgument="Spices">
-                 Spices (Cumin)
+                <i class="bi bi-fire text-danger small"></i> Spices (Cumin)
             </asp:LinkButton>
         </div>
 
@@ -103,10 +104,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">LOCATION / DISTRICT</label>
+                        <label class="form-label small text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">LOCATION / DISTRICT / MANDI</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-geo-alt"></i></span>
-                            <asp:TextBox ID="txtLocationFilter" runat="server" CssClass="form-control border-start-0 ps-0" placeholder="e.g. Rajkot, Gondal"></asp:TextBox>
+                            <asp:TextBox ID="txtLocationFilter" runat="server" CssClass="form-control border-start-0 ps-0" placeholder="e.g. Rajkot, Gondal, Junagadh"></asp:TextBox>
                         </div>
                     </div>
 
