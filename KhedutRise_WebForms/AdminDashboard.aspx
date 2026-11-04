@@ -269,7 +269,7 @@
                 </div>
                 <div style="min-width: 0;">
                     <h6 class="fw-bold text-white mb-0" style="letter-spacing: 0.5px; font-size: 0.95rem;">
-                        <span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span> <span class="badge bg-success-subtle text-success ms-1 px-1 py-0" style="font-size: 0.65rem;">PRO</span>
+                        <span style="color: #4ade80;">Khedut</span><span style="color: #22c55e;">Rise</span> 
                     </h6>
                     <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">Admin Console</small>
                 </div>
@@ -635,31 +635,7 @@
                     </div>
                 </div>
 
-                <!-- Right: Platform Diagnostics & Ecosystem Quick Launch -->
-                <div class="col-lg-5">
-                    <div class="admin-card h-100 mb-0">
-                        <div class="admin-card-header">
-                            <div>
-                                <h6 class="admin-card-title fs-6"><i class="bi bi-cpu-fill me-2 text-primary"></i>Platform Diagnostics</h6>
-                                <p class="admin-card-subtitle">Environment health and management shortcuts</p>
-                            </div>
-                        </div>
-
-                        <div class="p-3">
-                            <div class="d-flex flex-column gap-2 mb-4">
-                                <div class="d-flex justify-content-between align-items-center small p-2 rounded bg-light border">
-                                    <span class="text-muted fw-semibold"><i class="bi bi-database me-2 text-success"></i>Database Engine</span>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">MSSQL LocalDB</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center small p-2 rounded bg-light border">
-                                    <span class="text-muted fw-semibold"><i class="bi bi-shield-check me-2 text-primary"></i>Auth Security</span>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Session Protected</span>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center small p-2 rounded bg-light border">
-                                    <span class="text-muted fw-semibold"><i class="bi bi-code-slash me-2 text-dark"></i>Platform Stack</span>
-                                    <span class="badge bg-dark text-white">ASP.NET WebForms 4.8</span>
-                                </div>
-                            </div>
+              
 
                             <small class="text-uppercase fw-bold text-muted mb-2 d-block" style="font-size: 0.7rem; letter-spacing: 0.8px;">Quick Launch Actions</small>
                             <div class="row g-2">
