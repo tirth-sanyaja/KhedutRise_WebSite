@@ -175,6 +175,9 @@ namespace KhedutRise
                 sql += " ORDER BY UserId DESC";
 
                 DataTable dt = DbHelper.ExecuteQuery(sql, prms.Count > 0 ? prms.ToArray() : null);
+                bool hasUsers = dt != null && dt.Rows.Count > 0;
+                rptModeration.Visible = hasUsers;
+                pnlEmptyUsers.Visible = !hasUsers;
                 rptModeration.DataSource = dt;
                 rptModeration.DataBind();
 
@@ -231,6 +234,9 @@ namespace KhedutRise
                 sql += " ORDER BY p.ProductId DESC";
 
                 DataTable dt = DbHelper.ExecuteQuery(sql);
+                bool hasProducts = dt != null && dt.Rows.Count > 0;
+                rptProducts.Visible = hasProducts;
+                pnlEmptyProducts.Visible = !hasProducts;
                 rptProducts.DataSource = dt;
                 rptProducts.DataBind();
 
@@ -284,6 +290,9 @@ namespace KhedutRise
                 sql += " ORDER BY l.LandId DESC";
 
                 DataTable dt = DbHelper.ExecuteQuery(sql);
+                bool hasLand = dt != null && dt.Rows.Count > 0;
+                rptLand.Visible = hasLand;
+                pnlEmptyLand.Visible = !hasLand;
                 rptLand.DataSource = dt;
                 rptLand.DataBind();
 
@@ -464,14 +473,38 @@ namespace KhedutRise
 
         private void UpdateSidebarStyles(string cat)
         {
-            lnkNavFarmers.CssClass = (cat == "Farmer") ? "text-decoration-none fw-bold d-block" : "text-decoration-none text-white d-block opacity-90";
-            lnkNavFarmers.Style["color"] = (cat == "Farmer") ? "#22c55e" : "#ffffff";
+            lnkNavFarmers.CssClass = (cat == "Farmer") ? "admin-nav-item active" : "admin-nav-item";
+            lnkNavFarmers.Style.Clear();
 
-            lnkNavBuyers.CssClass = (cat == "Buyer") ? "text-decoration-none fw-bold d-block" : "text-decoration-none text-white d-block opacity-90";
-            lnkNavBuyers.Style["color"] = (cat == "Buyer") ? "#22c55e" : "#ffffff";
+            lnkNavBuyers.CssClass = (cat == "Buyer") ? "admin-nav-item active" : "admin-nav-item";
+            lnkNavBuyers.Style.Clear();
 
-            lnkNavModeration.CssClass = (cat == "Moderation") ? "text-decoration-none fw-bold d-block" : "text-decoration-none text-white d-block opacity-90";
-            lnkNavModeration.Style["color"] = (cat == "Moderation") ? "#22c55e" : "#ffffff";
+            lnkNavModeration.CssClass = (cat == "Moderation" || cat == "Products" || cat == "LandListings") ? "admin-nav-item active" : "admin-nav-item";
+            lnkNavModeration.Style.Clear();
+        }
+
+        // Helper to format 2-letter uppercase initials
+        public string GetInitials(object nameObj)
+        {
+            if (nameObj == null) return "KR";
+            string name = nameObj.ToString().Trim();
+            if (string.IsNullOrEmpty(name)) return "KR";
+            string[] parts = name.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1) return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+            return (parts[0][0].ToString() + parts[parts.Length - 1][0].ToString()).ToUpper();
+        }
+
+        // Helper for user role badge styling
+        public string GetRoleBadge(object roleObj)
+        {
+            string role = (roleObj ?? "").ToString().Trim();
+            if (role.Equals("Farmer", StringComparison.OrdinalIgnoreCase))
+                return "<span class=\"badge bg-success-subtle text-success border border-success-subtle px-2 py-1\"><i class=\"bi bi-person-fill me-1\"></i>Farmer</span>";
+            if (role.Equals("Buyer", StringComparison.OrdinalIgnoreCase))
+                return "<span class=\"badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1\"><i class=\"bi bi-shop me-1\"></i>Buyer</span>";
+            if (role.Equals("Operator", StringComparison.OrdinalIgnoreCase))
+                return "<span class=\"badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1\"><i class=\"bi bi-truck me-1\"></i>Operator</span>";
+            return "<span class=\"badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1\">" + role + "</span>";
         }
     }
 }

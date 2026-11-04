@@ -172,6 +172,20 @@
         .admin-table tbody tr:hover {
             background-color: #f8fafc;
         }
+        .user-initials-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #cbd5e1;
+            flex-shrink: 0;
+        }
         @media (max-width: 991.98px) {
             .admin-layout-container {
                 flex-direction: column !important;
@@ -382,11 +396,18 @@
                         <ItemTemplate>
                             <tr>
                                 <td class="ps-4">
-                                    <strong class="text-dark d-block"><%# Eval("FullName") %></strong>
-                                    <small class="text-muted"><i class="bi bi-telephone me-1"></i><%# Eval("MobileNo") %></small>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-initials-avatar me-3">
+                                            <%# GetInitials(Eval("FullName")) %>
+                                        </div>
+                                        <div>
+                                            <strong class="text-dark d-block"><%# Eval("FullName") %></strong>
+                                            <small class="text-muted"><i class="bi bi-telephone me-1"></i><%# Eval("MobileNo") %></small>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark border px-2 py-1"><%# Eval("UserRole") %></span>
+                                    <%# GetRoleBadge(Eval("UserRole")) %>
                                 </td>
                                 <td>
                                     <span class="text-secondary small fw-medium">
@@ -435,6 +456,15 @@
                             </table>
                         </FooterTemplate>
                     </asp:Repeater>
+
+                    <!-- Clean Empty State Display for Users -->
+                    <asp:Panel ID="pnlEmptyUsers" runat="server" Visible="false" CssClass="text-center py-5">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 56px; height: 56px; background-color: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0;">
+                            <i class="bi bi-people fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Accounts Found</h6>
+                        <p class="text-muted small mb-0">No user accounts match the current role or status filter.</p>
+                    </asp:Panel>
                 </div>
             </asp:Panel>
 
@@ -480,6 +510,11 @@
                                         ? "<span class='badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2 py-1'><i class='bi bi-check-circle-fill me-1'></i> Approved</span>" 
                                         : "<span class='badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-2 py-1'><i class='bi bi-x-circle-fill me-1'></i> Rejected</span>" %>
                                 </td>
+                                <td>
+                                    <span class="text-secondary small fw-medium">
+                                        <i class="bi bi-calendar-event me-1"></i><%# Eval("CreatedDate", "{0:dd MMM yyyy}") %>
+                                    </span>
+                                </td>
                                 <td class="text-end pe-4">
                                     <div class="d-inline-flex gap-1">
                                         <asp:LinkButton ID="btnApproveProduct" runat="server" CommandName="ApproveProduct" CommandArgument='<%# Eval("ProductId") %>' 
@@ -503,6 +538,15 @@
                             </table>
                         </FooterTemplate>
                     </asp:Repeater>
+
+                    <!-- Clean Empty State Display for Products -->
+                    <asp:Panel ID="pnlEmptyProducts" runat="server" Visible="false" CssClass="text-center py-5">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 56px; height: 56px; background-color: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0;">
+                            <i class="bi bi-basket fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Crop Listings Found</h6>
+                        <p class="text-muted small mb-0">There are no crop listings matching this moderation status.</p>
+                    </asp:Panel>
                 </div>
             </asp:Panel>
 
@@ -570,6 +614,15 @@
                             </table>
                         </FooterTemplate>
                     </asp:Repeater>
+
+                    <!-- Clean Empty State Display for Land -->
+                    <asp:Panel ID="pnlEmptyLand" runat="server" Visible="false" CssClass="text-center py-5">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 56px; height: 56px; background-color: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0;">
+                            <i class="bi bi-geo-alt fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Farmland Listings Found</h6>
+                        <p class="text-muted small mb-0">There are no farmland listings matching this moderation status.</p>
+                    </asp:Panel>
                 </div>
             </asp:Panel>
         </div>

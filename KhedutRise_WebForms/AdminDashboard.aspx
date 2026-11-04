@@ -489,7 +489,7 @@
                             </asp:LinkButton>
                         </div>
 
-                        <div class="btn-group btn-group-sm" role="group">
+                        <div class="d-flex flex-wrap gap-1">
                             <asp:LinkButton ID="btnFilterAll" runat="server" CssClass="btn btn-sm btn-dark fw-bold px-3 py-1 shadow-sm rounded-pill" OnClick="FilterStatus_Click" CommandArgument="ALL">
                                 All (<asp:Literal ID="litAllCount" runat="server">0</asp:Literal>)
                             </asp:LinkButton>
