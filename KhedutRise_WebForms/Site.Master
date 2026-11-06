@@ -309,9 +309,14 @@
         .notif-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .notif-item {
             border-bottom: 1px solid #f1f5f9;
-            transition: background 0.15s;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
         }
-        .notif-item:hover { background: #f8fafc !important; text-decoration: none; }
+        .notif-item:hover {
+            background: #f0fdf4 !important;
+            text-decoration: none;
+        }
         .notif-item.unread { background: #ffffff; }
         .notif-icon-box {
             width: 38px;
@@ -339,7 +344,45 @@
             height: 8px;
             border-radius: 50%;
             background: #22c55e;
+            margin-top: 2px;
+        }
+        .notif-dismiss-btn {
+            background: rgba(0, 0, 0, 0.04);
+            border: none;
+            color: #64748b;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        .notif-dismiss-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .notif-action-link {
+            font-size: 0.75rem;
+            color: #16a34a;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
             margin-top: 4px;
+            transition: color 0.15s ease;
+        }
+        .notif-action-link:hover {
+            color: #15803d;
+            text-decoration: underline;
         }
         .notif-panel-footer {
             background: #f8fafc;

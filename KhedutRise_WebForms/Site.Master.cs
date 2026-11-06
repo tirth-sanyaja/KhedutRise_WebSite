@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Web;
 using System.Web.UI;
 
 namespace KhedutRise
@@ -190,10 +192,134 @@ namespace KhedutRise
 
         private string GetNotificationBellHtml()
         {
-            return @"<div class='dropdown d-inline-block notif-wrapper'>
+            // Server-side check for previously read notifications via cookie
+            HashSet<string> readIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                HttpCookie notifCookie = Request.Cookies["kr_read_notifs"];
+                if (notifCookie != null && !string.IsNullOrEmpty(notifCookie.Value))
+                {
+                    string decoded = Server.UrlDecode(notifCookie.Value);
+                    if (decoded.StartsWith("[") && decoded.EndsWith("]"))
+                    {
+                        decoded = decoded.Trim('[', ']');
+                        string[] parts = decoded.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string p in parts)
+                        {
+                            string id = p.Trim('"', ' ', '\'');
+                            if (!string.IsNullOrEmpty(id)) readIds.Add(id);
+                        }
+                    }
+                    else
+                    {
+                        string[] parts = decoded.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string p in parts)
+                        {
+                            string id = p.Trim('"', ' ', '\'');
+                            if (!string.IsNullOrEmpty(id)) readIds.Add(id);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // Define all available platform notifications
+            var allNotifs = new[]
+            {
+                new {
+                    Id = "kr-notif-1",
+                    Tag = "APMC Rates",
+                    TagBg = "#dcfce7",
+                    TagColor = "#15803d",
+                    Time = "12:45 PM",
+                    Icon = "bi-graph-up-arrow",
+                    IconBg = "#dcfce7",
+                    IconColor = "#16a34a",
+                    Title = "Cotton hits ₹7,250/Q",
+                    Body = "Highest rate recorded at Gondal APMC yard today.",
+                    LinkUrl = "ApmcRates.aspx",
+                    LinkText = "View APMC Rates"
+                },
+                new {
+                    Id = "kr-notif-2",
+                    Tag = "Weather",
+                    TagBg = "#dbeafe",
+                    TagColor = "#1d4ed8",
+                    Time = "Today",
+                    Icon = "bi-cloud-rain-fill",
+                    IconBg = "#dbeafe",
+                    IconColor = "#2563eb",
+                    Title = "Rain probability 78%",
+                    Body = "Rain expected tomorrow — complete groundnut irrigation early.",
+                    LinkUrl = "WeatherForecast.aspx",
+                    LinkText = "Check Forecast"
+                },
+                new {
+                    Id = "kr-notif-3",
+                    Tag = "New Listing",
+                    TagBg = "#fef9c3",
+                    TagColor = "#92400e",
+                    Time = "2 hrs ago",
+                    Icon = "bi-shop-window",
+                    IconBg = "#fef9c3",
+                    IconColor = "#ca8a04",
+                    Title = "Premium Groundnut Grade A",
+                    Body = "Newly listed harvest available by verified farmers in Rajkot.",
+                    LinkUrl = "Marketplace.aspx",
+                    LinkText = "Browse Market"
+                }
+            };
+
+            // Filter out any notification that has already been seen / read!
+            var unreadNotifs = allNotifs.Where(n => !readIds.Contains(n.Id)).ToList();
+            int unreadCount = unreadNotifs.Count;
+
+            StringBuilder itemsHtml = new StringBuilder();
+            foreach (var n in unreadNotifs)
+            {
+                itemsHtml.AppendFormat(@"
+                    <div class='notif-item unread d-flex gap-3 align-items-start px-3 py-3'
+                         data-notif-id='{0}'
+                         onclick='krReadNotif(event, this)'
+                         title='Click to dismiss notification'>
+                        <div class='notif-icon-box' style='background:{1};color:{2};flex-shrink:0;'>
+                            <i class='bi {3}'></i>
+                        </div>
+                        <div style='min-width:0;flex:1;'>
+                            <div class='d-flex justify-content-between align-items-center mb-1'>
+                                <span class='notif-tag' style='background:{4};color:{5};'>{6}</span>
+                                <small class='text-muted notif-time'>{7}</small>
+                            </div>
+                            <p class='notif-text mb-1'><strong>{8}</strong> — {9}</p>
+                            <a href='{10}' class='notif-action-link' onclick='krNavigate(event, ""{0}"", ""{10}"")'>
+                                {11} <i class='bi bi-arrow-right-short'></i>
+                            </a>
+                        </div>
+                        <div class='d-flex flex-column align-items-end gap-2' style='flex-shrink:0;'>
+                            <button type='button' class='notif-dismiss-btn' title='Remove notification'
+                                    onclick='krReadNotif(event, this.closest("".notif-item""))'>
+                                <i class='bi bi-x'></i>
+                            </button>
+                            <span class='notif-unread-dot'></span>
+                        </div>
+                    </div>",
+                    n.Id, n.IconBg, n.IconColor, n.Icon,
+                    n.TagBg, n.TagColor, n.Tag, n.Time,
+                    n.Title, n.Body, n.LinkUrl, n.LinkText);
+            }
+
+            string badgeStyle = unreadCount > 0 ? "" : "display:none;";
+            string emptyStyle = unreadCount == 0 ? "" : "display:none;";
+            string bellAnimation = unreadCount > 0 ? "running" : "paused";
+            string subtitleText = unreadCount > 0 
+                ? (unreadCount + " unread update" + (unreadCount > 1 ? "s" : ""))
+                : "No new notifications";
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(@"<div class='dropdown d-inline-block notif-wrapper'>
                 <a href='#' class='notif-bell-btn position-relative' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false' title='Notifications' id='notifBellBtn'>
-                    <i class='bi bi-bell-fill notif-bell-icon'></i>
-                    <span class='notif-count-badge' id='notifCountBadge'>3</span>
+                    <i class='bi bi-bell-fill notif-bell-icon' style='animation-play-state: ").Append(bellAnimation).Append(@";'></i>
+                    <span class='notif-count-badge' id='notifCountBadge' style='").Append(badgeStyle).Append(@"'>").Append(unreadCount).Append(@"</span>
                 </a>
                 <div class='dropdown-menu dropdown-menu-end notif-panel p-0 shadow-lg border-0' id='notifDropdown'>
                     <!-- Panel Header -->
@@ -204,74 +330,32 @@ namespace KhedutRise
                             </div>
                             <div>
                                 <h6 class='mb-0 fw-bold text-dark' style='font-size:0.92rem;'>Notifications</h6>
-                                <small class='text-muted' id='notifSubtitle' style='font-size:0.72rem;'>3 unread updates</small>
+                                <small class='text-muted' id='notifSubtitle' style='font-size:0.72rem;'>").Append(subtitleText).Append(@"</small>
                             </div>
                         </div>
                         <div class='d-flex align-items-center gap-2'>
-                            <span class='badge rounded-pill px-2 py-1 fw-bold' id='notifHeaderBadge' style='background:#dcfce7;color:#15803d;font-size:0.72rem;'>3 New</span>
-                            <button type='button' onclick='krMarkAllRead(event)' title='Mark all as read'
-                                style='background:none;border:none;color:#94a3b8;font-size:1rem;cursor:pointer;padding:0 2px;line-height:1;'>
-                                <i class='bi bi-check2-all'></i>
+                            <span class='badge rounded-pill px-2 py-1 fw-bold' id='notifHeaderBadge' style='background:#dcfce7;color:#15803d;font-size:0.72rem;").Append(badgeStyle).Append(@"'>").Append(unreadCount).Append(@" New</span>
+                            <button type='button' class='btn btn-sm btn-link p-0 text-decoration-none text-muted' onclick='krMarkAllRead(event)' title='Clear all notifications' style='font-size:0.8rem; font-weight:600;'>
+                                Clear All
                             </button>
                         </div>
                     </div>
                     <!-- Notification Items -->
                     <div class='notif-list' id='notifList'>
-                        <!-- Notif 1: APMC -->
-                        <a href='ApmcRates.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
-                           data-notif-id='kr-notif-1' onclick='krReadNotif(event,this)'>
-                            <div class='notif-icon-box' style='background:#dcfce7;color:#16a34a;flex-shrink:0;'>
-                                <i class='bi bi-graph-up-arrow'></i>
+                        ").Append(itemsHtml.ToString()).Append(@"
+                        <!-- Empty state -->
+                        <div id='notifEmptyState' style='").Append(emptyStyle).Append(@"' class='text-center py-4 px-3'>
+                            <div class='rounded-circle d-inline-flex align-items-center justify-content-center mb-2' style='width: 44px; height: 44px; background: #f0fdf4; color: #16a34a;'>
+                                <i class='bi bi-check2-circle fs-4'></i>
                             </div>
-                            <div style='min-width:0;flex:1;'>
-                                <div class='d-flex justify-content-between align-items-center mb-1'>
-                                    <span class='notif-tag' style='background:#dcfce7;color:#15803d;'>APMC Rates</span>
-                                    <small class='text-muted notif-time'>12:45 PM</small>
-                                </div>
-                                <p class='notif-text mb-0'>Cotton hits <strong>₹7,250/Q</strong> — highest rate recorded at Gondal APMC yard today.</p>
-                            </div>
-                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
-                        </a>
-                        <!-- Notif 2: Weather -->
-                        <a href='WeatherForecast.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
-                           data-notif-id='kr-notif-2' onclick='krReadNotif(event,this)'>
-                            <div class='notif-icon-box' style='background:#dbeafe;color:#2563eb;flex-shrink:0;'>
-                                <i class='bi bi-cloud-rain-fill'></i>
-                            </div>
-                            <div style='min-width:0;flex:1;'>
-                                <div class='d-flex justify-content-between align-items-center mb-1'>
-                                    <span class='notif-tag' style='background:#dbeafe;color:#1d4ed8;'>Weather</span>
-                                    <small class='text-muted notif-time'>Today</small>
-                                </div>
-                                <p class='notif-text mb-0'>Rain probability <strong>78%</strong> expected tomorrow — complete groundnut irrigation early.</p>
-                            </div>
-                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
-                        </a>
-                        <!-- Notif 3: Market -->
-                        <a href='Marketplace.aspx' class='notif-item unread d-flex gap-3 align-items-start px-3 py-3 text-decoration-none'
-                           data-notif-id='kr-notif-3' onclick='krReadNotif(event,this)'>
-                            <div class='notif-icon-box' style='background:#fef9c3;color:#ca8a04;flex-shrink:0;'>
-                                <i class='bi bi-shop-window'></i>
-                            </div>
-                            <div style='min-width:0;flex:1;'>
-                                <div class='d-flex justify-content-between align-items-center mb-1'>
-                                    <span class='notif-tag' style='background:#fef9c3;color:#92400e;'>New Listing</span>
-                                    <small class='text-muted notif-time'>2 hrs ago</small>
-                                </div>
-                                <p class='notif-text mb-0'>Premium Groundnut <strong>Grade A</strong> listed by verified farmers in Rajkot.</p>
-                            </div>
-                            <span class='notif-unread-dot' style='flex-shrink:0;'></span>
-                        </a>
-                        <!-- Empty state (hidden by default) -->
-                        <div id='notifEmptyState' style='display:none;' class='text-center py-4 px-3'>
-                            <i class='bi bi-bell-slash text-muted' style='font-size:2rem;'></i>
-                            <p class='text-muted small mt-2 mb-0 fw-semibold'>All caught up!<br>No new notifications.</p>
+                            <h6 class='fw-bold text-dark mb-1' style='font-size:0.88rem;'>All Caught Up!</h6>
+                            <p class='text-muted small mb-0'>No new notifications at this time.</p>
                         </div>
                     </div>
                     <!-- Panel Footer -->
                     <div class='notif-panel-footer text-center py-2 px-3'>
-                        <a href='Default.aspx' class='text-decoration-none fw-bold' style='color:#15803d;font-size:0.83rem;'>
-                            <i class='bi bi-list-check me-1'></i>View All Activity
+                        <a href='Default.aspx' class='text-decoration-none fw-bold' style='color:#15803d;font-size:0.82rem;'>
+                            <i class='bi bi-shield-check me-1'></i>KhedutRise Live Updates
                         </a>
                     </div>
                 </div>
@@ -282,91 +366,141 @@ namespace KhedutRise
                 var STORAGE_KEY = 'kr_read_notifs';
 
                 function getRead() {
-                    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
-                }
-                function saveRead(arr) {
-                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+                    try {
+                        var val = localStorage.getItem(STORAGE_KEY);
+                        return val ? JSON.parse(val) : [];
+                    } catch(e) { return []; }
                 }
 
-                function updateUI() {
-                    var items   = document.querySelectorAll('#notifList .notif-item[data-notif-id]');
-                    var badge   = document.getElementById('notifCountBadge');
-                    var hBadge  = document.getElementById('notifHeaderBadge');
-                    var subtitle = document.getElementById('notifSubtitle');
-                    var empty   = document.getElementById('notifEmptyState');
-                    var bell    = document.getElementById('notifBellBtn');
-                    var read    = getRead();
-                    var unread  = 0;
+                function saveRead(arr) {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+                    } catch(e) {}
+                    try {
+                        document.cookie = 'kr_read_notifs=' + encodeURIComponent(JSON.stringify(arr)) + '; path=/; max-age=31536000';
+                    } catch(e) {}
+                }
+
+                function syncUI() {
+                    var read = getRead();
+                    var items = document.querySelectorAll('#notifList .notif-item[data-notif-id]');
+                    var unread = 0;
 
                     items.forEach(function(el) {
                         var id = el.getAttribute('data-notif-id');
                         if (read.indexOf(id) !== -1) {
-                            el.style.display = 'none';
+                            el.remove();
                         } else {
                             unread++;
                         }
                     });
 
-                    /* badge count */
+                    var badge = document.getElementById('notifCountBadge');
+                    var hBadge = document.getElementById('notifHeaderBadge');
+                    var subtitle = document.getElementById('notifSubtitle');
+                    var empty = document.getElementById('notifEmptyState');
+                    var bell = document.getElementById('notifBellBtn');
+
                     if (badge) {
                         badge.textContent = unread;
                         badge.style.display = unread > 0 ? '' : 'none';
                     }
-                    /* header badge */
                     if (hBadge) {
                         hBadge.textContent = unread + ' New';
                         hBadge.style.display = unread > 0 ? '' : 'none';
                     }
-                    /* subtitle */
                     if (subtitle) {
-                        subtitle.textContent = unread > 0 ? (unread + ' unread update' + (unread > 1 ? 's' : '')) : 'No new notifications';
+                        subtitle.textContent = unread > 0 
+                            ? (unread + ' unread update' + (unread > 1 ? 's' : ''))
+                            : 'No new notifications';
                     }
-                    /* bell animation: stop when all read */
                     if (bell) {
-                        var bellIcon = bell.querySelector('.notif-bell-icon');
-                        if (bellIcon) bellIcon.style.animationPlayState = unread > 0 ? 'running' : 'paused';
+                        var icon = bell.querySelector('.notif-bell-icon');
+                        if (icon) icon.style.animationPlayState = unread > 0 ? 'running' : 'paused';
                     }
-                    /* empty state */
-                    if (empty) empty.style.display = unread === 0 ? '' : 'none';
+                    if (empty) {
+                        empty.style.display = unread === 0 ? '' : 'none';
+                    }
                 }
 
-                /* Called on individual notif click */
+                // Click handler for dismissing/reading an individual notification
                 window.krReadNotif = function(e, el) {
-                    var id   = el.getAttribute('data-notif-id');
-                    var href = el.getAttribute('href');
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    if (!el) return;
+                    var id = el.getAttribute('data-notif-id');
                     var read = getRead();
-                    if (read.indexOf(id) === -1) read.push(id);
-                    saveRead(read);
+                    if (read.indexOf(id) === -1) {
+                        read.push(id);
+                        saveRead(read);
+                    }
 
-                    /* Animate out then navigate */
-                    el.style.transition = 'opacity 0.25s, max-height 0.3s';
-                    el.style.overflow   = 'hidden';
-                    el.style.opacity    = '0';
-                    el.style.maxHeight  = el.scrollHeight + 'px';
-                    setTimeout(function() { el.style.maxHeight = '0'; el.style.padding = '0'; }, 20);
+                    // Smooth fade out and shrink
+                    el.style.transition = 'opacity 0.2s ease, transform 0.2s ease, max-height 0.25s ease, padding 0.25s ease';
+                    el.style.overflow = 'hidden';
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateX(20px)';
+                    el.style.maxHeight = el.scrollHeight + 'px';
                     setTimeout(function() {
-                        el.style.display = 'none';
-                        updateUI();
-                        if (href && href !== '#') window.location.href = href;
-                    }, 320);
-                    e.preventDefault();
+                        el.style.maxHeight = '0';
+                        el.style.paddingTop = '0';
+                        el.style.paddingBottom = '0';
+                        el.style.marginTop = '0';
+                        el.style.marginBottom = '0';
+                        el.style.border = 'none';
+                    }, 20);
+                    setTimeout(function() {
+                        el.remove();
+                        syncUI();
+                    }, 260);
                 };
 
-                /* Mark all read */
+                // Link click navigation with auto mark as read
+                window.krNavigate = function(e, id, url) {
+                    if (e) {
+                        e.stopPropagation();
+                    }
+                    var read = getRead();
+                    if (read.indexOf(id) === -1) {
+                        read.push(id);
+                        saveRead(read);
+                    }
+                    window.location.href = url;
+                };
+
+                // Mark all notifications as read
                 window.krMarkAllRead = function(e) {
-                    e.stopPropagation();
-                    var ids = [];
-                    document.querySelectorAll('#notifList .notif-item[data-notif-id]').forEach(function(el) {
-                        ids.push(el.getAttribute('data-notif-id'));
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    var items = document.querySelectorAll('#notifList .notif-item[data-notif-id]');
+                    var read = getRead();
+                    items.forEach(function(el) {
+                        var id = el.getAttribute('data-notif-id');
+                        if (read.indexOf(id) === -1) read.push(id);
+                        el.style.transition = 'opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease';
+                        el.style.opacity = '0';
+                        el.style.transform = 'scale(0.95)';
                     });
-                    saveRead(ids);
-                    updateUI();
+                    saveRead(read);
+                    setTimeout(function() {
+                        items.forEach(function(el) { el.remove(); });
+                        syncUI();
+                    }, 220);
                 };
 
-                /* Run on page load */
-                document.addEventListener('DOMContentLoaded', updateUI);
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', syncUI);
+                } else {
+                    syncUI();
+                }
             })();
-            </script>";
+            </script>");
+
+            return sb.ToString();
         }
 
         private string GetProfileDropdownHtml(string activeRole, string userName)
