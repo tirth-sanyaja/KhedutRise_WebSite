@@ -98,6 +98,8 @@
     </Compile>
     <Compile Include="App_Code\DbHelper.cs" />
     <Compile Include="App_Code\KhedutCollectionsService.cs" />
+    <Compile Include="App_Code\SmsService.cs" />
+    <Compile Include="App_Code\OtpService.cs" />
     <Compile Include="About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
