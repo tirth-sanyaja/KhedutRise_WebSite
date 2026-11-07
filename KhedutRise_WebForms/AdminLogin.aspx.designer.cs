@@ -7,14 +7,21 @@
 namespace KhedutRise {
     
     public partial class AdminLogin {
-        protected global::System.Web.UI.WebControls.Button btnAdminLogin;
         protected global::System.Web.UI.WebControls.Content Content1;
-        protected global::System.Web.UI.WebControls.HiddenField hfAdminCustomPass;
         protected global::System.Web.UI.WebControls.Label lblAdminMsg;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revAdminEmail;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminEmail;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminPass;
+        protected global::System.Web.UI.WebControls.Panel pnlAdminStep1;
+        protected global::System.Web.UI.WebControls.HiddenField hfAdminCustomPass;
         protected global::System.Web.UI.WebControls.TextBox txtAdminEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revAdminEmail;
         protected global::System.Web.UI.WebControls.TextBox txtAdminPass;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdminPass;
+        protected global::System.Web.UI.WebControls.Button btnAdminLogin;
+        protected global::System.Web.UI.WebControls.Panel pnlAdminStep2;
+        protected global::System.Web.UI.WebControls.Literal litAdminMaskedMobile;
+        protected global::System.Web.UI.WebControls.TextBox txtAdminOtp;
+        protected global::System.Web.UI.WebControls.Button btnAdminVerifyOtp;
+        protected global::System.Web.UI.WebControls.LinkButton btnAdminResendOtp;
+        protected global::System.Web.UI.WebControls.LinkButton btnAdminBackToCreds;
     }
 }

@@ -106,6 +106,10 @@
             box-shadow: 0 6px 16px rgba(11, 96, 40, 0.35);
             color: #ffffff;
         }
+        .admin-otp-input {
+            letter-spacing: 0.45rem;
+            font-size: 1.35rem;
+        }
         @media (max-width: 991.98px) {
             .admin-auth-brand {
                 padding: 2.25rem 2rem;
@@ -154,8 +158,8 @@
                                 <span>Multi-tier Role-Based Access Control</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 text-white-50 small">
-                                <i class="bi bi-database-check text-success fs-6"></i>
-                                <span>Real-time Mandi & Escrow Transaction Telemetry</span>
+                                <i class="bi bi-phone-vibrate text-success fs-6"></i>
+                                <span>Two-Factor SMS OTP Verification</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 text-white-50 small">
                                 <i class="bi bi-lock-fill text-success fs-6"></i>
@@ -177,54 +181,95 @@
                             <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small fw-bold">RESTRICTED ACCESS</span>
                         </div>
                         <h2 class="fw-bold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: -0.5px;">Sign In to Admin Console</h2>
-                        <p class="text-muted small mb-0">Authorized personnel only. Protected administrative environment.</p>
+                        <p class="text-muted small mb-0">Authorized personnel only. Protected administrative environment with SMS OTP verification.</p>
                     </div>
 
-                    <asp:Label ID="lblAdminMsg" runat="server" CssClass="d-block mb-3 fw-bold"></asp:Label>
+                    <asp:Label ID="lblAdminMsg" runat="server" CssClass="d-block mb-3 fw-bold" EnableViewState="false"></asp:Label>
 
-                    <!-- Default Credential Helper Badge -->
-                    <div class="alert alert-light border rounded-3 d-flex align-items-center py-2 px-3 mb-4" style="background-color: #f8fafc; border-color: #e2e8f0; font-size: 0.85rem;">
-                        <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                            <i class="bi bi-key-fill"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <span class="text-muted d-block small fw-semibold">Default System Credentials</span>
-                            <div class="d-flex flex-wrap gap-3 mt-1">
-                                <span><strong>Email:</strong> <code class="text-dark">admin@khedutrise.com</code></span>
-                                <span><strong>Pass:</strong> <code class="text-dark">admin123</code></span>
+                    <!-- STEP 1: Administrator Credentials Panel -->
+                    <asp:Panel ID="pnlAdminStep1" runat="server">
+                        <!-- Default Credential Helper Badge -->
+                        <div class="alert alert-light border rounded-3 d-flex align-items-center py-2 px-3 mb-4" style="background-color: #f8fafc; border-color: #e2e8f0; font-size: 0.85rem;">
+                            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 32px; height: 32px;">
+                                <i class="bi bi-key-fill"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <span class="text-muted d-block small fw-semibold">Default System Credentials</span>
+                                <div class="d-flex flex-wrap gap-3 mt-1">
+                                    <span><strong>Email:</strong> <code class="text-dark">admin@khedutrise.com</code></span>
+                                    <span><strong>Pass:</strong> <code class="text-dark">admin123</code></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <asp:HiddenField ID="hfAdminCustomPass" runat="server" />
+                        <asp:HiddenField ID="hfAdminCustomPass" runat="server" />
 
-                    <div class="mb-3">
-                        <label class="form-floating-label">ADMIN EMAIL ADDRESS <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                            <asp:TextBox ID="txtAdminEmail" runat="server" CssClass="form-control admin-form-input border-start-0 ps-0" Text="admin@khedutrise.com" placeholder="admin@khedutrise.com"></asp:TextBox>
+                        <div class="mb-3">
+                            <label class="form-floating-label">ADMIN EMAIL ADDRESS <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                                <asp:TextBox ID="txtAdminEmail" runat="server" CssClass="form-control admin-form-input border-start-0 ps-0" Text="admin@khedutrise.com" placeholder="admin@khedutrise.com"></asp:TextBox>
+                            </div>
+                            <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
+                            <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                         </div>
-                        <asp:RequiredFieldValidator ID="rfvAdminEmail" ControlToValidate="txtAdminEmail" ErrorMessage="Admin email is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
-                        <asp:RegularExpressionValidator ID="revAdminEmail" ControlToValidate="txtAdminEmail" ValidationExpression="^[\w\.-]+@[\w\.-]+\.\w+$" ErrorMessage="Please enter a valid email address." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
-                    </div>
 
-                    <!-- Password -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-floating-label mb-0">ADMIN PASSWORD <span class="text-danger">*</span></label>
-                            <a href="#" class="small fw-semibold text-decoration-none" style="color: #0b6028; font-size: 0.78rem;" data-bs-toggle="modal" data-bs-target="#modalForgotPassword">Forgot Password?</a>
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-floating-label mb-0">ADMIN PASSWORD <span class="text-danger">*</span></label>
+                                <a href="#" class="small fw-semibold text-decoration-none" style="color: #0b6028; font-size: 0.78rem;" data-bs-toggle="modal" data-bs-target="#modalForgotPassword">Forgot Password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                                <asp:TextBox ID="txtAdminPass" runat="server" TextMode="Password" CssClass="form-control admin-form-input border-start-0 ps-0" placeholder="Enter admin password"></asp:TextBox>
+                            </div>
+                            <asp:RequiredFieldValidator ID="rfvAdminPass" ControlToValidate="txtAdminPass" ErrorMessage="Admin password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                         </div>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-                            <asp:TextBox ID="txtAdminPass" runat="server" TextMode="Password" CssClass="form-control admin-form-input border-start-0 ps-0" placeholder="Enter admin password"></asp:TextBox>
-                        </div>
-                        <asp:RequiredFieldValidator ID="rfvAdminPass" ControlToValidate="txtAdminPass" ErrorMessage="Admin password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
-                    </div>
 
-                    <!-- Submit Button -->
-                    <div class="mb-3">
-                        <asp:Button ID="btnAdminLogin" runat="server" Text="Sign In to Admin Portal" CausesValidation="false" CssClass="btn w-100 btn-admin-submit" OnClick="btnAdminLogin_Click" />
-                    </div>
+                        <!-- Submit Button: Step 1 (Proceed to SMS OTP) -->
+                        <div class="mb-3">
+                            <asp:Button ID="btnAdminLogin" runat="server" Text="Verify & Send SMS OTP" CausesValidation="false" CssClass="btn w-100 btn-admin-submit" OnClick="btnAdminLogin_Click" />
+                        </div>
+                    </asp:Panel>
+
+                    <!-- STEP 2: Administrator SMS OTP Verification Panel -->
+                    <asp:Panel ID="pnlAdminStep2" runat="server" Visible="false">
+                        <div class="alert alert-success border border-success-subtle rounded-3 py-2 px-3 mb-4 small d-flex align-items-center" style="background-color: #f0fdf4;">
+                            <i class="bi bi-shield-check text-success fs-4 me-3 flex-shrink-0"></i>
+                            <div>
+                                <strong class="text-dark d-block">Step 2: Two-Factor SMS Verification</strong>
+                                <span class="text-muted">Enter the 6-digit OTP sent to administrator mobile: <strong class="text-dark">+91 <asp:Literal ID="litAdminMaskedMobile" runat="server">98765 XXX01</asp:Literal></strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Admin OTP Input -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-floating-label mb-0">ENTER 6-DIGIT OTP <span class="text-danger">*</span></label>
+                                <small class="text-muted"><i class="bi bi-clock-history me-1"></i>Valid for 5 mins</small>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-lock"></i></span>
+                                <asp:TextBox ID="txtAdminOtp" runat="server" CssClass="form-control admin-form-input border-start-0 ps-0 text-center fw-bold admin-otp-input" MaxLength="6" placeholder="• • • • • •" autocomplete="one-time-code"></asp:TextBox>
+                            </div>
+                        </div>
+
+                        <!-- Verify OTP Button -->
+                        <div class="mb-3">
+                            <asp:Button ID="btnAdminVerifyOtp" runat="server" Text="Verify OTP & Access Console" CssClass="btn w-100 btn-admin-submit" OnClick="btnAdminVerifyOtp_Click" />
+                        </div>
+
+                        <!-- Action Links: Resend OTP and Change Credentials -->
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <asp:LinkButton ID="btnAdminResendOtp" runat="server" CssClass="small text-decoration-none fw-bold text-success" OnClick="btnAdminResendOtp_Click">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Resend OTP
+                            </asp:LinkButton>
+                            <asp:LinkButton ID="btnAdminBackToCreds" runat="server" CssClass="small text-decoration-none text-muted" OnClick="btnAdminBackToCreds_Click">
+                                <i class="bi bi-arrow-left me-1"></i> Change Credentials
+                            </asp:LinkButton>
+                        </div>
+                    </asp:Panel>
 
                     <div class="text-center mt-3 text-muted small" style="font-size: 0.78rem;">
                         <i class="bi bi-shield-lock me-1 text-success"></i> Sessions are monitored and encrypted with TLS 1.3
