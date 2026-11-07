@@ -1,7 +1,7 @@
 <%@ Page Title="Sign In" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="KhedutRise.Login" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- Simple, Clean Mobile OTP Login Screen -->
+    <!-- Secure Mobile Number & SMS OTP Login Screen -->
     <style>
         .role-pill-group {
             display: flex;
@@ -36,6 +36,17 @@
             color: #ffffff;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+        .otp-input-field {
+            letter-spacing: 0.45rem;
+            font-size: 1.35rem;
+        }
+        .cooldown-badge {
+            font-size: 0.82rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.35rem 0.75rem;
+        }
     </style>
 
     <div class="kr-page-container py-5">
@@ -62,9 +73,9 @@
                     </div>
 
                     <!-- Server Message Alert -->
-                    <asp:Label ID="lblLoginMsg" runat="server" CssClass="d-block mb-3 fw-bold"></asp:Label>
+                    <asp:Label ID="lblLoginMsg" runat="server" CssClass="d-block mb-3 fw-bold" EnableViewState="false"></asp:Label>
 
-                    <!-- Role selector pills -->
+                    <!-- Role selector pills: ONLY Farmer, Buyer, Operator (Admin is strictly excluded) -->
                     <div class="mb-4">
                         <label class="form-label" style="color: #0b6028;">SELECT YOUR ROLE <span class="required-mark">*</span></label>
                         <div class="role-pill-group">
@@ -82,36 +93,45 @@
 
                     <!-- Mobile Number Field -->
                     <div class="mb-3">
-                        <label class="form-label" style="color: #0b6028;">MOBILE NUMBER <span class="required-mark">*</span></label>
-                        <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
-                            placeholder="+91  Enter 10-digit mobile number" MaxLength="10" 
-                            type="tel"></asp:TextBox>
+                        <label class="form-label" style="color: #0b6028;">REGISTERED MOBILE NUMBER <span class="required-mark">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 fw-bold text-success">+91</span>
+                            <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control border-start-0 ps-2" 
+                                placeholder="Enter 10-digit mobile number" MaxLength="10" 
+                                type="tel"></asp:TextBox>
+                        </div>
                         <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ValidationGroup="MobileAuth" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationGroup="MobileAuth" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
-                    <!-- Separate Send OTP Button -->
+                    <!-- Send OTP Action Area -->
                     <div class="mb-3">
-                        <asp:Button ID="btnSendOtp" runat="server" Text="Send OTP" CssClass="btn w-100 py-2 fw-bold" 
+                        <asp:Button ID="btnSendOtp" runat="server" Text="Send OTP via SMS" CssClass="btn w-100 py-2 fw-bold shadow-none" 
                             OnClick="btnSendOtp_Click" ValidationGroup="MobileAuth" CausesValidation="true"
                             style="background-color: #f0fdf4; color: #0b6028; border: 1.5px solid #0b6028; border-radius: 6px; font-size: 0.95rem;" />
+                        
+                        <div id="cooldownNotice" class="cooldown-badge text-center text-muted mt-2" style="display:none;">
+                            <i class="bi bi-stopwatch me-1 text-success"></i> Resend OTP available in <span id="cooldownTimer" class="fw-bold text-success">60</span>s
+                        </div>
                     </div>
 
-                    <!-- OTP Input -->
+                    <asp:HiddenField ID="hfCooldownRemaining" runat="server" Value="0" />
+
+                    <!-- OTP Input Area -->
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label mb-0" style="color: #0b6028;">ENTER OTP <span class="required-mark">*</span></label>
-                            <small class="text-muted">Test OTP: <strong class="text-dark">482190</strong></small>
+                            <label class="form-label mb-0" style="color: #0b6028;">ENTER 6-DIGIT OTP <span class="required-mark">*</span></label>
+                            <small class="text-muted"><i class="bi bi-clock-history me-1"></i>Valid for 5 mins</small>
                         </div>
-                        <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold fs-5 py-2 letter-spacing-2" 
-                            placeholder="• • • • • •" MaxLength="6" Text="482190"></asp:TextBox>
+                        <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold otp-input-field py-2" 
+                            placeholder="• • • • • •" MaxLength="6" autocomplete="one-time-code"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ValidationExpression="^\d{4,6}$" ErrorMessage="OTP must be 4 to 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ValidationExpression="^\d{6}$" ErrorMessage="OTP must be exactly 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
-                    <!-- Submit OTP Button -->
+                    <!-- Verify OTP & Sign In Button -->
                     <div class="mb-3">
-                        <asp:Button ID="btnLogin" runat="server" Text="Verify & Sign In" 
+                        <asp:Button ID="btnLogin" runat="server" Text="Verify OTP & Sign In" 
                             CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" 
                             OnClick="btnLogin_Click" ValidationGroup="OtpAuth"
                             OnClientClick="return (Page_ClientValidate('MobileAuth') && Page_ClientValidate('OtpAuth'));"
@@ -127,4 +147,57 @@
             </div>
         </div>
     </div>
+
+    <!-- Client-side OTP Cooldown Countdown Script -->
+    <script>
+        (function () {
+            var hf = document.getElementById('<%= hfCooldownRemaining.ClientID %>');
+            var remaining = hf ? parseInt(hf.value, 10) : 0;
+            if (isNaN(remaining)) remaining = 0;
+
+            function startTimer(duration) {
+                var timer = duration;
+                var notice = document.getElementById('cooldownNotice');
+                var span = document.getElementById('cooldownTimer');
+                var sendBtn = document.getElementById('<%= btnSendOtp.ClientID %>');
+
+                if (timer <= 0) {
+                    if (notice) notice.style.display = 'none';
+                    if (sendBtn) {
+                        sendBtn.disabled = false;
+                        sendBtn.classList.remove('opacity-50');
+                        sendBtn.value = 'Resend OTP';
+                    }
+                    return;
+                }
+
+                if (notice) notice.style.display = 'block';
+                if (span) span.innerText = timer;
+                if (sendBtn) {
+                    sendBtn.disabled = true;
+                    sendBtn.classList.add('opacity-50');
+                }
+
+                var interval = setInterval(function () {
+                    timer--;
+                    if (span) span.innerText = timer;
+                    if (hf) hf.value = timer;
+
+                    if (timer <= 0) {
+                        clearInterval(interval);
+                        if (notice) notice.style.display = 'none';
+                        if (sendBtn) {
+                            sendBtn.disabled = false;
+                            sendBtn.classList.remove('opacity-50');
+                            sendBtn.value = 'Resend OTP';
+                        }
+                    }
+                }, 1000);
+            }
+
+            if (remaining > 0) {
+                startTimer(remaining);
+            }
+        })();
+    </script>
 </asp:Content>

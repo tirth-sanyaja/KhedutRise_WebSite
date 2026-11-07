@@ -7,18 +7,19 @@
 namespace KhedutRise {
     
     public partial class Login {
-        protected global::System.Web.UI.WebControls.Button btnLogin;
-        protected global::System.Web.UI.WebControls.Button btnSendOtp;
         protected global::System.Web.UI.WebControls.Content Content1;
         protected global::System.Web.UI.WebControls.Label lblLoginMsg;
-        protected global::System.Web.UI.WebControls.RadioButton rbBuyer;
         protected global::System.Web.UI.WebControls.RadioButton rbFarmer;
+        protected global::System.Web.UI.WebControls.RadioButton rbBuyer;
         protected global::System.Web.UI.WebControls.RadioButton rbOperator;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revOtp;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvOtp;
         protected global::System.Web.UI.WebControls.TextBox txtMobile;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
+        protected global::System.Web.UI.WebControls.Button btnSendOtp;
+        protected global::System.Web.UI.WebControls.HiddenField hfCooldownRemaining;
         protected global::System.Web.UI.WebControls.TextBox txtOtp;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvOtp;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revOtp;
+        protected global::System.Web.UI.WebControls.Button btnLogin;
     }
 }
