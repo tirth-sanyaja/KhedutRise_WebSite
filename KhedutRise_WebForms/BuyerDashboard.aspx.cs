@@ -9,6 +9,19 @@ namespace KhedutRise
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Enforce authenticated Buyer role access
+            if (Session["UserId"] == null)
+            {
+                Response.Redirect("Login.aspx?error=auth_required&returnUrl=" + Server.UrlEncode(Request.RawUrl));
+                return;
+            }
+
+            if (Session["UserRole"] == null || Session["UserRole"].ToString() != "Buyer")
+            {
+                Response.Redirect("Login.aspx?error=unauthorized_role");
+                return;
+            }
+
             if (!IsPostBack)
             {
                 string name = Session["UserName"] != null ? Session["UserName"].ToString() : "Buyer";

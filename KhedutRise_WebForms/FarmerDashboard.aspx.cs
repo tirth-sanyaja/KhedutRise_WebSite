@@ -7,9 +7,16 @@ namespace KhedutRise
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Enforce authenticated Farmer role access
             if (Session["UserId"] == null)
             {
-                Response.Redirect("Login.aspx?returnUrl=" + Server.UrlEncode(Request.RawUrl));
+                Response.Redirect("Login.aspx?error=auth_required&returnUrl=" + Server.UrlEncode(Request.RawUrl));
+                return;
+            }
+
+            if (Session["UserRole"] == null || Session["UserRole"].ToString() != "Farmer")
+            {
+                Response.Redirect("Login.aspx?error=unauthorized_role");
                 return;
             }
 
