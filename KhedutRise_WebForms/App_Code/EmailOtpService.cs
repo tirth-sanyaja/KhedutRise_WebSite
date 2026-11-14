@@ -8,17 +8,88 @@ using System.Text.RegularExpressions;
 
 namespace KhedutRise
 {
-    // Manages the full Email OTP lifecycle: generate, send, verify, rate-limit.
-    // Uses the same UserOTPs table as OtpService, keyed by Email column.
+    // Result of generating and dispatching an OTP
+    public class OtpRequestResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public string ErrorCode { get; set; }
+        public int CooldownRemainingSeconds { get; set; }
+        public string PlainOtp { get; set; }
+
+        public static OtpRequestResult Ok(string message, string plainOtp = "")
+        {
+            return new OtpRequestResult 
+            { 
+                Success = true, 
+                Message = message,
+                PlainOtp = plainOtp
+            };
+        }
+
+        public static OtpRequestResult Fail(string message, string errorCode = "ERROR", int cooldownSec = 0)
+        {
+            return new OtpRequestResult
+            {
+                Success = false,
+                Message = message,
+                ErrorCode = errorCode,
+                CooldownRemainingSeconds = cooldownSec,
+                PlainOtp = string.Empty
+            };
+        }
+    }
+
+    // Result of verifying an OTP
+    public class OtpVerificationResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public int UserId { get; set; }
+        public string FullName { get; set; }
+        public string UserRole { get; set; }
+        public string MobileNo { get; set; }
+        public string Email { get; set; }
+        public int RemainingAttempts { get; set; }
+        public bool IsBlocked { get; set; }
+
+        public static OtpVerificationResult Ok(int userId, string fullName, string userRole, string mobileNo, string email)
+        {
+            return new OtpVerificationResult
+            {
+                Success = true,
+                Message = "Verification successful.",
+                UserId = userId,
+                FullName = fullName,
+                UserRole = userRole,
+                MobileNo = mobileNo,
+                Email = email
+            };
+        }
+
+        public static OtpVerificationResult Fail(string message, int remainingAttempts = 0, bool isBlocked = false)
+        {
+            return new OtpVerificationResult
+            {
+                Success = false,
+                Message = message,
+                RemainingAttempts = remainingAttempts,
+                IsBlocked = isBlocked
+            };
+        }
+    }
+
+    // Manages the complete Email OTP lifecycle: generate, SMTP dispatch, verify, rate-limit.
+    // Pure Email OTP architecture without external SMS dependencies.
     public static class EmailOtpService
     {
-        private const int DEFAULT_EXPIRY_MINUTES  = 5;
+        private const int DEFAULT_EXPIRY_MINUTES   = 5;
         private const int DEFAULT_COOLDOWN_SECONDS = 60;
-        private const int DEFAULT_MAX_ATTEMPTS    = 5;
+        private const int DEFAULT_MAX_ATTEMPTS     = 5;
 
-        // ── PUBLIC: Generate, store, and email a new OTP ─────────────────────
-        // purpose = "LOGIN" | "REGISTER"
-        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp)
+        // Generate, store, and email a 6-digit OTP via SMTP
+        // purpose = "LOGIN" | "ADMIN_LOGIN" | "REGISTER"
+        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp, string requestedRole = null)
         {
             email   = (email ?? "").Trim().ToLower();
             purpose = string.IsNullOrEmpty(purpose) ? "LOGIN" : purpose.Trim().ToUpper();
@@ -26,11 +97,11 @@ namespace KhedutRise
             if (string.IsNullOrEmpty(email) || !Regex.IsMatch(email, @"^[\w\.\-]+@[\w\.\-]+\.\w+$"))
                 return OtpRequestResult.Fail("Please enter a valid email address.", "INVALID_EMAIL");
 
-            int expiryMinutes  = GetConfigInt("OtpExpiryMinutes",        DEFAULT_EXPIRY_MINUTES);
+            int expiryMinutes  = GetConfigInt("OtpExpiryMinutes",         DEFAULT_EXPIRY_MINUTES);
             int cooldownSec    = GetConfigInt("OtpResendCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
-            int maxAttempts    = GetConfigInt("OtpMaxAttempts",           DEFAULT_MAX_ATTEMPTS);
+            int maxAttempts    = GetConfigInt("OtpMaxAttempts",            DEFAULT_MAX_ATTEMPTS);
 
-            // Check resend cooldown (look for any OTP for this email created within cooldown window)
+            // 1. Check resend cooldown
             string cooldownSql = @"SELECT TOP 1 OTPCreatedAt FROM UserOTPs
                                    WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0
                                    ORDER BY OTPCreatedAt DESC";
@@ -42,8 +113,8 @@ namespace KhedutRise
 
             if (dtCool != null && dtCool.Rows.Count > 0)
             {
-                DateTime created    = Convert.ToDateTime(dtCool.Rows[0]["OTPCreatedAt"]);
-                double elapsedSec   = (DateTime.Now - created).TotalSeconds;
+                DateTime created  = Convert.ToDateTime(dtCool.Rows[0]["OTPCreatedAt"]);
+                double elapsedSec = (DateTime.Now - created).TotalSeconds;
                 if (elapsedSec < cooldownSec)
                 {
                     int remaining = cooldownSec - (int)elapsedSec;
@@ -53,22 +124,51 @@ namespace KhedutRise
                 }
             }
 
-            // For LOGIN: email must be registered in Users table
+            // 2. User existence & role validation for LOGIN flows
             int userId = 0;
-            if (purpose == "LOGIN")
+            if (purpose == "ADMIN_LOGIN")
             {
-                string userSql = "SELECT TOP 1 UserId FROM Users WHERE LOWER(Email) = @Email AND Status = 'Verified'";
-                DataTable dtUser = DbHelper.ExecuteQuery(userSql,
-                    new SqlParameter[] { new SqlParameter("@Email", email) });
+                string adminSql = "SELECT TOP 1 UserId, FullName, Email, UserRole FROM Users WHERE LOWER(Email) = @Email";
+                DataTable dtAdmin = DbHelper.ExecuteQuery(adminSql, new SqlParameter[] { new SqlParameter("@Email", email) });
+
+                if (dtAdmin == null || dtAdmin.Rows.Count == 0)
+                {
+                    // Seed default admin account if not yet created in Users table
+                    string insAdmin = @"INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, CreatedDate)
+                                        OUTPUT INSERTED.UserId
+                                        VALUES ('System Admin', '9876500001', @Email, 'Admin', 'Gandhinagar, Gujarat', 'Platform Superuser', 'Verified', GETDATE())";
+                    object newId = DbHelper.ExecuteScalar(insAdmin, new SqlParameter[] { new SqlParameter("@Email", email) });
+                    if (newId != null) userId = Convert.ToInt32(newId);
+                }
+                else
+                {
+                    if (!dtAdmin.Rows[0]["UserRole"].ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return OtpRequestResult.Fail("Access Denied: This account does not possess administrator privileges.", "UNAUTHORIZED_ADMIN");
+                    }
+                    userId = Convert.ToInt32(dtAdmin.Rows[0]["UserId"]);
+                }
+            }
+            else if (purpose == "LOGIN")
+            {
+                string userSql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole, Status FROM Users WHERE LOWER(Email) = @Email";
+                DataTable dtUser = DbHelper.ExecuteQuery(userSql, new SqlParameter[] { new SqlParameter("@Email", email) });
 
                 if (dtUser == null || dtUser.Rows.Count == 0)
-                    return OtpRequestResult.Fail(
-                        "No verified account found with this email address.", "NOT_FOUND");
+                {
+                    return OtpRequestResult.Fail("No registered account found with this email address. Please register first.", "NOT_FOUND");
+                }
+
+                string actualRole = dtUser.Rows[0]["UserRole"].ToString();
+                if (!string.IsNullOrEmpty(requestedRole) && !actualRole.Equals(requestedRole, StringComparison.OrdinalIgnoreCase))
+                {
+                    return OtpRequestResult.Fail(string.Format("Role Mismatch: This email is registered as '{0}', not '{1}'. Please select '{0}'.", actualRole, requestedRole), "ROLE_MISMATCH");
+                }
 
                 userId = Convert.ToInt32(dtUser.Rows[0]["UserId"]);
             }
 
-            // Invalidate all previous unused OTPs for this email + purpose
+            // 3. Invalidate previous unused OTPs for this email + purpose
             DbHelper.ExecuteNonQuery(
                 "UPDATE UserOTPs SET IsUsed = 1 WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0",
                 new SqlParameter[] {
@@ -76,13 +176,13 @@ namespace KhedutRise
                     new SqlParameter("@Purpose", purpose)
                 });
 
-            // Generate OTP & hash
+            // 4. Generate cryptographically random 6-digit OTP
             string plainOtp = GenerateCryptographicOtp(GetConfigInt("OtpLength", 6));
             string salt      = GenerateCryptographicSalt(16);
             string hash      = ComputeHash(plainOtp, salt);
             DateTime expiry  = DateTime.Now.AddMinutes(expiryMinutes);
 
-            // Persist to UserOTPs
+            // 5. Store hashed OTP in UserOTPs
             string insertSql = @"INSERT INTO UserOTPs
                 (UserId, MobileNo, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts,
                  OTPCreatedAt, OTPSentAt, OTPPurpose, IsUsed, UserRole, IPAddress, DeliveryStatus, GatewayResponse)
@@ -102,10 +202,10 @@ namespace KhedutRise
                     new SqlParameter("@IP",      clientIp ?? "")
                 });
 
-            // Send OTP via SMTP
+            // 6. Send OTP via SMTP
             bool sent = EmailService.SendOtpEmail(email, plainOtp, expiryMinutes.ToString());
 
-            // Update delivery status
+            // 7. Update delivery status
             string deliveryStatus = sent ? "Sent" : "Failed";
             DbHelper.ExecuteNonQuery(
                 "UPDATE UserOTPs SET DeliveryStatus = @Status WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0 AND OTPHash = @Hash",
@@ -117,17 +217,18 @@ namespace KhedutRise
                 });
 
             if (!sent)
+            {
                 return OtpRequestResult.Fail(
-                    "OTP email could not be sent. Please check SMTP configuration or try again.", "SMTP_FAIL");
+                    "OTP email could not be sent. Please verify SMTP settings in Web.config or try again.", "SMTP_FAIL");
+            }
 
             return OtpRequestResult.Ok(
-                string.Format("OTP sent to {0}. It is valid for {1} minutes.", MaskEmail(email), expiryMinutes),
-                plainOtp);  // plainOtp returned for dev-mode display only; never expose in production UI
+                string.Format("OTP sent successfully to {0}. It is valid for {1} minutes.", MaskEmail(email), expiryMinutes),
+                plainOtp);
         }
 
-        // ── PUBLIC: Verify OTP submitted by user ─────────────────────────────
-        // For REGISTER purpose, requestedRole is optional (not role-checked).
-        public static OtpVerificationResult VerifyEmailOtp(string email, string inputOtp, string purpose)
+        // Verify submitted OTP
+        public static OtpVerificationResult VerifyEmailOtp(string email, string inputOtp, string purpose, string requestedRole = null)
         {
             email   = (email ?? "").Trim().ToLower();
             purpose = string.IsNullOrEmpty(purpose) ? "LOGIN" : purpose.Trim().ToUpper();
@@ -135,7 +236,7 @@ namespace KhedutRise
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(inputOtp))
                 return OtpVerificationResult.Fail("Email and OTP are required.");
 
-            // Fetch the latest active OTP record for this email+purpose
+            // Fetch the latest active OTP record for this email + purpose
             string fetchSql = @"SELECT TOP 1 OTPId, UserId, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts
                                  FROM UserOTPs
                                  WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0
@@ -149,14 +250,14 @@ namespace KhedutRise
             if (dt == null || dt.Rows.Count == 0)
                 return OtpVerificationResult.Fail("No active OTP found. Please request a new code.");
 
-            DataRow row     = dt.Rows[0];
-            int otpId       = Convert.ToInt32(row["OTPId"]);
-            int userId      = row["UserId"] != DBNull.Value ? Convert.ToInt32(row["UserId"]) : 0;
+            DataRow row       = dt.Rows[0];
+            int otpId         = Convert.ToInt32(row["OTPId"]);
+            int userId        = row["UserId"] != DBNull.Value ? Convert.ToInt32(row["UserId"]) : 0;
             string storedHash = row["OTPHash"].ToString();
             string storedSalt = row["OTPSalt"].ToString();
-            DateTime expiry = Convert.ToDateTime(row["OTPExpiry"]);
-            int attempts    = Convert.ToInt32(row["OTPAttempts"]);
-            int maxAttempts = Convert.ToInt32(row["MaxAttempts"]);
+            DateTime expiry   = Convert.ToDateTime(row["OTPExpiry"]);
+            int attempts      = Convert.ToInt32(row["OTPAttempts"]);
+            int maxAttempts   = Convert.ToInt32(row["MaxAttempts"]);
 
             // Expiry check
             if (DateTime.Now > expiry)
@@ -195,12 +296,12 @@ namespace KhedutRise
                     string.Format("Incorrect OTP. You have {0} attempt(s) remaining.", remaining), remaining);
             }
 
-            // Success — invalidate OTP (one-time use)
+            // Success — invalidate OTP immediately (one-time use)
             DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id",
                 new SqlParameter[] { new SqlParameter("@Id", otpId) });
 
-            // For LOGIN: load user details from Users table
-            if (purpose == "LOGIN")
+            // For LOGIN & ADMIN_LOGIN: retrieve user details from Users table
+            if (purpose == "LOGIN" || purpose == "ADMIN_LOGIN")
             {
                 string userSql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole FROM Users WHERE UserId = @Id";
                 DataTable dtUser = DbHelper.ExecuteQuery(userSql,
@@ -210,19 +311,27 @@ namespace KhedutRise
                     return OtpVerificationResult.Fail("User account not found. Please contact support.");
 
                 DataRow u = dtUser.Rows[0];
+                string actualRole = u["UserRole"].ToString();
+
+                // Role guard for public login
+                if (!string.IsNullOrEmpty(requestedRole) && !actualRole.Equals(requestedRole, StringComparison.OrdinalIgnoreCase))
+                {
+                    return OtpVerificationResult.Fail(string.Format("Role mismatch: Account is '{0}', cannot sign in as '{1}'.", actualRole, requestedRole));
+                }
+
                 return OtpVerificationResult.Ok(
                     Convert.ToInt32(u["UserId"]),
                     u["FullName"].ToString(),
-                    u["UserRole"].ToString(),
+                    actualRole,
                     u["MobileNo"] != DBNull.Value ? u["MobileNo"].ToString() : "",
                     u["Email"]    != DBNull.Value ? u["Email"].ToString()    : email);
             }
 
-            // For REGISTER: just confirm success (caller saves email to Users table)
+            // For REGISTER: confirm email verification
             return OtpVerificationResult.Ok(0, "", "", "", email);
         }
 
-        // ── Mask email for display: user@domain.com → us**@domain.com ────────
+        // Mask email for safe UI display: user@domain.com → us****@domain.com
         public static string MaskEmail(string email)
         {
             if (string.IsNullOrEmpty(email) || !email.Contains("@")) return email;
@@ -232,7 +341,7 @@ namespace KhedutRise
             return shown + "@" + parts[1];
         }
 
-        // ── Cryptographic helpers (same pattern as OtpService) ─────────────
+        // Cryptographically secure numeric OTP generator
         private static string GenerateCryptographicOtp(int length)
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
@@ -246,6 +355,7 @@ namespace KhedutRise
             }
         }
 
+        // Cryptographically secure salt generator
         private static string GenerateCryptographicSalt(int size)
         {
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
@@ -256,6 +366,7 @@ namespace KhedutRise
             }
         }
 
+        // SHA-256 hash calculation with salt and application pepper
         private static string ComputeHash(string otp, string salt)
         {
             using (SHA256 sha = SHA256.Create())

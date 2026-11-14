@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 
 namespace KhedutRise
 {
-    // Administrator Portal Sign In - Two-Factor Authentication with Credentials and Dynamic SMS OTP Verification
+    // Administrator Portal Sign In — Two-Factor Authentication with Credentials and Dynamic Email OTP Verification
     public partial class AdminLogin : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
@@ -20,7 +20,7 @@ namespace KhedutRise
 
                 if (Request.QueryString["error"] == "admin_required")
                 {
-                    lblAdminMsg.Text = "<i class='bi bi-shield-slash-fill me-1'></i> Administrative Access Required: Please sign in with administrator credentials and SMS OTP.";
+                    lblAdminMsg.Text = "<i class='bi bi-shield-slash-fill me-1'></i> Administrative Access Required: Please sign in with administrator credentials and Email OTP.";
                     lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
                 }
             }
@@ -34,7 +34,7 @@ namespace KhedutRise
             }
         }
 
-        // STEP 1: Validate Administrator Credentials & Dispatch Secure SMS OTP
+        // STEP 1: Validate Administrator Credentials & Dispatch Secure Email OTP
         protected void btnAdminLogin_Click(object sender, EventArgs e)
         {
             Page.Validate();
@@ -75,50 +75,12 @@ namespace KhedutRise
                 return;
             }
 
-            // Look up or establish administrator user in database
-            string adminMobile = ConfigurationManager.AppSettings["AdminMobileNumber"] ?? "9876500001";
-            int adminUserId = 0;
-            string adminName = "System Admin";
+            string adminEmail = "admin@khedutrise.com";
+            ViewState["AdminEmail"] = adminEmail;
 
-            try
-            {
-                string sql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole FROM Users WHERE UserRole = 'Admin'";
-                DataTable dt = DbHelper.ExecuteQuery(sql);
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    adminUserId = Convert.ToInt32(dt.Rows[0]["UserId"]);
-                    adminName = dt.Rows[0]["FullName"].ToString();
-                    if (dt.Rows[0]["MobileNo"] != DBNull.Value && !string.IsNullOrEmpty(dt.Rows[0]["MobileNo"].ToString()))
-                    {
-                        adminMobile = dt.Rows[0]["MobileNo"].ToString();
-                    }
-                }
-                else
-                {
-                    // Seed admin into Users table if missing
-                    string insSql = @"INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, CreatedDate)
-                                      OUTPUT INSERTED.UserId
-                                      VALUES ('System Admin', @Mob, 'admin@khedutrise.com', 'Admin', 'Gandhinagar, Gujarat', 'Platform Superuser', 'Verified', GETDATE())";
-                    SqlParameter[] prms = new SqlParameter[] { new SqlParameter("@Mob", adminMobile) };
-                    object res = DbHelper.ExecuteScalar(insSql, prms);
-                    if (res != null) adminUserId = Convert.ToInt32(res);
-                }
-            }
-            catch (Exception ex)
-            {
-                lblAdminMsg.Text = "Database lookup error: " + ex.Message;
-                lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
-                return;
-            }
-
-            ViewState["AdminMobile"] = adminMobile;
-            ViewState["AdminUserId"] = adminUserId;
-            ViewState["AdminName"] = adminName;
-
-            // Generate & Send OTP via SMS
-            OtpRequestResult otpRes = OtpService.GenerateAndSendOtp(
-                adminMobile,
-                "Admin",
+            // Generate & Send OTP via Email
+            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(
+                adminEmail,
                 "ADMIN_LOGIN",
                 Request.UserHostAddress);
 
@@ -126,17 +88,15 @@ namespace KhedutRise
             {
                 pnlAdminStep1.Visible = false;
                 pnlAdminStep2.Visible = true;
-                litAdminMaskedMobile.Text = OtpService.MaskMobile(adminMobile);
+                litAdminMaskedMobile.Text = EmailOtpService.MaskEmail(adminEmail);
                 lblAdminMsg.Text = string.Format(
                     "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
-                    "<div class='fw-bold mb-1'><i class='bi bi-shield-check me-1 text-success'></i> Credentials Verified & OTP Sent!</div>" +
-                    "<div class='my-2'>Admin OTP Code: <span class='badge bg-danger fs-5 px-3 py-1 font-monospace'>{1}</span></div>" +
-                    "<div class='small text-muted'>Sent via SMS to +91 {0} • Valid for 5 minutes</div>" +
+                    "<div class='fw-bold mb-1'><i class='bi bi-shield-check me-1 text-success'></i> Credentials Verified &amp; OTP Sent!</div>" +
+                    "<div class='small text-muted'>A 6-digit OTP has been sent to <strong>{0}</strong> via Email. Valid for 5 minutes.</div>" +
                     "</div>",
-                    OtpService.MaskMobile(adminMobile),
-                    otpRes.PlainOtp);
+                    EmailOtpService.MaskEmail(adminEmail));
                 lblAdminMsg.CssClass = "d-block mb-2";
-                txtAdminOtp.Text = otpRes.PlainOtp;
+                txtAdminOtp.Text = string.Empty;
                 txtAdminOtp.Focus();
             }
             else
@@ -146,19 +106,14 @@ namespace KhedutRise
             }
         }
 
-        // STEP 2: Verify SMS OTP & Grant Admin Portal Session
+        // STEP 2: Verify Email OTP & Grant Admin Portal Session
         protected void btnAdminVerifyOtp_Click(object sender, EventArgs e)
         {
-            string adminMobile = ViewState["AdminMobile"] as string;
-            if (string.IsNullOrEmpty(adminMobile))
-            {
-                adminMobile = ConfigurationManager.AppSettings["AdminMobileNumber"] ?? "9876500001";
-            }
-
+            string adminEmail = ViewState["AdminEmail"] as string ?? "admin@khedutrise.com";
             string otp = txtAdminOtp.Text.Trim();
 
-            // Verify OTP via unified OtpService
-            OtpVerificationResult result = OtpService.VerifyOtp(adminMobile, otp, "Admin", "ADMIN_LOGIN");
+            // Verify OTP via EmailOtpService
+            OtpVerificationResult result = EmailOtpService.VerifyEmailOtp(adminEmail, otp, "ADMIN_LOGIN");
 
             if (!result.Success)
             {
@@ -170,11 +125,10 @@ namespace KhedutRise
             }
 
             // Establish full Admin session
-            Session["UserRole"] = "Admin";
-            Session["UserName"] = !string.IsNullOrEmpty(result.FullName) ? result.FullName : "System Admin";
+            Session["UserRole"]  = "Admin";
+            Session["UserName"]  = !string.IsNullOrEmpty(result.FullName) ? result.FullName : "System Admin";
             Session["UserEmail"] = !string.IsNullOrEmpty(result.Email) ? result.Email : "admin@khedutrise.com";
-            Session["UserMobile"] = result.MobileNo;
-            Session["UserId"] = result.UserId;
+            Session["UserId"]    = result.UserId;
 
             Response.Redirect("AdminDashboard.aspx");
         }
@@ -182,15 +136,10 @@ namespace KhedutRise
         // Resend Admin OTP
         protected void btnAdminResendOtp_Click(object sender, EventArgs e)
         {
-            string adminMobile = ViewState["AdminMobile"] as string;
-            if (string.IsNullOrEmpty(adminMobile))
-            {
-                adminMobile = ConfigurationManager.AppSettings["AdminMobileNumber"] ?? "9876500001";
-            }
+            string adminEmail = ViewState["AdminEmail"] as string ?? "admin@khedutrise.com";
 
-            OtpRequestResult otpRes = OtpService.GenerateAndSendOtp(
-                adminMobile,
-                "Admin",
+            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(
+                adminEmail,
                 "ADMIN_LOGIN",
                 Request.UserHostAddress);
 
@@ -199,13 +148,11 @@ namespace KhedutRise
                 lblAdminMsg.Text = string.Format(
                     "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
                     "<div class='fw-bold mb-1'><i class='bi bi-arrow-clockwise me-1 text-success'></i> New OTP Dispatched!</div>" +
-                    "<div class='my-2'>Admin OTP Code: <span class='badge bg-danger fs-5 px-3 py-1 font-monospace'>{1}</span></div>" +
-                    "<div class='small text-muted'>Sent via SMS to +91 {0} • Valid for 5 minutes</div>" +
+                    "<div class='small text-muted'>Sent via Email to <strong>{0}</strong> â€¢ Valid for 5 minutes</div>" +
                     "</div>",
-                    OtpService.MaskMobile(adminMobile),
-                    otpRes.PlainOtp);
+                    EmailOtpService.MaskEmail(adminEmail));
                 lblAdminMsg.CssClass = "d-block mb-2";
-                txtAdminOtp.Text = otpRes.PlainOtp;
+                txtAdminOtp.Text = string.Empty;
                 txtAdminOtp.Focus();
             }
             else

@@ -12,9 +12,9 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.RadioButton rbFarmer;
         protected global::System.Web.UI.WebControls.RadioButton rbBuyer;
         protected global::System.Web.UI.WebControls.RadioButton rbOperator;
-        protected global::System.Web.UI.WebControls.TextBox txtMobile;
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
+        protected global::System.Web.UI.WebControls.TextBox txtEmail;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvEmail;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator revEmail;
         protected global::System.Web.UI.WebControls.Button btnSendOtp;
         protected global::System.Web.UI.WebControls.HiddenField hfCooldownRemaining;
         protected global::System.Web.UI.WebControls.TextBox txtOtp;

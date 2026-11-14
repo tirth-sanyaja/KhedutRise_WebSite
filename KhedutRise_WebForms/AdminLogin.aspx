@@ -158,8 +158,8 @@
                                 <span>Multi-tier Role-Based Access Control</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 text-white-50 small">
-                                <i class="bi bi-phone-vibrate text-success fs-6"></i>
-                                <span>Two-Factor SMS OTP Verification</span>
+                                <i class="bi bi-envelope-check text-success fs-6"></i>
+                                <span>Two-Factor Email OTP Verification</span>
                             </div>
                             <div class="d-flex align-items-center gap-2 text-white-50 small">
                                 <i class="bi bi-lock-fill text-success fs-6"></i>
@@ -181,7 +181,7 @@
                             <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill small fw-bold">RESTRICTED ACCESS</span>
                         </div>
                         <h2 class="fw-bold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: -0.5px;">Sign In to Admin Console</h2>
-                        <p class="text-muted small mb-0">Authorized personnel only. Protected administrative environment with SMS OTP verification.</p>
+                        <p class="text-muted small mb-0">Authorized personnel only. Protected administrative environment with Email OTP verification.</p>
                     </div>
 
                     <asp:Label ID="lblAdminMsg" runat="server" CssClass="d-block mb-3 fw-bold" EnableViewState="false"></asp:Label>
@@ -227,19 +227,19 @@
                             <asp:RequiredFieldValidator ID="rfvAdminPass" ControlToValidate="txtAdminPass" ErrorMessage="Admin password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" EnableClientScript="false" runat="server" />
                         </div>
 
-                        <!-- Submit Button: Step 1 (Proceed to SMS OTP) -->
+                        <!-- Submit Button: Step 1 (Proceed to Email OTP) -->
                         <div class="mb-3">
-                            <asp:Button ID="btnAdminLogin" runat="server" Text="Verify & Send SMS OTP" CausesValidation="false" CssClass="btn w-100 btn-admin-submit" OnClick="btnAdminLogin_Click" />
+                            <asp:Button ID="btnAdminLogin" runat="server" Text="Verify &amp; Send Email OTP" CausesValidation="false" CssClass="btn w-100 btn-admin-submit" OnClick="btnAdminLogin_Click" />
                         </div>
                     </asp:Panel>
 
-                    <!-- STEP 2: Administrator SMS OTP Verification Panel -->
+                    <!-- STEP 2: Administrator Email OTP Verification Panel -->
                     <asp:Panel ID="pnlAdminStep2" runat="server" Visible="false">
                         <div class="alert alert-success border border-success-subtle rounded-3 py-2 px-3 mb-4 small d-flex align-items-center" style="background-color: #f0fdf4;">
                             <i class="bi bi-shield-check text-success fs-4 me-3 flex-shrink-0"></i>
                             <div>
-                                <strong class="text-dark d-block">Step 2: Two-Factor SMS Verification</strong>
-                                <span class="text-muted">Enter the 6-digit OTP sent to administrator mobile: <strong class="text-dark">+91 <asp:Literal ID="litAdminMaskedMobile" runat="server">98765 XXX01</asp:Literal></strong></span>
+                                <strong class="text-dark d-block">Step 2: Two-Factor Email Verification</strong>
+                                <span class="text-muted">Enter the 6-digit OTP sent to administrator email: <strong class="text-dark"><asp:Literal ID="litAdminMaskedMobile" runat="server">admin@khedutrise.com</asp:Literal></strong></span>
                             </div>
                         </div>
 
