@@ -108,10 +108,57 @@
 
                         <!-- Upload Documents -->
                         <div class="col-12 pt-2">
-                            <label class="form-label text-muted mb-2">DRIVER LICENSE & TRACTOR RC (OPTIONAL)</label>
+                            <label class="form-label text-muted mb-2">DRIVER LICENSE &amp; TRACTOR RC (OPTIONAL)</label>
                             <div class="border border-dashed rounded-3 p-3 text-center" style="border-color: #cbd5e1 !important; background-color: #f8fafc;">
                                 <p class="small text-muted mb-2 fw-semibold">Upload Commercial Driving License or Tractor RC for verified operator badge</p>
                                 <asp:FileUpload ID="fuOpDoc" runat="server" CssClass="form-control form-control-sm mx-auto" style="max-width: 320px;" />
+                            </div>
+                        </div>
+
+                        <!-- Email OTP Verification for Operator -->
+                        <div class="col-12 pt-2">
+                            <div class="border rounded-3 p-3" style="background:#f0fdf4; border-color:#0b6028 !important;">
+                                <label class="form-label fw-bold mb-1" style="color:#0b6028;">
+                                    <i class="bi bi-envelope-check me-1"></i> EMAIL VERIFICATION <span class="required-mark">*</span>
+                                </label>
+                                <p class="small text-muted mb-2">Enter your email and verify it before creating your account.</p>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-8">
+                                        <asp:TextBox ID="txtOpEmail" runat="server" CssClass="form-control" type="email"
+                                            placeholder="yourname@example.com"></asp:TextBox>
+                                        <asp:RequiredFieldValidator ID="rfvOpEmail" ControlToValidate="txtOpEmail" ValidationGroup="OpEmailVerify"
+                                            ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                                        <asp:RegularExpressionValidator ID="revOpEmail" ControlToValidate="txtOpEmail" ValidationGroup="OpEmailVerify"
+                                            ValidationExpression="^[\w\.\-]+@[\w\.\-]+\.\w+$" ErrorMessage="Please enter a valid email address."
+                                            ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <asp:Button ID="btnSendOpOtp" runat="server" Text="Send OTP"
+                                            CssClass="btn w-100 fw-bold" OnClick="btnSendOpOtp_Click" ValidationGroup="OpEmailVerify" CausesValidation="true"
+                                            style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px;" />
+                                    </div>
+                                </div>
+                                <asp:Panel ID="pnlOpOtp" runat="server" Visible="false" CssClass="mt-2">
+                                    <asp:Label ID="lblOpOtpInfo" runat="server" CssClass="d-block small text-success mb-2"></asp:Label>
+                                    <div class="row g-2">
+                                        <div class="col-md-7">
+                                            <asp:TextBox ID="txtOpOtp" runat="server" CssClass="form-control text-center fw-bold"
+                                                placeholder="Enter 6-digit OTP" MaxLength="6" autocomplete="one-time-code"
+                                                style="letter-spacing:0.4rem; font-size:1.2rem;"></asp:TextBox>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <asp:Button ID="btnVerifyOpOtp" runat="server" Text="Verify OTP" CssClass="btn w-100 fw-bold"
+                                                OnClick="btnVerifyOpOtp_Click" CausesValidation="false"
+                                                style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px;" />
+                                        </div>
+                                    </div>
+                                </asp:Panel>
+                                <asp:Panel ID="pnlOpEmailVerified" runat="server" Visible="false" CssClass="mt-2">
+                                    <div class="alert alert-success py-2 px-3 mb-0 small fw-bold">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Email verified successfully!
+                                    </div>
+                                </asp:Panel>
+                                <asp:HiddenField ID="hfOpEmailVerified" runat="server" Value="0" />
                             </div>
                         </div>
 

@@ -133,40 +133,84 @@ namespace KhedutRise
         private static SmsResult SendViaFast2Sms(string mobile, string otp, string message, string apiKey)
         {
             string url = "https://www.fast2sms.com/dev/bulkV2";
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/json";
-            request.Headers.Add("authorization", apiKey);
-            request.Timeout = 12000; // 12 seconds timeout
 
-            // Use the Quick/OTP route for Fast2SMS
-            string jsonPayload = string.Format(
-                "{{\"route\":\"otp\",\"variables_values\":\"{0}\",\"numbers\":\"{1}\"}}",
-                otp, mobile);
-
-            byte[] byteData = Encoding.UTF8.GetBytes(jsonPayload);
-            request.ContentLength = byteData.Length;
-
-            using (Stream postStream = request.GetRequestStream())
+            // 1. First attempt: Quick SMS route ('q') - No DLT pre-approval required
+            try
             {
-                postStream.Write(byteData, 0, byteData.Length);
+                HttpWebRequest qRequest = (HttpWebRequest)WebRequest.Create(url);
+                qRequest.Method = "POST";
+                qRequest.ContentType = "application/json";
+                qRequest.Headers.Add("authorization", apiKey);
+                qRequest.Timeout = 8000;
+
+                string qPayload = string.Format(
+                    "{{\"route\":\"q\",\"message\":\"Your KhedutRise OTP is {0}. Valid for 5 minutes.\",\"language\":\"english\",\"numbers\":\"{1}\"}}",
+                    otp, mobile);
+
+                byte[] qBytes = Encoding.UTF8.GetBytes(qPayload);
+                qRequest.ContentLength = qBytes.Length;
+
+                using (Stream postStream = qRequest.GetRequestStream())
+                {
+                    postStream.Write(qBytes, 0, qBytes.Length);
+                }
+
+                using (HttpWebResponse response = (HttpWebResponse)qRequest.GetResponse())
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                {
+                    string jsonResponse = reader.ReadToEnd();
+                    if (jsonResponse.Contains("\"return\":true") || jsonResponse.Contains("\"return\": true"))
+                    {
+                        string reqId = ExtractJsonValue(jsonResponse, "request_id");
+                        return SmsResult.SuccessResult(reqId, "SMS OTP sent successfully via Fast2SMS Quick Route.", jsonResponse);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("[Fast2SMS Quick Route Warning] " + ex.Message);
             }
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+            // 2. Fallback attempt: Standard OTP route
+            try
             {
-                string jsonResponse = reader.ReadToEnd();
-                // Fast2SMS returns: {"return":true,"request_id":"...","message":["OTP sent successfully"]}
-                if (jsonResponse.Contains("\"return\":true") || jsonResponse.Contains("\"return\": true"))
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "POST";
+                request.ContentType = "application/json";
+                request.Headers.Add("authorization", apiKey);
+                request.Timeout = 8000;
+
+                string jsonPayload = string.Format(
+                    "{{\"route\":\"otp\",\"variables_values\":\"{0}\",\"numbers\":\"{1}\"}}",
+                    otp, mobile);
+
+                byte[] byteData = Encoding.UTF8.GetBytes(jsonPayload);
+                request.ContentLength = byteData.Length;
+
+                using (Stream postStream = request.GetRequestStream())
                 {
-                    string reqId = ExtractJsonValue(jsonResponse, "request_id");
-                    return SmsResult.SuccessResult(reqId, "SMS OTP sent successfully via Fast2SMS.", jsonResponse);
+                    postStream.Write(byteData, 0, byteData.Length);
                 }
-                else
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
-                    string err = ExtractJsonValue(jsonResponse, "message");
-                    return SmsResult.FailureResult("Fast2SMS delivery rejected: " + (string.IsNullOrEmpty(err) ? jsonResponse : err), jsonResponse);
+                    string jsonResponse = reader.ReadToEnd();
+                    if (jsonResponse.Contains("\"return\":true") || jsonResponse.Contains("\"return\": true"))
+                    {
+                        string reqId = ExtractJsonValue(jsonResponse, "request_id");
+                        return SmsResult.SuccessResult(reqId, "SMS OTP sent successfully via Fast2SMS.", jsonResponse);
+                    }
+                    else
+                    {
+                        string err = ExtractJsonValue(jsonResponse, "message");
+                        return SmsResult.FailureResult("Fast2SMS: " + (string.IsNullOrEmpty(err) ? jsonResponse : err), jsonResponse);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return SmsResult.FailureResult("Fast2SMS API connection: " + ex.Message);
             }
         }
 

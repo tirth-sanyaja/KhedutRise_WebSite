@@ -114,6 +114,44 @@
                             </div>
                         </div>
 
+                        <!-- Email OTP Verification for Buyer -->
+                        <div class="col-12 pt-2">
+                            <div class="border rounded-3 p-3" style="background:#f0fdf4; border-color:#0b6028 !important;">
+                                <label class="form-label fw-bold mb-1" style="color:#0b6028;">
+                                    <i class="bi bi-envelope-check me-1"></i> VERIFY BUSINESS EMAIL <span class="required-mark">*</span>
+                                </label>
+                                <p class="small text-muted mb-2">Click <strong>Send OTP</strong> to verify the email address entered above before submitting.</p>
+                                <div class="row g-2">
+                                    <div class="col-auto">
+                                        <asp:Button ID="btnSendBuyerOtp" runat="server" Text="Send OTP to Email"
+                                            CssClass="btn fw-bold" OnClick="btnSendBuyerOtp_Click" CausesValidation="false"
+                                            style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px; padding:0 18px;" />
+                                    </div>
+                                </div>
+                                <asp:Panel ID="pnlBuyerOtp" runat="server" Visible="false" CssClass="mt-3">
+                                    <asp:Label ID="lblBuyerOtpInfo" runat="server" CssClass="d-block small text-success mb-2"></asp:Label>
+                                    <div class="row g-2">
+                                        <div class="col-md-7">
+                                            <asp:TextBox ID="txtBuyerOtp" runat="server" CssClass="form-control text-center fw-bold"
+                                                placeholder="Enter 6-digit OTP" MaxLength="6" autocomplete="one-time-code"
+                                                style="letter-spacing:0.4rem; font-size:1.2rem;"></asp:TextBox>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <asp:Button ID="btnVerifyBuyerOtp" runat="server" Text="Verify OTP" CssClass="btn w-100 fw-bold"
+                                                OnClick="btnVerifyBuyerOtp_Click" CausesValidation="false"
+                                                style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px;" />
+                                        </div>
+                                    </div>
+                                </asp:Panel>
+                                <asp:Panel ID="pnlBuyerEmailVerified" runat="server" Visible="false" CssClass="mt-2">
+                                    <div class="alert alert-success py-2 px-3 mb-0 small fw-bold">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Email verified successfully!
+                                    </div>
+                                </asp:Panel>
+                                <asp:HiddenField ID="hfBuyerEmailVerified" runat="server" Value="0" />
+                            </div>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="col-12 pt-3">
                             <asp:Button ID="btnSubmitBuyer" runat="server" Text="Create Buyer Account" 

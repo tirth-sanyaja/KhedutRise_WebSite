@@ -110,6 +110,59 @@
                             </div>
                         </div>
 
+                        <!-- Email Address with OTP Verification -->
+                        <div class="col-12 pt-2">
+                            <div class="border rounded-3 p-3" style="background:#f0fdf4; border-color:#0b6028 !important;">
+                                <label class="form-label fw-bold mb-2" style="color:#0b6028;">
+                                    <i class="bi bi-envelope-check me-1"></i> EMAIL VERIFICATION <span class="required-mark">*</span>
+                                </label>
+                                <p class="small text-muted mb-3">Enter your email address. We will send a 6-digit OTP to verify it before creating your account.</p>
+
+                                <div class="row g-2">
+                                    <div class="col-md-8">
+                                        <asp:TextBox ID="txtRegEmail" runat="server" CssClass="form-control" type="email"
+                                            placeholder="yourname@example.com"></asp:TextBox>
+                                        <asp:RequiredFieldValidator ID="rfvRegEmail" ControlToValidate="txtRegEmail" ValidationGroup="EmailVerify"
+                                            ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                                        <asp:RegularExpressionValidator ID="revRegEmail" ControlToValidate="txtRegEmail" ValidationGroup="EmailVerify"
+                                            ValidationExpression="^[\w\.\-]+@[\w\.\-]+\.\w+$" ErrorMessage="Please enter a valid email address."
+                                            ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <asp:Button ID="btnSendRegOtp" runat="server" Text="Send OTP" CssClass="btn w-100 fw-bold"
+                                            OnClick="btnSendRegOtp_Click" ValidationGroup="EmailVerify" CausesValidation="true"
+                                            style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px;" />
+                                    </div>
+                                </div>
+
+                                <!-- OTP input — shown only after OTP is sent -->
+                                <asp:Panel ID="pnlOtpVerify" runat="server" Visible="false" CssClass="mt-3">
+                                    <asp:Label ID="lblOtpInfo" runat="server" CssClass="d-block small text-success mb-2"></asp:Label>
+                                    <div class="row g-2">
+                                        <div class="col-md-7">
+                                            <asp:TextBox ID="txtRegOtp" runat="server" CssClass="form-control text-center fw-bold"
+                                                placeholder="Enter 6-digit OTP" MaxLength="6" autocomplete="one-time-code"
+                                                style="letter-spacing:0.4rem; font-size:1.2rem;"></asp:TextBox>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <asp:Button ID="btnVerifyRegOtp" runat="server" Text="Verify OTP" CssClass="btn w-100 fw-bold"
+                                                OnClick="btnVerifyRegOtp_Click" CausesValidation="false"
+                                                style="background-color:#0b6028; color:#fff; border:none; border-radius:6px; height:38px;" />
+                                        </div>
+                                    </div>
+                                </asp:Panel>
+
+                                <!-- Verified badge -->
+                                <asp:Panel ID="pnlEmailVerified" runat="server" Visible="false" CssClass="mt-2">
+                                    <div class="alert alert-success py-2 px-3 mb-0 small fw-bold">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Email verified successfully! You can now create your account.
+                                    </div>
+                                </asp:Panel>
+
+                                <asp:HiddenField ID="hfEmailVerified" runat="server" Value="0" />
+                            </div>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="col-12 pt-3">
                             <asp:Button ID="btnSubmitFarmer" runat="server" Text="Create Farmer Account" 
