@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 
 namespace KhedutRise
 {
-    // Administrator Portal Sign In — Two-Factor Authentication with Credentials and Dynamic Email OTP Verification
+    // Administrator Portal Sign In — Two-Factor Authentication with Credentials and Genuine Email OTP Verification
     public partial class AdminLogin : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
@@ -34,7 +34,7 @@ namespace KhedutRise
             }
         }
 
-        // STEP 1: Validate Administrator Credentials & Dispatch Secure Email OTP
+        // STEP 1: Validate Administrator Credentials & Dispatch Genuine Email OTP
         protected void btnAdminLogin_Click(object sender, EventArgs e)
         {
             Page.Validate();
@@ -70,19 +70,17 @@ namespace KhedutRise
 
             if (!isEmailValid || !isPassValid)
             {
-                lblAdminMsg.Text = "Invalid Admin credentials. Please verify your administrative email and password.";
+                lblAdminMsg.Text = "<i class='bi bi-shield-x me-1'></i> Invalid administrator credentials. Access restricted to authorized personnel only.";
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
                 return;
             }
 
+            // Standardize admin email
             string adminEmail = "admin@khedutrise.com";
             ViewState["AdminEmail"] = adminEmail;
 
-            // Generate & Send OTP via Email
-            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(
-                adminEmail,
-                "ADMIN_LOGIN",
-                Request.UserHostAddress);
+            // Generate & Send Genuine Email OTP
+            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(adminEmail, "ADMIN_LOGIN", Request.UserHostAddress);
 
             if (otpRes.Success)
             {
@@ -91,14 +89,12 @@ namespace KhedutRise
                 litAdminMaskedMobile.Text = EmailOtpService.MaskEmail(adminEmail);
                 lblAdminMsg.Text = string.Format(
                     "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
-                    "<div class='fw-bold mb-1'><i class='bi bi-shield-check me-1 text-success'></i> Credentials Verified &amp; OTP Sent!</div>" +
-                    "<div class='my-2'>Admin OTP Code: <span class='badge bg-danger fs-5 px-3 py-1 font-monospace'>{1}</span></div>" +
-                    "<div class='small text-muted'>Sent via Email to <strong>{0}</strong> â€¢ Valid for 5 minutes</div>" +
+                    "<div class='fw-bold mb-1'><i class='bi bi-shield-check me-1 text-success'></i> Credentials Verified!</div>" +
+                    "<div class='small text-muted'>A 6-digit administrative 2FA OTP has been dispatched to <strong>{0}</strong>. Please check your inbox and enter the code below.</div>" +
                     "</div>",
-                    EmailOtpService.MaskEmail(adminEmail),
-                    otpRes.PlainOtp);
+                    EmailOtpService.MaskEmail(adminEmail));
                 lblAdminMsg.CssClass = "d-block mb-2";
-                txtAdminOtp.Text = otpRes.PlainOtp;
+                txtAdminOtp.Text = string.Empty;
                 txtAdminOtp.Focus();
             }
             else
@@ -135,28 +131,23 @@ namespace KhedutRise
             Response.Redirect("AdminDashboard.aspx");
         }
 
-        // Resend Admin OTP
+        // RESEND OTP
         protected void btnAdminResendOtp_Click(object sender, EventArgs e)
         {
             string adminEmail = ViewState["AdminEmail"] as string ?? "admin@khedutrise.com";
 
-            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(
-                adminEmail,
-                "ADMIN_LOGIN",
-                Request.UserHostAddress);
+            OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(adminEmail, "ADMIN_LOGIN", Request.UserHostAddress);
 
             if (otpRes.Success)
             {
                 lblAdminMsg.Text = string.Format(
                     "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
-                    "<div class='fw-bold mb-1'><i class='bi bi-arrow-clockwise me-1 text-success'></i> New OTP Dispatched!</div>" +
-                    "<div class='my-2'>Admin OTP Code: <span class='badge bg-danger fs-5 px-3 py-1 font-monospace'>{1}</span></div>" +
-                    "<div class='small text-muted'>Sent via Email to <strong>{0}</strong> â€¢ Valid for 5 minutes</div>" +
+                    "<div class='fw-bold mb-1'><i class='bi bi-check-circle-fill me-1 text-success'></i> Fresh Admin OTP Dispatched!</div>" +
+                    "<div class='small text-muted'>Sent via email to <strong>{0}</strong>. Please check your inbox.</div>" +
                     "</div>",
-                    EmailOtpService.MaskEmail(adminEmail),
-                    otpRes.PlainOtp);
+                    EmailOtpService.MaskEmail(adminEmail));
                 lblAdminMsg.CssClass = "d-block mb-2";
-                txtAdminOtp.Text = otpRes.PlainOtp;
+                txtAdminOtp.Text = string.Empty;
                 txtAdminOtp.Focus();
             }
             else
@@ -165,12 +156,12 @@ namespace KhedutRise
                 lblAdminMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
             }
         }
-
-        // Return to credentials step
+        // BACK TO STEP 1
         protected void btnAdminBackToCreds_Click(object sender, EventArgs e)
         {
             pnlAdminStep1.Visible = true;
             pnlAdminStep2.Visible = false;
+            txtAdminOtp.Text = string.Empty;
             lblAdminMsg.Text = string.Empty;
         }
     }

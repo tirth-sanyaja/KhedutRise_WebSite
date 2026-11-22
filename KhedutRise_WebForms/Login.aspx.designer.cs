@@ -12,15 +12,20 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.RadioButton rbFarmer;
         protected global::System.Web.UI.WebControls.RadioButton rbBuyer;
         protected global::System.Web.UI.WebControls.RadioButton rbOperator;
+        protected global::System.Web.UI.WebControls.Panel pnlCredentials;
         protected global::System.Web.UI.WebControls.TextBox txtMobile;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMobile;
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator revMobile;
-        protected global::System.Web.UI.WebControls.TextBox txtEmail;
+        protected global::System.Web.UI.WebControls.TextBox txtPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPassword;
         protected global::System.Web.UI.WebControls.Button btnSendOtp;
-        protected global::System.Web.UI.WebControls.HiddenField hfCooldownRemaining;
+        protected global::System.Web.UI.WebControls.Panel pnlOtpSection;
         protected global::System.Web.UI.WebControls.TextBox txtOtp;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvOtp;
         protected global::System.Web.UI.WebControls.RegularExpressionValidator revOtp;
         protected global::System.Web.UI.WebControls.Button btnLogin;
+        protected global::System.Web.UI.WebControls.LinkButton btnResendOtp;
+        protected global::System.Web.UI.WebControls.HiddenField hfCooldownRemaining;
+        protected global::System.Web.UI.WebControls.HiddenField hfTargetEmail;
+        protected global::System.Web.UI.WebControls.HiddenField hfTargetUser;
     }
 }

@@ -3,30 +3,26 @@ using System.Data.SqlClient;
 
 namespace KhedutRise
 {
-    // Buyer Account Creation — requires email OTP verification before saving.
+    // Buyer / Corporate Account Creation — requires genuine email OTP verification before saving.
     public partial class RegisterBuyer : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e) { }
 
-        // Send OTP to the email address already entered in txtEmail
+        // Send genuine OTP to buyer email
         protected void btnSendBuyerOtp_Click(object sender, EventArgs e)
         {
+            Page.Validate("EmailVerify");
+            if (!Page.IsValid) return;
+
             string email = (txtEmail.Text ?? "").Trim().ToLower();
 
-            if (string.IsNullOrEmpty(email) || !email.Contains("@"))
-            {
-                ShowError("Please enter a valid business email address in the Email field above, then click Send OTP.");
-                return;
-            }
-
-            // Check if email already registered
             var dtCheck = DbHelper.ExecuteQuery(
                 "SELECT TOP 1 UserId FROM Users WHERE LOWER(Email) = @Email",
                 new SqlParameter[] { new SqlParameter("@Email", email) });
 
             if (dtCheck != null && dtCheck.Rows.Count > 0)
             {
-                ShowError("This email address is already registered. Please use a different email or sign in.");
+                ShowError("This email address is already registered. Please sign in or use another email.");
                 return;
             }
 
@@ -39,12 +35,11 @@ namespace KhedutRise
                 hfBuyerEmailVerified.Value    = "0";
                 lblBuyerOtpInfo.Text = string.Format(
                     "<div class='alert alert-success py-2 px-3 mb-2 small fw-bold'>" +
-                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent to {0}! " +
-                    "Your Verification Code is: <span class='badge bg-success font-monospace fs-6 px-2'>{1}</span>" +
+                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> Verification OTP has been dispatched to {0}! " +
+                    "Please check your email inbox (and spam folder) and enter the 6-digit code below." +
                     "</div>",
-                    EmailOtpService.MaskEmail(email),
-                    result.PlainOtp);
-                txtBuyerOtp.Text = result.PlainOtp;
+                    EmailOtpService.MaskEmail(email));
+                txtBuyerOtp.Text = string.Empty;
                 txtBuyerOtp.Focus();
                 lblBuyerMsg.Text = string.Empty;
             }
@@ -60,7 +55,7 @@ namespace KhedutRise
             string email = (txtEmail.Text ?? "").Trim().ToLower();
             string otp   = (txtBuyerOtp.Text ?? "").Trim();
 
-            if (string.IsNullOrEmpty(otp)) { ShowError("Please enter the OTP sent to your email."); return; }
+            if (string.IsNullOrEmpty(otp)) { ShowError("Please enter the 6-digit OTP sent to your email."); return; }
 
             OtpVerificationResult result = EmailOtpService.VerifyEmailOtp(email, otp, "REGISTER");
 
@@ -99,38 +94,57 @@ namespace KhedutRise
             string password        = txtPassword.Text.Trim();
             string confirmPassword = txtConfirmPassword.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)        { ShowError("Please enter your name."); return; }
-            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10)          { ShowError("Please enter a valid 10-digit mobile number."); return; }
-            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))          { ShowError("Please enter a valid business email."); return; }
-            if (string.IsNullOrWhiteSpace(bizType))                                { ShowError("Please select your business type."); return; }
-            if (string.IsNullOrWhiteSpace(gstin))                                  { ShowError("Please provide your GSTIN or license number."); return; }
-            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)        { ShowError("Password must be at least 6 characters."); return; }
-            if (password != confirmPassword)                                        { ShowError("Passwords do not match."); return; }
+            if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)   { ShowError("Please enter full business or personal name."); return; }
+            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10)     { ShowError("Please enter a valid 10-digit mobile number."); return; }
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)   { ShowError("Password must be at least 6 characters."); return; }
+            if (password != confirmPassword)                                   { ShowError("Passwords do not match."); return; }
+
+            var dtMob = DbHelper.ExecuteQuery(
+                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob",
+                new SqlParameter[] { new SqlParameter("@Mob", mobile) });
+            if (dtMob != null && dtMob.Rows.Count > 0)
+            {
+                ShowError("This mobile number is already registered. Please sign in.");
+                return;
+            }
 
             try
             {
-                string query = "INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status) VALUES (@Name, @Mobile, @Email, 'Buyer', 'Gujarat', @Field, 'Verified')";
-                DbHelper.ExecuteNonQuery(query, new SqlParameter[]
+                string passHash = SecurityHelper.HashPassword(password);
+                string specificField = bizType + " | GSTIN: " + (string.IsNullOrWhiteSpace(gstin) ? "N/A" : gstin) + " | Crops: " + interests;
+                string query = @"INSERT INTO Users 
+                    (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, PasswordHash, CreatedDate) 
+                    VALUES (@Name, @Mobile, @Email, 'Buyer', 'Gujarat', @Specific, 'Verified', @PassHash, GETDATE())";
+                SqlParameter[] prms = new SqlParameter[]
                 {
-                    new SqlParameter("@Name",   fullName),
-                    new SqlParameter("@Mobile", mobile),
-                    new SqlParameter("@Email",  email),
-                    new SqlParameter("@Field",  bizType + " | " + interests + " (GST: " + gstin + ")")
-                });
+                    new SqlParameter("@Name",     fullName),
+                    new SqlParameter("@Mobile",   mobile),
+                    new SqlParameter("@Email",    email),
+                    new SqlParameter("@Specific", specificField),
+                    new SqlParameter("@PassHash", passHash)
+                };
+                DbHelper.ExecuteNonQuery(query, prms);
+
+                object newId = DbHelper.ExecuteScalar("SELECT TOP 1 UserId FROM Users WHERE Email = @Email ORDER BY UserId DESC",
+                    new SqlParameter[] { new SqlParameter("@Email", email) });
+                if (newId != null)
+                {
+                    Session["UserId"] = Convert.ToInt32(newId);
+                }
 
                 Session["UserRole"]   = "Buyer";
                 Session["UserName"]   = fullName;
                 Session["UserMobile"] = mobile;
                 Session["UserEmail"]  = email;
 
-                lblBuyerMsg.Text     = "Buyer account registered successfully! Redirecting to your dashboard...";
+                lblBuyerMsg.Text     = "Buyer account created and verified successfully! Redirecting to buyer portal...";
                 lblBuyerMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 Response.AddHeader("REFRESH", "1;URL=BuyerDashboard.aspx");
             }
             catch (Exception ex)
             {
                 if (ex.Message.Contains("UNIQUE") || ex.Message.Contains("duplicate"))
-                    ShowError("This mobile number is already registered. Please sign in or use another number.");
+                    ShowError("This mobile number or email is already registered. Please sign in.");
                 else
                     ShowError("Registration failed: " + ex.Message);
             }

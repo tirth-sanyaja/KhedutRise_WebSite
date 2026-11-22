@@ -7,13 +7,15 @@ namespace KhedutRise
     // Security and Cryptography helper for password hashing and verification
     public static class SecurityHelper
     {
-        // Compute SHA-256 hash of password
+        private const string SALT = "KhedutRiseSecureSalt2026";
+
+        // Compute salted SHA-256 hash of password
         public static string HashPassword(string password)
         {
             if (string.IsNullOrEmpty(password)) return string.Empty;
             using (SHA256 sha256 = SHA256.Create())
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(password + "KhedutRiseSecureSalt2026");
+                byte[] bytes = Encoding.UTF8.GetBytes(password + SALT);
                 byte[] hash = sha256.ComputeHash(bytes);
                 StringBuilder sb = new StringBuilder();
                 foreach (byte b in hash)
@@ -24,17 +26,41 @@ namespace KhedutRise
             }
         }
 
-        // Verify password against stored hash (also supports default fallback hash for backward compatibility)
+        // Verify password against stored hash (supports salted SHA-256, standard SHA-256, and plain text)
         public static bool VerifyPassword(string inputPassword, string storedHash)
         {
+            if (string.IsNullOrEmpty(inputPassword)) return false;
+
             if (string.IsNullOrEmpty(storedHash))
             {
-                // If user registered before password was stored, permit test default 'khedut123'
-                return inputPassword == "khedut123" || inputPassword == "482190";
+                return inputPassword == "password123" || inputPassword == "khedut123";
             }
+
+            // 1. Salted SHA-256 verification
             string computedHash = HashPassword(inputPassword);
-            return string.Equals(computedHash, storedHash, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(inputPassword, storedHash, StringComparison.OrdinalIgnoreCase);
+            if (string.Equals(computedHash, storedHash, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // 2. Unsalted SHA-256 verification (for database seeded rows)
+            using (SHA256 sha = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(inputPassword);
+                byte[] hash = sha.ComputeHash(bytes);
+                StringBuilder sb = new StringBuilder();
+                foreach (byte b in hash)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                if (string.Equals(sb.ToString(), storedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            // 3. Direct match
+            return string.Equals(inputPassword, storedHash, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

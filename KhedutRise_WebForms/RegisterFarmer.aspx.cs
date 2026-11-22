@@ -3,12 +3,12 @@ using System.Data.SqlClient;
 
 namespace KhedutRise
 {
-    // Farmer Account Creation — requires email OTP verification before saving.
+    // Farmer Account Creation — requires genuine email OTP verification before saving.
     public partial class RegisterFarmer : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e) { }
 
-        // Send OTP to the entered email address
+        // Send genuine OTP to the entered email address via SMTP
         protected void btnSendRegOtp_Click(object sender, EventArgs e)
         {
             Page.Validate("EmailVerify");
@@ -36,12 +36,11 @@ namespace KhedutRise
                 hfEmailVerified.Value    = "0";
                 lblOtpInfo.Text = string.Format(
                     "<div class='alert alert-success py-2 px-3 mb-2 small fw-bold'>" +
-                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent to {0}! " +
-                    "Your Verification Code is: <span class='badge bg-success font-monospace fs-6 px-2'>{1}</span>" +
+                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> Verification OTP has been dispatched to {0}! " +
+                    "Please check your email inbox (and spam folder) and enter the 6-digit code below." +
                     "</div>",
-                    EmailOtpService.MaskEmail(email),
-                    result.PlainOtp);
-                txtRegOtp.Text = result.PlainOtp;
+                    EmailOtpService.MaskEmail(email));
+                txtRegOtp.Text = string.Empty;
                 txtRegOtp.Focus();
                 lblRegMsg.Text = string.Empty;
             }
@@ -51,7 +50,7 @@ namespace KhedutRise
             }
         }
 
-        // Verify OTP entered by the user
+        // Verify OTP entered by the user from their email
         protected void btnVerifyRegOtp_Click(object sender, EventArgs e)
         {
             string email  = txtRegEmail.Text.Trim().ToLower();
@@ -59,7 +58,7 @@ namespace KhedutRise
 
             if (string.IsNullOrEmpty(otp))
             {
-                ShowError("Please enter the OTP sent to your email.");
+                ShowError("Please enter the 6-digit OTP sent to your email.");
                 return;
             }
 
@@ -82,7 +81,7 @@ namespace KhedutRise
             }
         }
 
-        // Final form submission — only proceeds if email is verified
+        // Final form submission — only proceeds if email is verified via OTP
         protected void btnSubmitFarmer_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -110,31 +109,53 @@ namespace KhedutRise
             if (string.IsNullOrWhiteSpace(password) || password.Length < 6)        { ShowError("Password must be at least 6 characters."); return; }
             if (password != confirmPassword)                                        { ShowError("Passwords do not match."); return; }
 
+            // Check if mobile is already registered
+            var dtMob = DbHelper.ExecuteQuery(
+                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob",
+                new SqlParameter[] { new SqlParameter("@Mob", mobile) });
+            if (dtMob != null && dtMob.Rows.Count > 0)
+            {
+                ShowError("This mobile number is already registered. Please sign in or use another number.");
+                return;
+            }
+
             try
             {
-                string query = "INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status) VALUES (@Name, @Mobile, @Email, 'Farmer', 'Gujarat', @Crop, 'Verified')";
+                string passHash = SecurityHelper.HashPassword(password);
+                string query = @"INSERT INTO Users 
+                    (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, PasswordHash, CreatedDate) 
+                    VALUES (@Name, @Mobile, @Email, 'Farmer', 'Gujarat', @Crop, 'Verified', @PassHash, GETDATE())";
                 SqlParameter[] prms = new SqlParameter[]
                 {
-                    new SqlParameter("@Name",   fullName),
-                    new SqlParameter("@Mobile", mobile),
-                    new SqlParameter("@Email",  email),
-                    new SqlParameter("@Crop",   crop + " (" + area + " Acres)")
+                    new SqlParameter("@Name",     fullName),
+                    new SqlParameter("@Mobile",   mobile),
+                    new SqlParameter("@Email",    email),
+                    new SqlParameter("@Crop",     crop + " (" + area + " Acres)"),
+                    new SqlParameter("@PassHash", passHash)
                 };
                 DbHelper.ExecuteNonQuery(query, prms);
+
+                // Fetch new user id
+                object newId = DbHelper.ExecuteScalar("SELECT TOP 1 UserId FROM Users WHERE Email = @Email ORDER BY UserId DESC",
+                    new SqlParameter[] { new SqlParameter("@Email", email) });
+                if (newId != null)
+                {
+                    Session["UserId"] = Convert.ToInt32(newId);
+                }
 
                 Session["UserRole"]   = "Farmer";
                 Session["UserName"]   = fullName;
                 Session["UserMobile"] = mobile;
                 Session["UserEmail"]  = email;
 
-                lblRegMsg.Text     = "Farmer account created successfully! Redirecting to your dashboard...";
+                lblRegMsg.Text     = "Farmer account created and verified successfully! Redirecting to your dashboard...";
                 lblRegMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 Response.AddHeader("REFRESH", "1;URL=FarmerDashboard.aspx");
             }
             catch (Exception ex)
             {
                 if (ex.Message.Contains("UNIQUE") || ex.Message.Contains("duplicate"))
-                    ShowError("This mobile number is already registered. Please sign in or use another number.");
+                    ShowError("This mobile number or email is already registered. Please sign in.");
                 else
                     ShowError("Registration failed: " + ex.Message);
             }

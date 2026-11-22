@@ -15,16 +15,14 @@ namespace KhedutRise
         public string Message { get; set; }
         public string ErrorCode { get; set; }
         public int CooldownRemainingSeconds { get; set; }
-        public string PlainOtp { get; set; }
         public string TargetEmail { get; set; }
 
-        public static OtpRequestResult Ok(string message, string plainOtp = "", string targetEmail = "")
+        public static OtpRequestResult Ok(string message, string targetEmail = "")
         {
             return new OtpRequestResult 
             { 
                 Success = true, 
                 Message = message,
-                PlainOtp = plainOtp,
                 TargetEmail = targetEmail
             };
         }
@@ -37,7 +35,6 @@ namespace KhedutRise
                 Message = message,
                 ErrorCode = errorCode,
                 CooldownRemainingSeconds = cooldownSec,
-                PlainOtp = string.Empty,
                 TargetEmail = string.Empty
             };
         }
@@ -82,105 +79,82 @@ namespace KhedutRise
         }
     }
 
-    // Pure Email OTP architecture with mobile number authentication
+    // Production-Ready Native .NET Email OTP Architecture
     public static class EmailOtpService
     {
         private const int DEFAULT_EXPIRY_MINUTES   = 5;
         private const int DEFAULT_COOLDOWN_SECONDS = 60;
         private const int DEFAULT_MAX_ATTEMPTS     = 5;
+        private const string PEPPER                = "KhedutRise_NativeDotNet_EmailOtp_2026";
 
-        // Clean Indian 10-digit mobile number
-        public static string CleanMobile(string rawMobile)
+        // Generate and send Login OTP to registered email
+        public static OtpRequestResult GenerateLoginEmailOtp(
+            string mobileOrEmail,
+            string userEnteredEmail,
+            string requestedRole,
+            string clientIp)
         {
-            if (string.IsNullOrEmpty(rawMobile)) return string.Empty;
-            string digits = Regex.Replace(rawMobile, @"\D", "");
-            if (digits.Length == 12 && digits.StartsWith("91"))
-            {
-                digits = digits.Substring(2);
-            }
-            if (digits.Length > 10)
-            {
-                digits = digits.Substring(digits.Length - 10);
-            }
-            return digits;
-        }
-
-        // Generate and dispatch Email OTP for LOGIN (requires mobile number + role)
-        public static OtpRequestResult GenerateLoginEmailOtp(string rawMobile, string rawEmail, string requestedRole, string clientIp)
-        {
-            string mobile = CleanMobile(rawMobile);
-            if (string.IsNullOrEmpty(mobile) || !Regex.IsMatch(mobile, @"^[6-9]\d{9}$"))
-            {
-                return OtpRequestResult.Fail("Please enter a valid 10-digit Indian mobile number.", "INVALID_MOBILE");
-            }
-
-            string email = (rawEmail ?? "").Trim().ToLower();
-            string role = string.IsNullOrEmpty(requestedRole) ? "Farmer" : requestedRole.Trim();
-
-            // 1. Verify user in database
-            string userSql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole, Status FROM Users WHERE MobileNo = @Mob";
-            SqlParameter[] userPrms = new SqlParameter[] { new SqlParameter("@Mob", mobile) };
-            DataTable dtUser = DbHelper.ExecuteQuery(userSql, userPrms);
-
-            int userId = 0;
-            string actualRole = role;
-            string registeredEmail = string.Empty;
-
-            if (dtUser != null && dtUser.Rows.Count > 0)
-            {
-                DataRow row = dtUser.Rows[0];
-                userId = Convert.ToInt32(row["UserId"]);
-                actualRole = row["UserRole"].ToString();
-
-                // Strict role check
-                if (!string.IsNullOrEmpty(role) && !actualRole.Equals(role, StringComparison.OrdinalIgnoreCase))
-                {
-                    return OtpRequestResult.Fail(
-                        string.Format("Role Mismatch: Mobile +91 {0} is registered as '{1}', not '{2}'. Please select '{1}'.", mobile, actualRole, role),
-                        "ROLE_MISMATCH");
-                }
-
-                registeredEmail = row["Email"] != DBNull.Value ? row["Email"].ToString().Trim().ToLower() : "";
-                if (string.IsNullOrEmpty(registeredEmail))
-                {
-                    registeredEmail = !string.IsNullOrEmpty(email) ? email : mobile + "@khedutrise.com";
-                    DbHelper.ExecuteNonQuery("UPDATE Users SET Email = @Email WHERE UserId = @Id",
-                        new SqlParameter[] { new SqlParameter("@Email", registeredEmail), new SqlParameter("@Id", userId) });
-                }
-            }
-            else
-            {
-                // Seamless provisioning for new mobile number
-                registeredEmail = !string.IsNullOrEmpty(email) ? email : mobile + "@khedutrise.com";
-                string defaultName = role + " User";
-                string insSql = @"INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, CreatedDate)
-                                  OUTPUT INSERTED.UserId
-                                  VALUES (@Name, @Mob, @Email, @Role, 'Gujarat, India', 'Portal User', 'Verified', GETDATE())";
-                SqlParameter[] insPrms = new SqlParameter[]
-                {
-                    new SqlParameter("@Name", defaultName),
-                    new SqlParameter("@Mob", mobile),
-                    new SqlParameter("@Email", registeredEmail),
-                    new SqlParameter("@Role", role)
-                };
-                object newId = DbHelper.ExecuteScalar(insSql, insPrms);
-                if (newId != null) userId = Convert.ToInt32(newId);
-            }
-
-            // Target email is strictly the registered email
-            string targetEmail = registeredEmail;
-
-            // 2. Cooldown check
             int expiryMinutes = GetConfigInt("OtpExpiryMinutes", DEFAULT_EXPIRY_MINUTES);
-            int cooldownSec   = GetConfigInt("OtpResendCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
+            int cooldownSec   = GetConfigInt("OtpCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
             int maxAttempts   = GetConfigInt("OtpMaxAttempts", DEFAULT_MAX_ATTEMPTS);
 
+            string cleanInput = (mobileOrEmail ?? "").Trim();
+            string cleanEmail = (userEnteredEmail ?? "").Trim().ToLower();
+
+            if (string.IsNullOrEmpty(cleanInput) && string.IsNullOrEmpty(cleanEmail))
+            {
+                return OtpRequestResult.Fail("Please enter your registered mobile number or email address.");
+            }
+
+            // 1. Identify user account from database
+            string userSql = @"SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole, Status 
+                               FROM Users 
+                               WHERE (MobileNo = @Input OR LOWER(Email) = LOWER(@Input) OR (LOWER(Email) = LOWER(@Email) AND @Email <> ''))";
+            if (!string.IsNullOrEmpty(requestedRole))
+            {
+                userSql += " AND UserRole = @Role";
+            }
+
+            SqlParameter[] userPrms = new SqlParameter[]
+            {
+                new SqlParameter("@Input", cleanInput),
+                new SqlParameter("@Email", cleanEmail),
+                new SqlParameter("@Role", (object)requestedRole ?? DBNull.Value)
+            };
+
+            DataTable dtUser = DbHelper.ExecuteQuery(userSql, userPrms);
+            if (dtUser == null || dtUser.Rows.Count == 0)
+            {
+                return OtpRequestResult.Fail(string.Format("No active account found for '{0}' with role '{1}'. Please verify your credentials or register.", cleanInput, requestedRole));
+            }
+
+            DataRow uRow = dtUser.Rows[0];
+            int userId          = Convert.ToInt32(uRow["UserId"]);
+            string dbMobile     = uRow["MobileNo"] != DBNull.Value ? uRow["MobileNo"].ToString().Trim() : cleanInput;
+            string targetEmail  = uRow["Email"] != DBNull.Value ? uRow["Email"].ToString().Trim().ToLower() : "";
+            string actualRole   = uRow["UserRole"] != DBNull.Value ? uRow["UserRole"].ToString() : requestedRole;
+
+            if (string.IsNullOrEmpty(targetEmail) || !targetEmail.Contains("@"))
+            {
+                if (!string.IsNullOrEmpty(cleanEmail) && cleanEmail.Contains("@"))
+                {
+                    targetEmail = cleanEmail;
+                    DbHelper.ExecuteNonQuery("UPDATE Users SET Email = @Email WHERE UserId = @UserId",
+                        new SqlParameter[] { new SqlParameter("@Email", targetEmail), new SqlParameter("@UserId", userId) });
+                }
+                else
+                {
+                    return OtpRequestResult.Fail("No verified email address is linked to this account. Please enter your email address to receive the OTP.");
+                }
+            }
+
+            // 2. Enforce 60-second cooldown to prevent spamming
             string coolSql = @"SELECT TOP 1 OTPCreatedAt FROM UserOTPs 
-                              WHERE (MobileNo = @Mob OR Email = @Email) AND OTPPurpose = 'LOGIN' AND IsUsed = 0
-                              ORDER BY OTPCreatedAt DESC";
+                               WHERE (MobileNo = @Mob OR Email = @Email) AND OTPPurpose = 'LOGIN' 
+                               ORDER BY OTPCreatedAt DESC";
             DataTable dtCool = DbHelper.ExecuteQuery(coolSql, new SqlParameter[]
             {
-                new SqlParameter("@Mob", mobile),
+                new SqlParameter("@Mob", dbMobile),
                 new SqlParameter("@Email", targetEmail)
             });
 
@@ -195,18 +169,28 @@ namespace KhedutRise
                 }
             }
 
-            // 3. Invalidate old OTPs
+            // 3. Invalidate old OTPs for this user
             DbHelper.ExecuteNonQuery(
                 "UPDATE UserOTPs SET IsUsed = 1 WHERE (MobileNo = @Mob OR Email = @Email) AND OTPPurpose = 'LOGIN' AND IsUsed = 0",
-                new SqlParameter[] { new SqlParameter("@Mob", mobile), new SqlParameter("@Email", targetEmail) });
+                new SqlParameter[] { new SqlParameter("@Mob", dbMobile), new SqlParameter("@Email", targetEmail) });
 
-            // 4. Generate OTP & Hash
+            // 4. Generate secure OTP & Salted Hash
             string plainOtp = GenerateCryptographicOtp(GetConfigInt("OtpLength", 6));
             string salt     = GenerateCryptographicSalt(16);
             string hash     = ComputeHash(plainOtp, salt);
             DateTime expiry = DateTime.Now.AddMinutes(expiryMinutes);
 
-            // 5. Save to UserOTPs table
+            // 5. Attempt genuine SMTP delivery
+            string emailError;
+            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString());
+
+            if (!emailSent)
+            {
+                // CRITICAL: Do NOT mark OTP as successful if SMTP delivery fails
+                return OtpRequestResult.Fail("Failed to send OTP to your email: " + emailError, "SMTP_ERROR");
+            }
+
+            // 6. Save active OTP to UserOTPs table only upon successful email dispatch
             string insOtpSql = @"INSERT INTO UserOTPs
                 (UserId, MobileNo, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts,
                  OTPCreatedAt, OTPSentAt, OTPPurpose, IsUsed, UserRole, IPAddress, DeliveryStatus, GatewayResponse)
@@ -217,7 +201,7 @@ namespace KhedutRise
             DbHelper.ExecuteNonQuery(insOtpSql, new SqlParameter[]
             {
                 new SqlParameter("@UserId", userId > 0 ? (object)userId : DBNull.Value),
-                new SqlParameter("@Mob", mobile),
+                new SqlParameter("@Mob", dbMobile),
                 new SqlParameter("@Email", targetEmail),
                 new SqlParameter("@Hash", hash),
                 new SqlParameter("@Salt", salt),
@@ -227,123 +211,116 @@ namespace KhedutRise
                 new SqlParameter("@IP", clientIp ?? "")
             });
 
-            // 6. Attempt real email dispatch via SMTP
-            EmailService.SendOtpEmail(targetEmail, plainOtp, expiryMinutes.ToString());
-
-            string msg = string.Format("OTP sent successfully to your registered email {0}. Valid for {1} minutes.", MaskEmail(targetEmail), expiryMinutes);
-            return OtpRequestResult.Ok(msg, plainOtp, targetEmail);
+            string msg = string.Format("Verification OTP sent successfully to your registered email {0}. Valid for {1} minutes. Please check your inbox and enter the 6-digit code to sign in.", MaskEmail(targetEmail), expiryMinutes);
+            return OtpRequestResult.Ok(msg, targetEmail);
         }
 
-        // Verify Login OTP by Mobile Number
-        public static OtpVerificationResult VerifyLoginOtp(string rawMobile, string inputOtp, string requestedRole)
+        // Verify Login OTP
+        public static OtpVerificationResult VerifyLoginOtp(string mobileOrEmail, string inputOtp, string requestedRole)
         {
-            string mobile = CleanMobile(rawMobile);
-            if (string.IsNullOrEmpty(mobile) || string.IsNullOrEmpty(inputOtp))
+            string clean = (mobileOrEmail ?? "").Trim();
+            string otp = (inputOtp ?? "").Trim();
+
+            if (string.IsNullOrEmpty(clean) || string.IsNullOrEmpty(otp))
             {
-                return OtpVerificationResult.Fail("Mobile number and OTP are required.");
+                return OtpVerificationResult.Fail("Email/Mobile number and 6-digit OTP are required.");
             }
 
-            string fetchSql = @"SELECT TOP 1 OTPId, UserId, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts, UserRole
+            if (otp.Length != 6 || !Regex.IsMatch(otp, @"^\d{6}$"))
+            {
+                return OtpVerificationResult.Fail("OTP must be exactly 6 digits.");
+            }
+
+            string fetchSql = @"SELECT TOP 1 OTPId, UserId, MobileNo, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts, UserRole
                                 FROM UserOTPs
-                                WHERE MobileNo = @Mob AND OTPPurpose = 'LOGIN' AND IsUsed = 0
+                                WHERE (MobileNo = @Clean OR LOWER(Email) = LOWER(@Clean)) AND OTPPurpose = 'LOGIN' AND IsUsed = 0
                                 ORDER BY OTPCreatedAt DESC";
-            DataTable dt = DbHelper.ExecuteQuery(fetchSql, new SqlParameter[] { new SqlParameter("@Mob", mobile) });
+            DataTable dt = DbHelper.ExecuteQuery(fetchSql, new SqlParameter[] { new SqlParameter("@Clean", clean) });
 
             if (dt == null || dt.Rows.Count == 0)
             {
-                return OtpVerificationResult.Fail("No active OTP found. Please click 'Send OTP to Email' first.");
+                return OtpVerificationResult.Fail("No active OTP found. Please request a new verification OTP.");
             }
 
             DataRow row       = dt.Rows[0];
             int otpId         = Convert.ToInt32(row["OTPId"]);
-            int userId        = Convert.ToInt32(row["UserId"]);
+            int userId        = row["UserId"] != DBNull.Value ? Convert.ToInt32(row["UserId"]) : 0;
+            string targetMail = row["Email"] != DBNull.Value ? row["Email"].ToString() : "";
+            string targetMob  = row["MobileNo"] != DBNull.Value ? row["MobileNo"].ToString() : "";
             string storedHash = row["OTPHash"].ToString();
             string storedSalt = row["OTPSalt"].ToString();
             DateTime expiry   = Convert.ToDateTime(row["OTPExpiry"]);
             int attempts      = Convert.ToInt32(row["OTPAttempts"]);
             int maxAttempts   = Convert.ToInt32(row["MaxAttempts"]);
 
-            // Expiry
+            // Expiry check
             if (DateTime.Now > expiry)
             {
                 DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
                 return OtpVerificationResult.Fail("OTP has expired. Please request a new code.");
             }
 
-            // Max attempts
+            // Max attempts check
             if (attempts >= maxAttempts)
             {
                 DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
-                return OtpVerificationResult.Fail("Maximum attempts exceeded. This OTP is invalid.", 0, true);
+                return OtpVerificationResult.Fail("Maximum incorrect attempts reached. This OTP has been invalidated for security. Please request a new code.", 0, true);
             }
 
-            // Hash verification
-            string computedHash = ComputeHash(inputOtp.Trim(), storedSalt);
+            // Verify hash
+            string computedHash = ComputeHash(otp, storedSalt);
             if (!string.Equals(computedHash, storedHash, StringComparison.OrdinalIgnoreCase))
             {
-                int newAttempts = attempts + 1;
-                int remaining = maxAttempts - newAttempts;
+                attempts++;
                 DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET OTPAttempts = @Att WHERE OTPId = @Id",
-                    new SqlParameter[] { new SqlParameter("@Att", newAttempts), new SqlParameter("@Id", otpId) });
+                    new SqlParameter[] { new SqlParameter("@Att", attempts), new SqlParameter("@Id", otpId) });
 
-                if (remaining <= 0)
-                {
-                    DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
-                    return OtpVerificationResult.Fail("Incorrect OTP. Maximum attempts reached.", 0, true);
-                }
-                return OtpVerificationResult.Fail(string.Format("Incorrect OTP. {0} attempt(s) remaining.", remaining), remaining);
+                int remaining = maxAttempts - attempts;
+                return OtpVerificationResult.Fail(string.Format("Invalid OTP code. {0} attempt(s) remaining.", remaining), remaining);
             }
 
-            // Invalidate OTP (one-time use)
+            // Mark OTP as used (one-time use enforced)
             DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
 
-            // Retrieve user details from Users table
-            string uSql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole FROM Users WHERE UserId = @Id";
-            DataTable dtU = DbHelper.ExecuteQuery(uSql, new SqlParameter[] { new SqlParameter("@Id", userId) });
+            // Fetch full user record
+            DataTable dtUser = DbHelper.ExecuteQuery(
+                "SELECT TOP 1 UserId, FullName, UserRole, MobileNo, Email FROM Users WHERE UserId = @UId",
+                new SqlParameter[] { new SqlParameter("@UId", userId) });
 
-            if (dtU == null || dtU.Rows.Count == 0)
+            if (dtUser != null && dtUser.Rows.Count > 0)
             {
-                return OtpVerificationResult.Fail("User account not found.");
+                DataRow u = dtUser.Rows[0];
+                return OtpVerificationResult.Ok(
+                    Convert.ToInt32(u["UserId"]),
+                    u["FullName"].ToString(),
+                    u["UserRole"].ToString(),
+                    u["MobileNo"].ToString(),
+                    u["Email"] != DBNull.Value ? u["Email"].ToString() : targetMail);
             }
 
-            DataRow u = dtU.Rows[0];
-            string actualRole = u["UserRole"].ToString();
-
-            if (!string.IsNullOrEmpty(requestedRole) && !actualRole.Equals(requestedRole, StringComparison.OrdinalIgnoreCase))
-            {
-                return OtpVerificationResult.Fail(string.Format("Role mismatch: Account is '{0}', not '{1}'.", actualRole, requestedRole));
-            }
-
-            return OtpVerificationResult.Ok(
-                Convert.ToInt32(u["UserId"]),
-                u["FullName"].ToString(),
-                actualRole,
-                u["MobileNo"].ToString(),
-                u["Email"] != DBNull.Value ? u["Email"].ToString() : "");
+            return OtpVerificationResult.Ok(userId, "Registered User", requestedRole, targetMob, targetMail);
         }
 
-        // Generate and dispatch Email OTP for REGISTRATION or ADMIN_LOGIN
-        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp, string requestedRole = null)
+        // Generate and send OTP for Registration or Password Reset
+        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp)
         {
-            email = (email ?? "").Trim().ToLower();
-            purpose = string.IsNullOrEmpty(purpose) ? "REGISTER" : purpose.Trim().ToUpper();
-
-            if (string.IsNullOrEmpty(email) || !Regex.IsMatch(email, @"^[\w\.\-]+@[\w\.\-]+\.\w+$"))
-            {
-                return OtpRequestResult.Fail("Please enter a valid email address.", "INVALID_EMAIL");
-            }
-
             int expiryMinutes = GetConfigInt("OtpExpiryMinutes", DEFAULT_EXPIRY_MINUTES);
-            int cooldownSec   = GetConfigInt("OtpResendCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
+            int cooldownSec   = GetConfigInt("OtpCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
             int maxAttempts   = GetConfigInt("OtpMaxAttempts", DEFAULT_MAX_ATTEMPTS);
+
+            string targetEmail = (email ?? "").Trim().ToLower();
+            if (string.IsNullOrEmpty(targetEmail) || !targetEmail.Contains("@"))
+            {
+                return OtpRequestResult.Fail("Please enter a valid email address.");
+            }
 
             // Cooldown check
             string coolSql = @"SELECT TOP 1 OTPCreatedAt FROM UserOTPs 
-                               WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0
+                               WHERE LOWER(Email) = @Email AND OTPPurpose = @Purpose 
                                ORDER BY OTPCreatedAt DESC";
             DataTable dtCool = DbHelper.ExecuteQuery(coolSql, new SqlParameter[]
             {
-                new SqlParameter("@Email", email),
+                new SqlParameter("@Email", targetEmail),
                 new SqlParameter("@Purpose", purpose)
             });
 
@@ -354,55 +331,40 @@ namespace KhedutRise
                 if (elapsed < cooldownSec)
                 {
                     int rem = cooldownSec - (int)elapsed;
-                    return OtpRequestResult.Fail(string.Format("Please wait {0} seconds before requesting another OTP.", rem), "COOLDOWN", rem);
+                    return OtpRequestResult.Fail(string.Format("Please wait {0} seconds before requesting a new OTP.", rem), "COOLDOWN", rem);
                 }
             }
 
-            int userId = 0;
-            if (purpose == "ADMIN_LOGIN")
-            {
-                string adminSql = "SELECT TOP 1 UserId, FullName, Email, UserRole FROM Users WHERE LOWER(Email) = @Email";
-                DataTable dtAdmin = DbHelper.ExecuteQuery(adminSql, new SqlParameter[] { new SqlParameter("@Email", email) });
-
-                if (dtAdmin == null || dtAdmin.Rows.Count == 0)
-                {
-                    string insAdmin = @"INSERT INTO Users (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, CreatedDate)
-                                        OUTPUT INSERTED.UserId
-                                        VALUES ('System Admin', '9876500001', @Email, 'Admin', 'Gandhinagar, Gujarat', 'Platform Superuser', 'Verified', GETDATE())";
-                    object newId = DbHelper.ExecuteScalar(insAdmin, new SqlParameter[] { new SqlParameter("@Email", email) });
-                    if (newId != null) userId = Convert.ToInt32(newId);
-                }
-                else
-                {
-                    if (!dtAdmin.Rows[0]["UserRole"].ToString().Equals("Admin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        return OtpRequestResult.Fail("Access Denied: This email does not possess administrative privileges.", "UNAUTHORIZED_ADMIN");
-                    }
-                    userId = Convert.ToInt32(dtAdmin.Rows[0]["UserId"]);
-                }
-            }
-
-            // Invalidate old OTPs
+            // Invalidate old OTPs for this email and purpose
             DbHelper.ExecuteNonQuery(
-                "UPDATE UserOTPs SET IsUsed = 1 WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0",
-                new SqlParameter[] { new SqlParameter("@Email", email), new SqlParameter("@Purpose", purpose) });
+                "UPDATE UserOTPs SET IsUsed = 1 WHERE LOWER(Email) = @Email AND OTPPurpose = @Purpose AND IsUsed = 0",
+                new SqlParameter[] { new SqlParameter("@Email", targetEmail), new SqlParameter("@Purpose", purpose) });
 
             string plainOtp = GenerateCryptographicOtp(GetConfigInt("OtpLength", 6));
             string salt     = GenerateCryptographicSalt(16);
             string hash     = ComputeHash(plainOtp, salt);
             DateTime expiry = DateTime.Now.AddMinutes(expiryMinutes);
 
+            // Attempt genuine SMTP delivery
+            string emailError;
+            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString());
+
+            if (!emailSent)
+            {
+                return OtpRequestResult.Fail("Failed to send OTP to your email: " + emailError, "SMTP_ERROR");
+            }
+
+            // Save to UserOTPs table
             string insSql = @"INSERT INTO UserOTPs
                 (UserId, MobileNo, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts,
                  OTPCreatedAt, OTPSentAt, OTPPurpose, IsUsed, UserRole, IPAddress, DeliveryStatus, GatewayResponse)
                 VALUES
-                (@UserId, 'EMAIL', @Email, @Hash, @Salt, @Expiry, 0, @MaxAtt,
+                (NULL, 'EMAIL', @Email, @Hash, @Salt, @Expiry, 0, @MaxAtt,
                  GETDATE(), GETDATE(), @Purpose, 0, 'Email', @IP, 'Sent', '')";
 
             DbHelper.ExecuteNonQuery(insSql, new SqlParameter[]
             {
-                new SqlParameter("@UserId", userId > 0 ? (object)userId : DBNull.Value),
-                new SqlParameter("@Email", email),
+                new SqlParameter("@Email", targetEmail),
                 new SqlParameter("@Hash", hash),
                 new SqlParameter("@Salt", salt),
                 new SqlParameter("@Expiry", expiry),
@@ -411,42 +373,43 @@ namespace KhedutRise
                 new SqlParameter("@IP", clientIp ?? "")
             });
 
-            // Dispatch via SMTP
-            EmailService.SendOtpEmail(email, plainOtp, expiryMinutes.ToString());
-
-            string msg = string.Format("OTP sent successfully to {0}. It is valid for {1} minutes.", MaskEmail(email), expiryMinutes);
-            return OtpRequestResult.Ok(msg, plainOtp, email);
+            string msg = string.Format("Verification OTP sent successfully to {0}. Please check your inbox and enter the 6-digit code below.", MaskEmail(targetEmail));
+            return OtpRequestResult.Ok(msg, targetEmail);
         }
 
-        // Verify Email OTP for Registration or Admin Login
-        public static OtpVerificationResult VerifyEmailOtp(string email, string inputOtp, string purpose, string requestedRole = null)
+        // Verify Registration or General Purpose OTP
+        public static OtpVerificationResult VerifyEmailOtp(string email, string inputOtp, string purpose)
         {
-            email   = (email ?? "").Trim().ToLower();
-            purpose = string.IsNullOrEmpty(purpose) ? "REGISTER" : purpose.Trim().ToUpper();
+            string targetEmail = (email ?? "").Trim().ToLower();
+            string otp = (inputOtp ?? "").Trim();
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(inputOtp))
+            if (string.IsNullOrEmpty(targetEmail) || string.IsNullOrEmpty(otp))
             {
-                return OtpVerificationResult.Fail("Email and OTP are required.");
+                return OtpVerificationResult.Fail("Email and 6-digit OTP are required.");
             }
 
-            string fetchSql = @"SELECT TOP 1 OTPId, UserId, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts
-                                 FROM UserOTPs
-                                 WHERE Email = @Email AND OTPPurpose = @Purpose AND IsUsed = 0
-                                 ORDER BY OTPCreatedAt DESC";
+            if (otp.Length != 6 || !Regex.IsMatch(otp, @"^\d{6}$"))
+            {
+                return OtpVerificationResult.Fail("OTP must be exactly 6 digits.");
+            }
+
+            string fetchSql = @"SELECT TOP 1 OTPId, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts, UserId
+                                FROM UserOTPs
+                                WHERE LOWER(Email) = @Email AND OTPPurpose = @Purpose AND IsUsed = 0
+                                ORDER BY OTPCreatedAt DESC";
             DataTable dt = DbHelper.ExecuteQuery(fetchSql, new SqlParameter[]
             {
-                new SqlParameter("@Email", email),
+                new SqlParameter("@Email", targetEmail),
                 new SqlParameter("@Purpose", purpose)
             });
 
             if (dt == null || dt.Rows.Count == 0)
             {
-                return OtpVerificationResult.Fail("No active OTP found. Please request a new code.");
+                return OtpVerificationResult.Fail("No active OTP found. Please request a new verification code.");
             }
 
             DataRow row       = dt.Rows[0];
             int otpId         = Convert.ToInt32(row["OTPId"]);
-            int userId        = row["UserId"] != DBNull.Value ? Convert.ToInt32(row["UserId"]) : 0;
             string storedHash = row["OTPHash"].ToString();
             string storedSalt = row["OTPSalt"].ToString();
             DateTime expiry   = Convert.ToDateTime(row["OTPExpiry"]);
@@ -462,99 +425,93 @@ namespace KhedutRise
             if (attempts >= maxAttempts)
             {
                 DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
-                return OtpVerificationResult.Fail("Maximum attempts exceeded.", 0, true);
+                return OtpVerificationResult.Fail("Too many invalid attempts. This OTP has been cancelled. Please request a new code.", 0, true);
             }
 
-            string computedHash = ComputeHash(inputOtp.Trim(), storedSalt);
+            string computedHash = ComputeHash(otp, storedSalt);
             if (!string.Equals(computedHash, storedHash, StringComparison.OrdinalIgnoreCase))
             {
-                int newAttempts = attempts + 1;
-                int remaining = maxAttempts - newAttempts;
+                attempts++;
                 DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET OTPAttempts = @Att WHERE OTPId = @Id",
-                    new SqlParameter[] { new SqlParameter("@Att", newAttempts), new SqlParameter("@Id", otpId) });
-                if (remaining <= 0)
-                {
-                    DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
-                    return OtpVerificationResult.Fail("Incorrect OTP. Maximum attempts reached.", 0, true);
-                }
-                return OtpVerificationResult.Fail(string.Format("Incorrect OTP. {0} attempt(s) remaining.", remaining), remaining);
+                    new SqlParameter[] { new SqlParameter("@Att", attempts), new SqlParameter("@Id", otpId) });
+
+                int remaining = maxAttempts - attempts;
+                return OtpVerificationResult.Fail(string.Format("Invalid OTP code. {0} attempt(s) remaining.", remaining), remaining);
             }
 
-            // Invalidate OTP immediately
+            // Mark OTP as used
             DbHelper.ExecuteNonQuery("UPDATE UserOTPs SET IsUsed = 1 WHERE OTPId = @Id", new SqlParameter[] { new SqlParameter("@Id", otpId) });
 
-            if (purpose == "ADMIN_LOGIN")
-            {
-                string userSql = "SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole FROM Users WHERE UserId = @Id";
-                DataTable dtUser = DbHelper.ExecuteQuery(userSql, new SqlParameter[] { new SqlParameter("@Id", userId) });
-                if (dtUser != null && dtUser.Rows.Count > 0)
-                {
-                    DataRow u = dtUser.Rows[0];
-                    return OtpVerificationResult.Ok(
-                        Convert.ToInt32(u["UserId"]),
-                        u["FullName"].ToString(),
-                        u["UserRole"].ToString(),
-                        u["MobileNo"].ToString(),
-                        u["Email"].ToString());
-                }
-            }
-
-            return OtpVerificationResult.Ok(0, "", "", "", email);
+            int uId = row["UserId"] != DBNull.Value ? Convert.ToInt32(row["UserId"]) : 0;
+            return OtpVerificationResult.Ok(uId, "", purpose, "", targetEmail);
         }
 
-        // Mask email: user@gmail.com -> us***@gmail.com
-        public static string MaskEmail(string email)
+        // Cryptographically secure 6-digit OTP generator
+        public static string GenerateCryptographicOtp(int length = 6)
         {
-            if (string.IsNullOrEmpty(email) || !email.Contains("@")) return email;
-            string[] parts = email.Split('@');
-            string local = parts[0];
-            string shown = local.Length <= 2 ? local : local.Substring(0, 2) + new string('*', Math.Min(local.Length - 2, 4));
-            return shown + "@" + parts[1];
-        }
-
-        // Cryptographic OTP generator
-        private static string GenerateCryptographicOtp(int length)
-        {
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            if (length <= 0) length = 6;
+            using (var rng = RandomNumberGenerator.Create())
             {
                 byte[] bytes = new byte[4];
                 rng.GetBytes(bytes);
-                uint val = BitConverter.ToUInt32(bytes, 0);
-                int min  = (int)Math.Pow(10, length - 1);
-                int max  = (int)Math.Pow(10, length) - 1;
-                return ((int)(val % (max - min + 1) + min)).ToString();
+                uint rand = BitConverter.ToUInt32(bytes, 0);
+                int min = (int)Math.Pow(10, length - 1);
+                int max = (int)Math.Pow(10, length) - 1;
+                int otp = (int)(min + (rand % (max - min + 1)));
+                return otp.ToString(new string('0', length));
             }
         }
 
-        // Cryptographic Salt
-        private static string GenerateCryptographicSalt(int size)
+        public static string GenerateCryptographicSalt(int bytesCount = 16)
         {
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            using (var rng = RandomNumberGenerator.Create())
             {
-                byte[] bytes = new byte[size];
+                byte[] bytes = new byte[bytesCount];
                 rng.GetBytes(bytes);
                 return Convert.ToBase64String(bytes);
             }
         }
 
-        // SHA-256 Hash
-        private static string ComputeHash(string otp, string salt)
+        public static string ComputeHash(string plainOtp, string salt)
         {
-            using (SHA256 sha = SHA256.Create())
+            using (var sha = SHA256.Create())
             {
-                byte[] input = Encoding.UTF8.GetBytes(otp + ":" + salt + ":KhedutRiseOTP2026");
-                byte[] hash  = sha.ComputeHash(input);
-                StringBuilder sb = new StringBuilder();
-                foreach (byte b in hash) sb.Append(b.ToString("x2"));
-                return sb.ToString();
+                byte[] combined = Encoding.UTF8.GetBytes(plainOtp + ":" + salt + ":" + PEPPER);
+                byte[] hash = sha.ComputeHash(combined);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
             }
         }
 
-        private static int GetConfigInt(string key, int fallback)
+        public static string MaskEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email) || !email.Contains("@")) return email;
+            string[] parts = email.Split('@');
+            string user = parts[0];
+            string domain = parts[1];
+
+            if (user.Length <= 2)
+            {
+                return user.Substring(0, 1) + "***@" + domain;
+            }
+            return user.Substring(0, 1) + new string('*', Math.Min(user.Length - 2, 5)) + user.Substring(user.Length - 1) + "@" + domain;
+        }
+
+        public static string CleanMobile(string mobile)
+        {
+            if (string.IsNullOrWhiteSpace(mobile)) return string.Empty;
+            string clean = Regex.Replace(mobile, @"[^\d]", "");
+            if (clean.StartsWith("91") && clean.Length == 12)
+            {
+                clean = clean.Substring(2);
+            }
+            return clean;
+        }
+
+        private static int GetConfigInt(string key, int defaultVal)
         {
             string val = ConfigurationManager.AppSettings[key];
-            int parsed;
-            return (!string.IsNullOrEmpty(val) && int.TryParse(val, out parsed)) ? parsed : fallback;
+            int res;
+            return int.TryParse(val, out res) ? res : defaultVal;
         }
     }
 }
