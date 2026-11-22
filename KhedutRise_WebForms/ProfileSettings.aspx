@@ -78,6 +78,30 @@
                         </div>
                     </div>
 
+                    <!-- Email OTP Verification Box (Shown when email is being changed) -->
+                    <asp:Panel ID="pnlVerifyNewEmail" runat="server" Visible="false" CssClass="mb-4 p-3 bg-light rounded-3 border">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-shield-lock-fill text-success fs-5 me-2"></i>
+                            <h6 class="fw-bold text-dark mb-0">Verify New Email Address</h6>
+                        </div>
+                        <asp:Label ID="lblEmailOtpNotice" runat="server" CssClass="d-block small text-muted mb-3"></asp:Label>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-5">
+                                <asp:TextBox ID="txtNewEmailOtp" runat="server" CssClass="form-control text-center fw-bold" 
+                                    MaxLength="6" placeholder="Enter 6-digit OTP" style="letter-spacing: 0.4rem; font-size: 1.1rem;"></asp:TextBox>
+                            </div>
+                            <div class="col-md-4">
+                                <asp:Button ID="btnConfirmNewEmail" runat="server" Text="Confirm New Email" 
+                                    CssClass="btn btn-success w-100 fw-bold" OnClick="btnConfirmNewEmail_Click"
+                                    style="background-color: #0b6028; border-color: #0b6028;" />
+                            </div>
+                            <div class="col-md-3">
+                                <asp:Button ID="btnCancelEmailChange" runat="server" Text="Cancel" 
+                                    CssClass="btn btn-outline-secondary w-100 fw-semibold" OnClick="btnCancelEmailChange_Click" CausesValidation="false" />
+                            </div>
+                        </div>
+                    </asp:Panel>
+
                     <div class="pt-2">
                         <asp:Button ID="btnSaveProfile" runat="server" Text="Save Changes" 
                             CssClass="btn btn-kr-primary px-5 py-2 fw-bold" 

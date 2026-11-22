@@ -1,176 +1,212 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web;
 using System.Web.UI;
 
 namespace KhedutRise
 {
-    // Secure Two-Step Authentication: Credentials Check + Genuine Email OTP Verification
+    // Production-Ready Authentication: Email + Password Authentication with Role-Based Routing
     public partial class Login : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                // Check flash status messages
+                string msg = Request.QueryString["msg"];
+                if (msg == "registered")
+                {
+                    lblLoginMsg.Text = 
+                        "<div class='alert alert-success d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm' style='background-color: #ecfdf5; border-color: #10b981; color: #065f46;'>" +
+                        "<i class='bi bi-check-circle-fill fs-5 me-2 flex-shrink-0 text-success'></i>" +
+                        "<div><strong>Registration Successful!</strong> Your email has been verified. Please login to continue.</div>" +
+                        "</div>";
+                }
+                else if (msg == "reset_success")
+                {
+                    lblLoginMsg.Text = 
+                        "<div class='alert alert-success d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm' style='background-color: #ecfdf5; border-color: #10b981; color: #065f46;'>" +
+                        "<i class='bi bi-check-circle-fill fs-5 me-2 flex-shrink-0 text-success'></i>" +
+                        "<div><strong>Password Updated!</strong> Your password has been successfully updated. Please login with your new password.</div>" +
+                        "</div>";
+                }
+
+                // Check authorization error alerts
                 string error = Request.QueryString["error"];
                 if (error == "auth_required")
                 {
-                    lblLoginMsg.Text = "Authentication Required: Please sign in to access portal features.";
-                    lblLoginMsg.CssClass = "alert alert-warning d-block p-2 text-center small mb-3";
+                    lblLoginMsg.Text = 
+                        "<div class='alert alert-warning d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm'>" +
+                        "<i class='bi bi-exclamation-triangle-fill fs-5 me-2 flex-shrink-0'></i>" +
+                        "<div><strong>Authentication Required:</strong> Please sign in to access portal features.</div>" +
+                        "</div>";
                 }
                 else if (error == "unauthorized_role")
                 {
-                    lblLoginMsg.Text = "Access Denied: Your account role is not authorized to access that dashboard.";
-                    lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+                    lblLoginMsg.Text = 
+                        "<div class='alert alert-danger d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm'>" +
+                        "<i class='bi bi-shield-x fs-5 me-2 flex-shrink-0'></i>" +
+                        "<div><strong>Access Denied:</strong> Your account role is not authorized to access that dashboard.</div>" +
+                        "</div>";
+                }
+
+                // Pre-fill email from Remember Me cookie if available
+                HttpCookie rememberCookie = Request.Cookies["KR_REMEMBER"];
+                if (rememberCookie != null && !string.IsNullOrEmpty(rememberCookie.Value))
+                {
+                    txtEmail.Text = rememberCookie.Value.Trim();
+                    chkRememberMe.Checked = true;
+                    txtPassword.Focus();
+                }
+                else
+                {
+                    txtEmail.Focus();
                 }
             }
         }
 
-        // STEP 1: Validate User Credentials against Database and Dispatch Genuine Email OTP
-        protected void btnSendOtp_Click(object sender, EventArgs e)
+        // Direct Email + Password Authentication
+        protected void btnLogin_Click(object sender, EventArgs e)
         {
             Page.Validate("LoginAuth");
             if (!Page.IsValid) return;
 
-            string identifier   = (txtMobile.Text ?? "").Trim();
-            string password     = (txtPassword.Text ?? "").Trim();
-            string selectedRole = GetSelectedRole();
+            string emailInput = (txtEmail.Text ?? "").Trim();
+            string password   = (txtPassword.Text ?? "").Trim();
 
-            if (string.IsNullOrEmpty(identifier) || string.IsNullOrEmpty(password))
+            // 1. Validate required fields
+            if (string.IsNullOrEmpty(emailInput))
             {
-                lblLoginMsg.Text = "Please enter both your registered email/mobile and password.";
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+                ShowError("Please enter your registered email address.");
                 return;
             }
 
-            // 1. Verify credentials against Users table
+            if (string.IsNullOrEmpty(password))
+            {
+                ShowError("Please enter your account password.");
+                return;
+            }
+
+            // 2. Query user from database
             string query = @"SELECT TOP 1 UserId, FullName, MobileNo, Email, UserRole, PasswordHash, Status 
                              FROM Users 
-                             WHERE (MobileNo = @Ident OR LOWER(Email) = LOWER(@Ident)) AND UserRole = @Role";
+                             WHERE LOWER(Email) = LOWER(@Ident) OR MobileNo = @Ident";
             SqlParameter[] prms = new SqlParameter[]
             {
-                new SqlParameter("@Ident", identifier),
-                new SqlParameter("@Role", selectedRole)
+                new SqlParameter("@Ident", emailInput)
             };
 
             DataTable dt = DbHelper.ExecuteQuery(query, prms);
             if (dt == null || dt.Rows.Count == 0)
             {
-                lblLoginMsg.Text = string.Format("No active {0} account was found matching '{1}'. Please check your credentials or register.", selectedRole, identifier);
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+                // Unregistered email -> standard generic error to prevent account enumeration
+                ShowError("Invalid email or password.");
                 return;
             }
 
             DataRow user = dt.Rows[0];
             string storedHash = user["PasswordHash"] != DBNull.Value ? user["PasswordHash"].ToString() : "";
-            
-            // Validate password using SecurityHelper
+
+            // 3. Verify password hash using SecurityHelper
             if (!SecurityHelper.VerifyPassword(password, storedHash))
             {
-                lblLoginMsg.Text = "Incorrect account password. Please verify and try again.";
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+                ShowError("Invalid email or password.");
                 return;
             }
 
-            string userEmail = user["Email"] != DBNull.Value ? user["Email"].ToString().Trim() : "";
-            if (string.IsNullOrEmpty(userEmail) || !userEmail.Contains("@"))
+            // 4. Verify Account Status
+            string status = user["Status"] != DBNull.Value ? user["Status"].ToString().Trim() : "Verified";
+
+            // Blocked or Deactivated check
+            if (status.Equals("Blocked", StringComparison.OrdinalIgnoreCase) || 
+                status.Equals("Inactive", StringComparison.OrdinalIgnoreCase) || 
+                status.Equals("Suspended", StringComparison.OrdinalIgnoreCase))
             {
-                lblLoginMsg.Text = "No verified email address is linked to this account. Please contact support.";
-                lblLoginMsg.CssClass = "alert alert-warning d-block p-2 text-center small mb-3";
+                ShowError("Your account has been deactivated or suspended. Please contact support.");
                 return;
             }
 
-            // 2. Credentials valid -> Dispatch genuine Email OTP via SmtpClient
-            OtpRequestResult result = EmailOtpService.GenerateLoginEmailOtp(
-                identifier,
-                userEmail,
-                selectedRole,
-                Request.UserHostAddress);
-
-            if (result.Success)
+            // Unverified account check
+            if (!status.Equals("Verified", StringComparison.OrdinalIgnoreCase))
             {
-                pnlOtpSection.Visible = true;
-                txtMobile.ReadOnly = true;
-                txtPassword.Attributes["value"] = password;
-                hfTargetEmail.Value = result.TargetEmail;
-                hfTargetUser.Value = identifier;
-                hfCooldownRemaining.Value = "60";
-
-                Session["PendingLoginIdent"] = identifier;
-                Session["PendingLoginRole"]  = selectedRole;
-                Session["PendingLoginEmail"] = result.TargetEmail;
+                string userEmail = user["Email"] != DBNull.Value ? user["Email"].ToString().Trim() : emailInput;
+                string userRole  = user["UserRole"] != DBNull.Value ? user["UserRole"].ToString().Trim() : "Farmer";
 
                 lblLoginMsg.Text = string.Format(
-                    "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
-                    "<div class='fw-bold mb-1'><i class='bi bi-envelope-check-fill me-1 text-success'></i> Credentials Verified!</div>" +
-                    "<div class='small text-muted'>A 6-digit verification OTP has been delivered to your registered email <b>{0}</b>. Please check your inbox and enter the code below to complete sign-in.</div>" +
-                    "</div>",
-                    EmailOtpService.MaskEmail(result.TargetEmail));
-                lblLoginMsg.CssClass = "d-block mb-2";
+                    "<div class='alert alert-warning mb-3 p-3 rounded-3 shadow-sm'>" +
+                    "<div class='fw-bold mb-1'><i class='bi bi-envelope-exclamation me-1'></i> Email Not Verified</div>" +
+                    "<div class='small text-muted mb-2'>Your email is not verified yet. Please complete verification to continue.</div>" +
+                    "<a href='VerifyOtp.aspx?purpose=REGISTER&email={0}&role={1}' class='btn btn-sm btn-warning fw-bold px-3 py-1 text-dark'>" +
+                    "Verify Email Now &rarr;</a></div>",
+                    Server.UrlEncode(userEmail), Server.UrlEncode(userRole));
+                lblLoginMsg.CssClass = "d-block mb-3";
+                return;
+            }
 
-                txtOtp.Text = string.Empty;
-                txtOtp.Focus();
+            // 5. Successful Authentication -> Create Session
+            int userId = Convert.ToInt32(user["UserId"]);
+            string fullName = user["FullName"] != DBNull.Value ? user["FullName"].ToString().Trim() : "User";
+            string role = user["UserRole"] != DBNull.Value ? user["UserRole"].ToString().Trim() : "Farmer";
+            string dbEmail = user["Email"] != DBNull.Value ? user["Email"].ToString().Trim() : emailInput;
+            string dbMobile = user["MobileNo"] != DBNull.Value ? user["MobileNo"].ToString().Trim() : "";
+
+            Session["UserId"]     = userId;
+            Session["UserName"]   = fullName;
+            Session["UserRole"]   = role;
+            Session["UserEmail"]  = dbEmail;
+            Session["UserMobile"] = dbMobile;
+
+            // 6. Handle Remember Me persistent cookie
+            if (chkRememberMe.Checked)
+            {
+                HttpCookie authCookie = new HttpCookie("KR_REMEMBER", dbEmail);
+                authCookie.Expires = DateTime.Now.AddDays(14);
+                authCookie.HttpOnly = true;
+                Response.Cookies.Add(authCookie);
             }
             else
             {
-                lblLoginMsg.Text = "<i class='bi bi-exclamation-triangle-fill me-1'></i> " + result.Message;
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
-
-                if (result.CooldownRemainingSeconds > 0)
+                if (Request.Cookies["KR_REMEMBER"] != null)
                 {
-                    hfCooldownRemaining.Value = result.CooldownRemainingSeconds.ToString();
-                    pnlOtpSection.Visible = true;
+                    HttpCookie authCookie = new HttpCookie("KR_REMEMBER", "");
+                    authCookie.Expires = DateTime.Now.AddDays(-1);
+                    Response.Cookies.Add(authCookie);
                 }
             }
-        }
 
-        // STEP 2: Verify OTP entered from email and grant authenticated dashboard session
-        protected void btnLogin_Click(object sender, EventArgs e)
-        {
-            Page.Validate("OtpAuth");
-            if (!Page.IsValid) return;
-
-            string identifier   = !string.IsNullOrEmpty(hfTargetUser.Value) ? hfTargetUser.Value : (txtMobile.Text ?? "").Trim();
-            string otp          = (txtOtp.Text ?? "").Trim();
-            string selectedRole = GetSelectedRole();
-
-            OtpVerificationResult result = EmailOtpService.VerifyLoginOtp(identifier, otp, selectedRole);
-
-            if (!result.Success)
-            {
-                lblLoginMsg.Text = "<i class='bi bi-x-circle-fill me-1'></i> " + result.Message;
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
-                txtOtp.Text = string.Empty;
-                txtOtp.Focus();
-                return;
-            }
-
-            // Create Authenticated Session
-            Session["UserId"]     = result.UserId;
-            Session["UserName"]   = result.FullName;
-            Session["UserRole"]   = result.UserRole;
-            Session["UserMobile"] = result.MobileNo;
-            Session["UserEmail"]  = result.Email;
-
+            // 7. Route based on returnUrl or UserRole
             string returnUrl = Request.QueryString["returnUrl"];
-            if (!string.IsNullOrEmpty(returnUrl) && !returnUrl.Contains("Login.aspx"))
+            if (!string.IsNullOrEmpty(returnUrl) && 
+                !returnUrl.Contains("Login.aspx") && 
+                !returnUrl.Contains("VerifyOtp.aspx") && 
+                !returnUrl.Contains("ForgotPassword.aspx"))
             {
                 Response.Redirect(returnUrl);
                 return;
             }
 
-            // Role-based Dashboard routing
-            if (result.UserRole == "Farmer")
+            // Role-based Dashboard redirection
+            RedirectToRoleDashboard(role);
+        }
+
+        private void RedirectToRoleDashboard(string role)
+        {
+            if (role == "Farmer")
             {
                 Response.Redirect("FarmerDashboard.aspx");
             }
-            else if (result.UserRole == "Buyer")
+            else if (role == "Buyer")
             {
                 Response.Redirect("BuyerDashboard.aspx");
             }
-            else if (result.UserRole == "Operator")
+            else if (role == "Operator")
             {
                 Response.Redirect("TractorRentals.aspx");
+            }
+            else if (role == "Admin")
+            {
+                Response.Redirect("AdminAnalytics.aspx");
             }
             else
             {
@@ -178,46 +214,14 @@ namespace KhedutRise
             }
         }
 
-        // RESEND OTP
-        protected void btnResendOtp_Click(object sender, EventArgs e)
+        private void ShowError(string message)
         {
-            string identifier   = !string.IsNullOrEmpty(hfTargetUser.Value) ? hfTargetUser.Value : (txtMobile.Text ?? "").Trim();
-            string targetEmail  = hfTargetEmail.Value;
-            string selectedRole = GetSelectedRole();
-
-            OtpRequestResult result = EmailOtpService.GenerateLoginEmailOtp(
-                identifier,
-                targetEmail,
-                selectedRole,
-                Request.UserHostAddress);
-
-            if (result.Success)
-            {
-                hfCooldownRemaining.Value = "60";
-                lblLoginMsg.Text = string.Format(
-                    "<div class='alert alert-success d-block p-2 text-center small mb-3'>" +
-                    "<i class='bi bi-check-circle-fill me-1 text-success'></i> A fresh OTP has been sent to <b>{0}</b>. Please check your inbox." +
-                    "</div>",
-                    EmailOtpService.MaskEmail(result.TargetEmail));
-                txtOtp.Text = string.Empty;
-                txtOtp.Focus();
-            }
-            else
-            {
-                lblLoginMsg.Text = "<i class='bi bi-exclamation-triangle-fill me-1'></i> " + result.Message;
-                lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
-                if (result.CooldownRemainingSeconds > 0)
-                {
-                    hfCooldownRemaining.Value = result.CooldownRemainingSeconds.ToString();
-                }
-            }
-        }
-
-        private string GetSelectedRole()
-        {
-            if (rbBuyer.Checked)    return "Buyer";
-            if (rbOperator.Checked) return "Operator";
-            return "Farmer";
+            lblLoginMsg.Text = string.Format(
+                "<div class='alert alert-danger d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm' role='alert'>" +
+                "<i class='bi bi-exclamation-triangle-fill fs-5 me-2 flex-shrink-0 text-danger'></i>" +
+                "<div>{0}</div></div>",
+                message);
+            lblLoginMsg.CssClass = "d-block mb-3";
         }
     }
 }

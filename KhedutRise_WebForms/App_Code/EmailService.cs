@@ -25,7 +25,7 @@ namespace KhedutRise
         private const string Tagline        = "Revolutionizing Indian Agriculture Through Transparent Technology.";
         private const string FooterTagline  = "Growing Together, Building a Smarter Agricultural Future.";
         private const string SupportEmail   = "support@khedutrise.com";
-        private const string SupportPhone   = "+91 98250 12345";
+        private const string SupportPhone   = "+91 93161 55342";
         private const string WebsiteUrl     = "https://khedutrise.com";
 
         // =====================================================================
@@ -189,9 +189,9 @@ Copyright (C) {5} KhedutRise. All Rights Reserved.
 <!-- OTP Box -->
 <div style='background:#f0fdf4;border:2px dashed #16a34a;border-radius:12px;text-align:center;padding:24px 20px;margin:24px 0;'>
   <p style='margin:0 0 6px;color:#166534;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;'>PASSWORD RESET CODE</p>
-  <p style='margin:0;color:#0b6028;font-size:36px;font-weight:800;letter-spacing:12px;font-family:""Courier New"",Courier,monospace;'>{1}</p>
-  <p style='margin:10px 0 0;color:#475569;font-size:13px;'>
-    &#x23F0; Valid for <strong>{2} minutes</strong> &bull; Single-use only
+  <p style='margin:0;color:#0b6028;font-size:38px;font-weight:900;letter-spacing:12px;font-family:""Courier New"",Courier,monospace;'><strong>{1}</strong></p>
+  <p style='margin:10px 0 0;color:#475569;font-size:13px;font-weight:600;'>
+    Valid for <strong>{2} minutes</strong> &bull; Single-use only
   </p>
 </div>
 
@@ -433,18 +433,18 @@ Copyright (C) {6} KhedutRise. All Rights Reserved.
   <p style='margin:0 0 8px;color:#166534;font-size:12px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;'>
     YOUR VERIFICATION CODE
   </p>
-  <div style='margin:0;color:#0b6028;font-size:40px;font-weight:800;letter-spacing:14px;font-family:""Courier New"",Courier,monospace;line-height:1.2;user-select:all;'>
-    {1}
+  <div style='margin:0;color:#0b6028;font-size:42px;font-weight:900;letter-spacing:14px;font-family:""Courier New"",Courier,monospace;line-height:1.2;user-select:all;'>
+    <strong>{1}</strong>
   </div>
-  <p style='margin:12px 0 0;color:#475569;font-size:13px;font-weight:500;'>
-    &#x23F0; This OTP is strictly valid for <strong>{2} minutes</strong> &bull; Single-use only
+  <p style='margin:12px 0 0;color:#475569;font-size:13px;font-weight:600;'>
+    This OTP is strictly valid for <strong>{2} minutes</strong> &bull; Single-use only
   </p>
 </div>
 
 <!-- Security Section -->
 <div style='background-color:#fffbeb;border-left:4px solid #f59e0b;padding:16px 20px;border-radius:6px;margin:26px 0;'>
   <p style='margin:0 0 6px;color:#92400e;font-size:13px;font-weight:700;'>
-    &#x1F6E1;&#xFE0F; Security Information:
+    Security Information:
   </p>
   <ul style='margin:0;padding-left:18px;color:#78350f;font-size:13px;line-height:1.7;'>
     <li><strong>For your security, never share this OTP with anyone.</strong></li>

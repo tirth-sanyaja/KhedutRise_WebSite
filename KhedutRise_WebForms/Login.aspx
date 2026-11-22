@@ -1,15 +1,30 @@
 <%@ Page Title="Sign In" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="KhedutRise.Login" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- Secure Credentials + Real Email OTP Login Screen -->
+    <!-- Premium KhedutRise Sign In Screen -->
     <style>
-        .role-pill-group { display: flex; background-color: #f1f5f9; border-radius: 8px; padding: 4px; gap: 4px; }
-        .role-pill-group .form-check { flex: 1; margin: 0; padding: 0; }
-        .role-pill-group input[type="radio"] { display: none; }
-        .role-pill-group label { display: block; width: 100%; text-align: center; padding: 0.55rem 0.75rem; font-weight: 700; font-size: 0.92rem; color: #475569; cursor: pointer; border-radius: 6px; margin: 0; transition: all 0.15s ease; }
-        .role-pill-group input[type="radio"]:checked + label { background-color: #0b6028; color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .otp-input-field { letter-spacing: 0.5rem; font-size: 1.4rem; font-weight: bold; }
-        .cooldown-badge { font-size: 0.82rem; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.35rem 0.75rem; }
+        .login-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-toggle-pwd {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: none;
+            color: #64748b;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .btn-toggle-pwd:hover {
+            color: #0b6028;
+            background-color: #f1f5f9;
+        }
+        .form-control:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.15);
+        }
     </style>
 
     <div class="kr-page-container py-5">
@@ -20,173 +35,117 @@
                     <div class="p-4 p-lg-5 mt-auto" style="text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
                         <span class="badge bg-success mb-2 px-3 py-1">KhedutRise Portal</span>
                         <h3 class="fw-bold mb-1 fs-2">Welcome Back</h3>
-                        <p class="small text-white-50 mb-3">Sign in securely using your registered account credentials and real Email OTP authentication for your dashboard, crop listings, and mandi rates.</p>
+                        <p class="small text-white-50 mb-3">Sign in securely to your KhedutRise account to access live APMC mandi rates, direct harvest contracts, tractor rentals, and escrow protection.</p>
                         <hr class="border-light opacity-50 my-3" />
-                        <span class="small text-white-50"><i class="bi bi-shield-lock me-1 text-success"></i> Two-Factor Email OTP Protected</span>
+                        <span class="small text-white-50"><i class="bi bi-shield-check me-1 text-success"></i> Secure Role-Based Authentication</span>
                     </div>
                 </div>
             </div>
 
             <!-- RIGHT LOGIN FORM -->
             <div class="col-lg-5 col-md-6">
-                <div class="card p-4 p-md-5 border rounded-3 shadow-none h-100 d-flex flex-column" style="border-color: #e2e8f0 !important; background: #ffffff;">
+                <div class="card p-4 p-md-5 login-card h-100 d-flex flex-column">
                     <div class="mb-4">
                         <small class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">ACCOUNT SIGN IN</small>
                         <h3 class="fw-bold mt-1 text-dark" style="font-size: 1.85rem;">Sign In to <span class="brand-khedut">Khedut</span><span class="brand-rise">Rise</span></h3>
+                        <p class="small text-muted mb-0">Enter your registered email and password to access your dashboard.</p>
                     </div>
 
                     <!-- Server Message Alert -->
                     <asp:Label ID="lblLoginMsg" runat="server" CssClass="d-block mb-3 fw-bold" EnableViewState="false"></asp:Label>
 
-                    <!-- Role selector pills: ONLY Farmer, Buyer, Operator (Admin has separate AdminLogin) -->
+                    <!-- LOGIN CREDENTIALS FORM -->
                     <div class="mb-3">
-                        <label class="form-label" style="color: #0b6028;">SELECT YOUR ROLE <span class="text-danger">*</span></label>
-                        <div class="role-pill-group">
-                            <div class="form-check">
-                                <asp:RadioButton ID="rbFarmer" runat="server" GroupName="RoleGroup" Text="Farmer" Checked="true" />
-                            </div>
-                            <div class="form-check">
-                                <asp:RadioButton ID="rbBuyer" runat="server" GroupName="RoleGroup" Text="Buyer" />
-                            </div>
-                            <div class="form-check">
-                                <asp:RadioButton ID="rbOperator" runat="server" GroupName="RoleGroup" Text="Operator" />
-                            </div>
+                        <label class="form-label fw-semibold small" style="color: #0b6028;">
+                            REGISTERED EMAIL ADDRESS <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-success border-end-0"><i class="bi bi-envelope-fill"></i></span>
+                            <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control border-start-0 ps-2" 
+                                placeholder="name@example.com" autocomplete="email"></asp:TextBox>
+                        </div>
+                        <asp:RequiredFieldValidator ID="rfvEmail" ControlToValidate="txtEmail" ValidationGroup="LoginAuth" 
+                            ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" 
+                            CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revEmail" ControlToValidate="txtEmail" ValidationGroup="LoginAuth"
+                            ValidationExpression="^[\w\.\-]+@[\w\.\-]+\.\w+$" ErrorMessage="Please enter a valid email address."
+                            ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
+                    </div>
+
+                    <!-- Account Password Field with Show/Hide Toggle -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-semibold small mb-0" style="color: #0b6028;">
+                                PASSWORD <span class="text-danger">*</span>
+                            </label>
+                            <a href="ForgotPassword.aspx" class="text-decoration-none small fw-semibold" style="color: #0b6028; font-size: 0.82rem;">
+                                Forgot Password?
+                            </a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-success border-end-0"><i class="bi bi-lock-fill"></i></span>
+                            <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" 
+                                CssClass="form-control border-start-0 border-end-0 ps-2" 
+                                placeholder="Enter account password" autocomplete="current-password"></asp:TextBox>
+                            <button type="button" class="btn btn-toggle-pwd px-3" id="btnTogglePassword" title="Show/Hide Password" onclick="togglePasswordVisibility()">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <asp:RequiredFieldValidator ID="rfvPassword" ControlToValidate="txtPassword" ValidationGroup="LoginAuth" 
+                            ErrorMessage="Password is required." ForeColor="#dc2626" Display="Dynamic" 
+                            CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
+                    </div>
+
+                    <!-- Remember Me Option -->
+                    <div class="mb-4 d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <asp:CheckBox ID="chkRememberMe" runat="server" CssClass="form-check-input" />
+                            <label class="form-check-label small text-muted user-select-none" for="<%= chkRememberMe.ClientID %>">
+                                Remember my email on this device
+                            </label>
                         </div>
                     </div>
 
-                    <!-- CREDENTIALS SECTION -->
-                    <asp:Panel ID="pnlCredentials" runat="server">
-                        <!-- Registered Email or Mobile Number Field -->
-                        <div class="mb-3">
-                            <label class="form-label" style="color: #0b6028;">REGISTERED EMAIL OR MOBILE <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-person-badge"></i></span>
-                                <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control border-start-0 ps-2" 
-                                    placeholder="Enter registered email or 10-digit mobile"></asp:TextBox>
-                            </div>
-                            <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ValidationGroup="LoginAuth" ErrorMessage="Registered email or mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
-                        </div>
-
-                        <!-- Account Password Field -->
-                        <div class="mb-3">
-                            <label class="form-label" style="color: #0b6028;">ACCOUNT PASSWORD <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-key"></i></span>
-                                <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control border-start-0 ps-2" 
-                                    placeholder="Enter account password"></asp:TextBox>
-                            </div>
-                            <asp:RequiredFieldValidator ID="rfvPassword" ControlToValidate="txtPassword" ValidationGroup="LoginAuth" ErrorMessage="Password is required." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
-                        </div>
-
-                        <!-- Send Email OTP Button -->
-                        <div class="mb-3">
-                            <asp:Button ID="btnSendOtp" runat="server" Text="Verify Credentials & Send Email OTP" CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" 
-                                OnClick="btnSendOtp_Click" ValidationGroup="LoginAuth" CausesValidation="true"
-                                style="background-color: #0b6028; border-radius: 6px; font-size: 0.95rem; border: none;" />
-                        </div>
-                    </asp:Panel>
-
-                    <!-- OTP VERIFICATION SECTION (Revealed after credential validation) -->
-                    <asp:Panel ID="pnlOtpSection" runat="server" Visible="false">
-                        <div class="p-3 bg-light rounded-3 border mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <label class="form-label mb-0 fw-bold" style="color: #0b6028;">
-                                    <i class="bi bi-envelope-open me-1"></i> ENTER 6-DIGIT EMAIL OTP <span class="text-danger">*</span>
-                                </label>
-                                <small class="text-muted"><i class="bi bi-clock-history me-1"></i>5 min expiry</small>
-                            </div>
-                            <p class="text-muted small mb-2">Check your email inbox for the verification code sent by KhedutRise.</p>
-                            
-                            <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold otp-input-field py-2 bg-white" 
-                                placeholder="------" MaxLength="6" autocomplete="one-time-code"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ErrorMessage="Please enter the 6-digit OTP." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
-                            <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ValidationExpression="^\d{6}$" ErrorMessage="OTP must be exactly 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="small mt-1 text-danger d-block" SetFocusOnError="true" runat="server" />
-                            
-                            <div class="mt-3">
-                                <asp:Button ID="btnLogin" runat="server" Text="Verify OTP & Complete Sign In" 
-                                    CssClass="btn w-100 py-2 fw-bold text-white shadow-sm" 
-                                    OnClick="btnLogin_Click" ValidationGroup="OtpAuth"
-                                    style="background-color: #0b6028; border-radius: 6px; font-size: 0.95rem; border: none;" />
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top small">
-                                <asp:LinkButton ID="btnResendOtp" runat="server" CssClass="text-success fw-bold text-decoration-none" OnClick="btnResendOtp_Click">
-                                    <i class="bi bi-arrow-clockwise me-1"></i> Resend Email OTP
-                                </asp:LinkButton>
-                                <div id="cooldownNotice" class="cooldown-badge text-muted" style="display:none;">
-                                    Resend in <span id="cooldownTimer" class="fw-bold text-success">60</span>s
-                                </div>
-                            </div>
-                            <div class="text-center mt-2 pt-1">
-                                <a href="VerifyOtp.aspx?purpose=LOGIN" class="text-muted text-decoration-none" style="font-size: 0.78rem;">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i> Open dedicated verification page
-                                </a>
-                            </div>
-                        </div>
-                    </asp:Panel>
-
-                    <asp:HiddenField ID="hfCooldownRemaining" runat="server" Value="0" />
-                    <asp:HiddenField ID="hfTargetEmail" runat="server" Value="" />
-                    <asp:HiddenField ID="hfTargetUser" runat="server" Value="" />
+                    <!-- Submit Login Button -->
+                    <div class="mb-4">
+                        <asp:Button ID="btnLogin" runat="server" Text="Sign In" 
+                            CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" 
+                            OnClick="btnLogin_Click" ValidationGroup="LoginAuth" CausesValidation="true"
+                            style="background-color: #0b6028; border-radius: 8px; font-size: 1rem; border: none;" />
+                    </div>
 
                     <!-- Footer Links -->
                     <div class="text-center mt-auto pt-3 border-top small">
-                        <span class="text-muted">New to KhedutRise? </span>
-                        <a href="SelectRole.aspx" class="fw-bold text-decoration-none" style="color: #0b6028;">Register Account</a>
+                        <span class="text-muted">Don't have an account yet? </span>
+                        <a href="SelectRole.aspx" class="fw-bold text-decoration-none" style="color: #0b6028;">
+                            Register as Farmer, Buyer or Operator &rarr;
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Client-side OTP Cooldown Countdown Script -->
-    <script>
-        (function () {
-            var hf = document.getElementById('<%= hfCooldownRemaining.ClientID %>');
-            var remaining = hf ? parseInt(hf.value, 10) : 0;
-            if (isNaN(remaining)) remaining = 0;
-
-            function startTimer(duration) {
-                var timer = duration;
-                var notice = document.getElementById('cooldownNotice');
-                var span = document.getElementById('cooldownTimer');
-                var resendBtn = document.getElementById('<%= btnResendOtp.ClientID %>');
-
-                if (timer <= 0) {
-                    if (notice) notice.style.display = 'none';
-                    if (resendBtn) {
-                        resendBtn.style.pointerEvents = 'auto';
-                        resendBtn.style.opacity = '1';
+    <!-- Show/Hide Password Client Script -->
+    <script type="text/javascript">
+        function togglePasswordVisibility() {
+            var pwdField = document.getElementById('<%= txtPassword.ClientID %>');
+            var eyeIcon = document.getElementById('eyeIcon');
+            if (pwdField) {
+                if (pwdField.type === 'password') {
+                    pwdField.type = 'text';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('bi-eye');
+                        eyeIcon.classList.add('bi-eye-slash');
                     }
-                    return;
-                }
-
-                if (notice) notice.style.display = 'inline-block';
-                if (span) span.innerText = timer;
-                if (resendBtn) {
-                    resendBtn.style.pointerEvents = 'none';
-                    resendBtn.style.opacity = '0.5';
-                }
-
-                var interval = setInterval(function () {
-                    timer--;
-                    if (span) span.innerText = timer;
-                    if (hf) hf.value = timer;
-
-                    if (timer <= 0) {
-                        clearInterval(interval);
-                        if (notice) notice.style.display = 'none';
-                        if (resendBtn) {
-                            resendBtn.style.pointerEvents = 'auto';
-                            resendBtn.style.opacity = '1';
-                        }
+                } else {
+                    pwdField.type = 'password';
+                    if (eyeIcon) {
+                        eyeIcon.classList.remove('bi-eye-slash');
+                        eyeIcon.classList.add('bi-eye');
                     }
-                }, 1000);
+                }
             }
-
-            if (remaining > 0) {
-                startTimer(remaining);
-            }
-        })();
+        }
     </script>
 </asp:Content>

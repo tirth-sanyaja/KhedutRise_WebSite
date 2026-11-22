@@ -212,8 +212,8 @@ namespace KhedutRise
                     }
                     catch { }
 
-                    ShowSuccess("Email verified successfully! Your account is active. Redirecting to your dashboard...");
-                    RedirectToDashboard(pending.Role);
+                    ShowSuccess("Registration Successful! Your email has been verified. Please login to continue.");
+                    Response.AddHeader("REFRESH", "1.5;URL=Login.aspx?msg=registered");
                 }
                 catch (Exception ex)
                 {
