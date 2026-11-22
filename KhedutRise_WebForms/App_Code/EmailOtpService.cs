@@ -130,6 +130,7 @@ namespace KhedutRise
 
             DataRow uRow = dtUser.Rows[0];
             int userId          = Convert.ToInt32(uRow["UserId"]);
+            string dbFullName   = uRow["FullName"] != DBNull.Value ? uRow["FullName"].ToString().Trim() : "Valued Member";
             string dbMobile     = uRow["MobileNo"] != DBNull.Value ? uRow["MobileNo"].ToString().Trim() : cleanInput;
             string targetEmail  = uRow["Email"] != DBNull.Value ? uRow["Email"].ToString().Trim().ToLower() : "";
             string actualRole   = uRow["UserRole"] != DBNull.Value ? uRow["UserRole"].ToString() : requestedRole;
@@ -182,7 +183,7 @@ namespace KhedutRise
 
             // 5. Attempt genuine SMTP delivery
             string emailError;
-            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString());
+            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString(), dbFullName, "LOGIN");
 
             if (!emailSent)
             {
@@ -302,7 +303,7 @@ namespace KhedutRise
         }
 
         // Generate and send OTP for Registration or Password Reset
-        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp)
+        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp, string recipientName = null)
         {
             int expiryMinutes = GetConfigInt("OtpExpiryMinutes", DEFAULT_EXPIRY_MINUTES);
             int cooldownSec   = GetConfigInt("OtpCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
@@ -347,7 +348,7 @@ namespace KhedutRise
 
             // Attempt genuine SMTP delivery
             string emailError;
-            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString());
+            bool emailSent = EmailService.SendOtpEmail(targetEmail, plainOtp, out emailError, expiryMinutes.ToString(), recipientName, purpose);
 
             if (!emailSent)
             {

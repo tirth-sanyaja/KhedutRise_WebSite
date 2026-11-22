@@ -204,6 +204,14 @@ namespace KhedutRise
                     // Clear pending registration
                     Session["PendingRegistration"] = null;
 
+                    // Send official Welcome Confirmation Email
+                    try
+                    {
+                        string welcomeErr;
+                        EmailService.SendWelcomeEmail(pending.Email, pending.FullName, pending.Role, out welcomeErr);
+                    }
+                    catch { }
+
                     ShowSuccess("Email verified successfully! Your account is active. Redirecting to your dashboard...");
                     RedirectToDashboard(pending.Role);
                 }
@@ -246,10 +254,14 @@ namespace KhedutRise
             }
             else // REGISTER
             {
+                PendingRegistration pending = Session["PendingRegistration"] as PendingRegistration;
+                string recipientName = pending != null ? pending.FullName : null;
+
                 OtpRequestResult req = EmailOtpService.GenerateAndSendEmailOtp(
                     email,
                     "REGISTER",
-                    Request.UserHostAddress);
+                    Request.UserHostAddress,
+                    recipientName);
 
                 if (req.Success)
                 {

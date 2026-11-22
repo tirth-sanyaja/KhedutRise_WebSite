@@ -26,7 +26,8 @@ namespace KhedutRise
                 return;
             }
 
-            OtpRequestResult result = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress);
+            string fullName = (txtFullName.Text ?? "").Trim();
+            OtpRequestResult result = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress, fullName);
 
             if (result.Success)
             {
@@ -111,7 +112,7 @@ namespace KhedutRise
             // If not verified inline yet -> dispatch OTP and redirect to VerifyOtp.aspx
             if (hfBuyerEmailVerified.Value != "1")
             {
-                OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress);
+                OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress, fullName);
                 if (!otpRes.Success)
                 {
                     ShowError(otpRes.Message);
