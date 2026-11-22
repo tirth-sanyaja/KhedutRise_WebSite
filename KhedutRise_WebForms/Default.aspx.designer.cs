@@ -8,15 +8,5 @@ namespace KhedutRise {
     
     public partial class Default {
         protected global::System.Web.UI.WebControls.Content Content1;
-        protected global::System.Web.UI.WebControls.Literal litFarmerCount;
-        protected global::System.Web.UI.WebControls.Literal litProductCount;
-        protected global::System.Web.UI.WebControls.Literal litApmcCount;
-        protected global::System.Web.UI.WebControls.Literal litServiceCount;
-        protected global::System.Web.UI.WebControls.Panel pnlLiveMandi;
-        protected global::System.Web.UI.WebControls.Repeater rptLiveMandiRates;
-        protected global::System.Web.UI.WebControls.Panel pnlFeaturedCrops;
-        protected global::System.Web.UI.WebControls.Repeater rptFeaturedCrops;
-        protected global::System.Web.UI.WebControls.Panel pnlMachinerySpotlight;
-        protected global::System.Web.UI.WebControls.Repeater rptFeaturedMachinery;
     }
 }

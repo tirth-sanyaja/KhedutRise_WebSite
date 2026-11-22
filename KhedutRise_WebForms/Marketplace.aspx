@@ -122,27 +122,6 @@
 
                     <asp:Button ID="btnApplyFilter" runat="server" Text="Apply Filter" CssClass="btn btn-sm w-100 fw-bold text-white shadow-sm" OnClick="btnSearch_Click" style="background-color: #0b6028; border-color: #0b6028; border-radius: 8px; padding: 0.5rem;" />
                 </div>
-
-                <!-- Verified Farmers Guarantee Card -->
-                <div class="card card-custom p-3 border-start border-4 border-success shadow-sm mb-4">
-                    <small class="text-muted fw-bold mb-2 d-block" style="font-size: 0.75rem; letter-spacing: 0.5px;">DIRECT FROM FARMERS</small>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; background-color: #0b6028; font-size: 0.95rem;">KR</div>
-                        <div>
-                            <strong class="d-block text-dark" style="font-size: 0.92rem;">100% Verified Quality</strong>
-                            <small class="text-muted" style="font-size: 0.8rem;">Direct mandi price transparency</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Escrow Security Strip -->
-                <div class="p-3 rounded-3 border bg-light small text-muted">
-                    <div class="d-flex gap-2 align-items-center mb-1">
-                        <i class="bi bi-shield-check text-success fs-5"></i>
-                        <strong class="text-dark">KhedutRise Escrow Protection</strong>
-                    </div>
-                    <p class="mb-0" style="font-size: 0.78rem;">Payment is safely deposited in escrow and released to the farmer only upon delivery inspection.</p>
-                </div>
             </div>
 
             <!-- RIGHT: Dynamic Product Catalog Cards -->
