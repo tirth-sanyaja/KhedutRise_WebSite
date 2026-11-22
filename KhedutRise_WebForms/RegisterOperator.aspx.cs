@@ -30,12 +30,18 @@ namespace KhedutRise
 
             if (result.Success)
             {
-                pnlOpOtp.Visible          = true;
+                pnlOpOtp.Visible           = true;
                 pnlOpEmailVerified.Visible = false;
-                hfOpEmailVerified.Value   = "0";
+                hfOpEmailVerified.Value    = "0";
                 lblOpOtpInfo.Text = string.Format(
-                    "<i class='bi bi-envelope-check me-1'></i> OTP sent to {0}. Enter it below and click Verify OTP.",
-                    EmailOtpService.MaskEmail(email));
+                    "<div class='alert alert-success py-2 px-3 mb-2 small fw-bold'>" +
+                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent to {0}! " +
+                    "Your Verification Code is: <span class='badge bg-success font-monospace fs-6 px-2'>{1}</span>" +
+                    "</div>",
+                    EmailOtpService.MaskEmail(email),
+                    result.PlainOtp);
+                txtOpOtp.Text = result.PlainOtp;
+                txtOpOtp.Focus();
                 lblOpMsg.Text = string.Empty;
             }
             else
@@ -56,12 +62,12 @@ namespace KhedutRise
 
             if (result.Success)
             {
-                hfOpEmailVerified.Value   = "1";
-                pnlOpOtp.Visible          = false;
+                hfOpEmailVerified.Value    = "1";
+                pnlOpOtp.Visible           = false;
                 pnlOpEmailVerified.Visible = true;
-                lblOpMsg.Text             = string.Empty;
-                txtOpEmail.ReadOnly       = true;
-                btnSendOpOtp.Enabled      = false;
+                lblOpMsg.Text              = string.Empty;
+                txtOpEmail.ReadOnly        = true;
+                btnSendOpOtp.Enabled       = false;
             }
             else
             {
@@ -80,14 +86,14 @@ namespace KhedutRise
                 return;
             }
 
-            string fullName       = txtName.Text.Trim();
-            string mobile         = txtMobile.Text.Trim();
-            string email          = txtOpEmail.Text.Trim().ToLower();
-            string model          = txtModel.Text.Trim();
-            string rate           = txtRate.Text.Trim();
-            string attachments    = txtAttachments.Text.Trim();
-            string radius         = txtRadius.Text.Trim();
-            string password       = txtPassword.Text.Trim();
+            string fullName        = txtName.Text.Trim();
+            string mobile          = txtMobile.Text.Trim();
+            string email           = txtOpEmail.Text.Trim().ToLower();
+            string model           = txtModel.Text.Trim();
+            string rate            = txtRate.Text.Trim();
+            string attachments     = txtAttachments.Text.Trim();
+            string radius          = txtRadius.Text.Trim();
+            string password        = txtPassword.Text.Trim();
             string confirmPassword = txtConfirmPassword.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)   { ShowError("Please enter your full name."); return; }

@@ -1,4 +1,4 @@
-<%@ Page Title="Register Machinery Operator" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterOperator.aspx.cs" Inherits="KhedutRise.RegisterOperator" %>
+<%@ Page Title="Register Machinery Operator" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterOperator.aspx.cs" Inherits="KhedutRise.RegisterOperator" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Machinery Operator Registration-->

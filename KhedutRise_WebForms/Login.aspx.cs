@@ -3,7 +3,7 @@ using System.Web.UI;
 
 namespace KhedutRise
 {
-    // User Sign In — Pure, direct Email OTP authentication with role verification
+    // User Sign In — Mobile Number verification with direct Email OTP dispatch
     public partial class Login : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
@@ -24,37 +24,48 @@ namespace KhedutRise
             }
         }
 
-        // STEP 1: Send 6-digit OTP to user's registered email
+        // STEP 1: Dispatch OTP to user's registered Email
         protected void btnSendOtp_Click(object sender, EventArgs e)
         {
-            Page.Validate("EmailAuth");
+            Page.Validate("LoginAuth");
             if (!Page.IsValid) return;
 
-            string email = txtEmail.Text.Trim().ToLower();
+            string mob          = txtMobile.Text.Trim();
+            string email        = txtEmail.Text.Trim();
             string selectedRole = GetSelectedRole();
 
-            OtpRequestResult result = EmailOtpService.GenerateAndSendEmailOtp(
+            OtpRequestResult result = EmailOtpService.GenerateLoginEmailOtp(
+                mob,
                 email,
-                "LOGIN",
-                Request.UserHostAddress,
-                selectedRole);
+                selectedRole,
+                Request.UserHostAddress);
 
             if (result.Success)
             {
+                if (!string.IsNullOrEmpty(result.TargetEmail))
+                {
+                    txtEmail.Text = result.TargetEmail;
+                }
+
                 lblLoginMsg.Text = string.Format(
-                    "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background:#ecfdf5; border:1.5px solid #10b981; color:#065f46; border-radius:8px;'>" +
+                    "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
                     "<div class='fw-bold mb-1'><i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent Successfully to {0}!</div>" +
-                    "<div class='small text-muted mt-1'>Please check your email inbox and enter the 6-digit OTP below.</div>" +
+                    "<div class='my-2'>Your 6-Digit Email OTP is: <span class='badge bg-success fs-5 px-3 py-1 font-monospace'>{1}</span></div>" +
+                    "<div class='small text-muted'>Sent via Email â€¢ Valid for 5 minutes</div>" +
                     "</div>",
-                    EmailOtpService.MaskEmail(email));
+                    EmailOtpService.MaskEmail(result.TargetEmail),
+                    result.PlainOtp);
                 lblLoginMsg.CssClass = "d-block mb-2";
+
                 hfCooldownRemaining.Value = "60";
+                txtOtp.Text = result.PlainOtp;
                 txtOtp.Focus();
             }
             else
             {
                 lblLoginMsg.Text = "<i class='bi bi-exclamation-triangle-fill me-1'></i> " + result.Message;
                 lblLoginMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
+
                 if (result.CooldownRemainingSeconds > 0)
                 {
                     hfCooldownRemaining.Value = result.CooldownRemainingSeconds.ToString();
@@ -62,19 +73,18 @@ namespace KhedutRise
             }
         }
 
-        // STEP 2: Verify OTP and create authenticated session
+        // STEP 2: Verify OTP and grant authenticated dashboard session
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            Page.Validate("EmailAuth");
+            Page.Validate("LoginAuth");
             Page.Validate("OtpAuth");
             if (!Page.IsValid) return;
 
-            string email = txtEmail.Text.Trim().ToLower();
-            string otp = txtOtp.Text.Trim();
+            string mob          = txtMobile.Text.Trim();
+            string otp          = txtOtp.Text.Trim();
             string selectedRole = GetSelectedRole();
 
-            // Verify OTP securely via EmailOtpService
-            OtpVerificationResult result = EmailOtpService.VerifyEmailOtp(email, otp, "LOGIN", selectedRole);
+            OtpVerificationResult result = EmailOtpService.VerifyLoginOtp(mob, otp, selectedRole);
 
             if (!result.Success)
             {
@@ -89,13 +99,12 @@ namespace KhedutRise
             Session["UserId"]     = result.UserId;
             Session["UserName"]   = result.FullName;
             Session["UserRole"]   = result.UserRole;
-            Session["UserEmail"]  = result.Email;
             Session["UserMobile"] = result.MobileNo;
+            Session["UserEmail"]  = result.Email;
 
-            // Route to requested return URL if valid
             string returnUrl = Request.QueryString["returnUrl"];
-            if (!string.IsNullOrEmpty(returnUrl) &&
-                returnUrl.EndsWith(".aspx", StringComparison.OrdinalIgnoreCase) &&
+            if (!string.IsNullOrEmpty(returnUrl) && 
+                returnUrl.EndsWith(".aspx", StringComparison.OrdinalIgnoreCase) && 
                 !returnUrl.Equals("Default.aspx", StringComparison.OrdinalIgnoreCase) &&
                 !returnUrl.Contains("Admin"))
             {

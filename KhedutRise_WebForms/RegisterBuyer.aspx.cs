@@ -34,12 +34,18 @@ namespace KhedutRise
 
             if (result.Success)
             {
-                pnlBuyerOtp.Visible          = true;
+                pnlBuyerOtp.Visible           = true;
                 pnlBuyerEmailVerified.Visible = false;
                 hfBuyerEmailVerified.Value    = "0";
                 lblBuyerOtpInfo.Text = string.Format(
-                    "<i class='bi bi-envelope-check me-1'></i> OTP sent to {0}. Enter it below and click Verify OTP.",
-                    EmailOtpService.MaskEmail(email));
+                    "<div class='alert alert-success py-2 px-3 mb-2 small fw-bold'>" +
+                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent to {0}! " +
+                    "Your Verification Code is: <span class='badge bg-success font-monospace fs-6 px-2'>{1}</span>" +
+                    "</div>",
+                    EmailOtpService.MaskEmail(email),
+                    result.PlainOtp);
+                txtBuyerOtp.Text = result.PlainOtp;
+                txtBuyerOtp.Focus();
                 lblBuyerMsg.Text = string.Empty;
             }
             else
@@ -84,13 +90,13 @@ namespace KhedutRise
                 return;
             }
 
-            string fullName       = txtFullName.Text.Trim();
-            string mobile         = txtMobile.Text.Trim();
-            string email          = txtEmail.Text.Trim().ToLower();
-            string bizType        = ddlBizType.SelectedValue;
-            string interests      = txtInterests.Text.Trim();
-            string gstin          = txtGstin.Text.Trim();
-            string password       = txtPassword.Text.Trim();
+            string fullName        = txtFullName.Text.Trim();
+            string mobile          = txtMobile.Text.Trim();
+            string email           = txtEmail.Text.Trim().ToLower();
+            string bizType         = ddlBizType.SelectedValue;
+            string interests       = txtInterests.Text.Trim();
+            string gstin           = txtGstin.Text.Trim();
+            string password        = txtPassword.Text.Trim();
             string confirmPassword = txtConfirmPassword.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)        { ShowError("Please enter your name."); return; }

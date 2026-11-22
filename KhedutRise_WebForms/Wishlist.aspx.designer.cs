@@ -8,5 +8,10 @@ namespace KhedutRise {
     
     public partial class Wishlist {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Label lblWishlistMsg;
+        protected global::System.Web.UI.WebControls.Literal litTotalSaved;
+        protected global::System.Web.UI.WebControls.Literal litPriceDrops;
+        protected global::System.Web.UI.WebControls.Repeater rptWishlist;
+        protected global::System.Web.UI.WebControls.Panel pnlEmptyWishlist;
     }
 }

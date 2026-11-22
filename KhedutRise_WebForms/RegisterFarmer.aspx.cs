@@ -35,8 +35,14 @@ namespace KhedutRise
                 pnlEmailVerified.Visible = false;
                 hfEmailVerified.Value    = "0";
                 lblOtpInfo.Text = string.Format(
-                    "<i class='bi bi-envelope-check me-1'></i> OTP sent to {0}. Enter it below and click Verify OTP.",
-                    EmailOtpService.MaskEmail(email));
+                    "<div class='alert alert-success py-2 px-3 mb-2 small fw-bold'>" +
+                    "<i class='bi bi-envelope-check-fill me-1 text-success'></i> OTP Sent to {0}! " +
+                    "Your Verification Code is: <span class='badge bg-success font-monospace fs-6 px-2'>{1}</span>" +
+                    "</div>",
+                    EmailOtpService.MaskEmail(email),
+                    result.PlainOtp);
+                txtRegOtp.Text = result.PlainOtp;
+                txtRegOtp.Focus();
                 lblRegMsg.Text = string.Empty;
             }
             else
@@ -89,12 +95,12 @@ namespace KhedutRise
                 return;
             }
 
-            string fullName       = txtFullName.Text.Trim();
-            string mobile         = txtMobile.Text.Trim();
-            string crop           = txtCrop.Text.Trim();
-            string area           = txtArea.Text.Trim();
-            string email          = txtRegEmail.Text.Trim().ToLower();
-            string password       = txtPassword.Text.Trim();
+            string fullName        = txtFullName.Text.Trim();
+            string mobile          = txtMobile.Text.Trim();
+            string crop            = txtCrop.Text.Trim();
+            string area            = txtArea.Text.Trim();
+            string email           = txtRegEmail.Text.Trim().ToLower();
+            string password        = txtPassword.Text.Trim();
             string confirmPassword = txtConfirmPassword.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)        { ShowError("Please enter your full name."); return; }

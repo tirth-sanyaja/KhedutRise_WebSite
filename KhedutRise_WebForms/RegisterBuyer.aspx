@@ -1,4 +1,4 @@
-<%@ Page Title="Create Buyer Account" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterBuyer.aspx.cs" Inherits="KhedutRise.RegisterBuyer" %>
+<%@ Page Title="Create Buyer Account" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterBuyer.aspx.cs" Inherits="KhedutRise.RegisterBuyer" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Buyer Registration Screen: Clean, Professional & Fully Validated -->

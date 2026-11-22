@@ -7,11 +7,20 @@
 namespace KhedutRise {
     
     public partial class Community {
-        protected global::System.Web.UI.WebControls.Button btnPostQuestion;
         protected global::System.Web.UI.WebControls.Content Content1;
-        protected global::System.Web.UI.WebControls.DropDownList ddlTopicCategory;
         protected global::System.Web.UI.WebControls.Label lblForumMsg;
-        protected global::System.Web.UI.WebControls.TextBox txtQuestionDetails;
+        protected global::System.Web.UI.WebControls.DropDownList ddlWeatherDistrict;
+        protected global::System.Web.UI.WebControls.Literal litTemp;
+        protected global::System.Web.UI.WebControls.Literal litCondition;
+        protected global::System.Web.UI.WebControls.Literal litWeatherMeta;
+        protected global::System.Web.UI.WebControls.Literal litAdvisory;
+        protected global::System.Web.UI.WebControls.Literal litDiscussionCount;
+        protected global::System.Web.UI.WebControls.DropDownList ddlFilterCategory;
+        protected global::System.Web.UI.WebControls.Repeater rptDiscussions;
+        protected global::System.Web.UI.WebControls.Panel pnlNoPosts;
+        protected global::System.Web.UI.WebControls.DropDownList ddlTopicCategory;
         protected global::System.Web.UI.WebControls.TextBox txtTopic;
+        protected global::System.Web.UI.WebControls.TextBox txtQuestionDetails;
+        protected global::System.Web.UI.WebControls.Button btnPostQuestion;
     }
 }

@@ -1,7 +1,7 @@
-<%@ Page Title="Sign In" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="KhedutRise.Login" %>
+<%@ Page Title="Sign In" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="KhedutRise.Login" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- Secure Email OTP Login Screen -->
+    <!-- Secure Mobile + Email OTP Login Screen -->
     <style>
         .role-pill-group { display: flex; background-color: #f1f5f9; border-radius: 8px; padding: 4px; gap: 4px; }
         .role-pill-group .form-check { flex: 1; margin: 0; padding: 0; }
@@ -20,7 +20,7 @@
                     <div class="p-4 p-lg-5 mt-auto" style="text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
                         <span class="badge bg-success mb-2 px-3 py-1">KhedutRise Portal</span>
                         <h3 class="fw-bold mb-1 fs-2">Welcome Back</h3>
-                        <p class="small text-white-50 mb-3">Sign in with Email OTP to access your dashboard, crop listings, mandi rates, and rental services.</p>
+                        <p class="small text-white-50 mb-3">Sign in with your Mobile Number to receive a secure Email OTP for your dashboard, crop listings, and mandi rates.</p>
                         <hr class="border-light opacity-50 my-3" />
                         <span class="small text-white-50">Supported Roles: Farmer, Buyer, Machinery Operator</span>
                     </div>
@@ -38,8 +38,8 @@
                     <!-- Server Message Alert -->
                     <asp:Label ID="lblLoginMsg" runat="server" CssClass="d-block mb-3 fw-bold" EnableViewState="false"></asp:Label>
 
-                    <!-- Role selector pills: ONLY Farmer, Buyer, Operator (Admin strictly excluded) -->
-                    <div class="mb-4">
+                    <!-- Role selector pills: ONLY Farmer, Buyer, Operator (Admin is strictly excluded) -->
+                    <div class="mb-3">
                         <label class="form-label" style="color: #0b6028;">SELECT YOUR ROLE <span class="required-mark">*</span></label>
                         <div class="role-pill-group">
                             <div class="form-check">
@@ -54,25 +54,36 @@
                         </div>
                     </div>
 
-                    <!-- Registered Email Field -->
+                    <!-- Registered Mobile Number Field -->
                     <div class="mb-3">
-                        <label class="form-label" style="color: #0b6028;">REGISTERED EMAIL ADDRESS <span class="required-mark">*</span></label>
+                        <label class="form-label" style="color: #0b6028;">REGISTERED MOBILE NUMBER <span class="required-mark">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-envelope-fill"></i></span>
-                            <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control border-start-0 ps-2" type="email"
-                                placeholder="e.g. farmer@khedutrise.com" autocomplete="email"></asp:TextBox>
+                            <span class="input-group-text bg-light border-end-0 fw-bold text-success">+91</span>
+                            <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control border-start-0 ps-2" 
+                                placeholder="Enter 10-digit mobile number" MaxLength="10" 
+                                type="tel"></asp:TextBox>
                         </div>
-                        <asp:RequiredFieldValidator ID="rfvEmail" ControlToValidate="txtEmail" ValidationGroup="EmailAuth" 
-                            ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                        <asp:RegularExpressionValidator ID="revEmail" ControlToValidate="txtEmail" ValidationGroup="EmailAuth" 
-                            ValidationExpression="^[\w\.\-]+@[\w\.\-]+\.\w+$" ErrorMessage="Please enter a valid email address." 
-                            ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ValidationGroup="LoginAuth" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationGroup="LoginAuth" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
-                    <!-- Send OTP Button -->
+                    <!-- Registered Email Address Field (Optional entry: auto-retrieved from registered account) -->
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #0b6028;">EMAIL ADDRESS <span class="text-muted small fw-normal">(Optional if registered)</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-envelope"></i></span>
+                            <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control border-start-0 ps-2" type="email"
+                                placeholder="Auto-retrieved from your registered mobile"></asp:TextBox>
+                        </div>
+                        <small class="text-muted d-block mt-1" style="font-size: 0.78rem;">
+                            <i class="bi bi-info-circle me-1 text-success"></i> OTP will be sent directly to your account's verified email address.
+                        </small>
+                    </div>
+
+                    <!-- Send Email OTP Button -->
                     <div class="mb-3">
                         <asp:Button ID="btnSendOtp" runat="server" Text="Send OTP to Email" CssClass="btn w-100 py-2 fw-bold shadow-none" 
-                            OnClick="btnSendOtp_Click" ValidationGroup="EmailAuth" CausesValidation="true"
+                            OnClick="btnSendOtp_Click" ValidationGroup="LoginAuth" CausesValidation="true"
                             style="background-color: #f0fdf4; color: #0b6028; border: 1.5px solid #0b6028; border-radius: 6px; font-size: 0.95rem;" />
                         
                         <div id="cooldownNotice" class="cooldown-badge text-center text-muted mt-2" style="display:none;">
@@ -85,16 +96,13 @@
                     <!-- OTP Input Area -->
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label mb-0" style="color: #0b6028;">ENTER 6-DIGIT OTP <span class="required-mark">*</span></label>
+                            <label class="form-label mb-0" style="color: #0b6028;">ENTER 6-DIGIT EMAIL OTP <span class="required-mark">*</span></label>
                             <small class="text-muted"><i class="bi bi-clock-history me-1"></i>Valid for 5 mins</small>
                         </div>
                         <asp:TextBox ID="txtOtp" runat="server" CssClass="form-control text-center fw-bold otp-input-field py-2" 
                             placeholder="• • • • • •" MaxLength="6" autocomplete="one-time-code"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" 
-                            ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" 
-                            ValidationExpression="^\d{6}$" ErrorMessage="OTP must be exactly 6 digits." 
-                            ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RequiredFieldValidator ID="rfvOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ErrorMessage="OTP is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                        <asp:RegularExpressionValidator ID="revOtp" ControlToValidate="txtOtp" ValidationGroup="OtpAuth" ValidationExpression="^\d{6}$" ErrorMessage="OTP must be exactly 6 digits." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                     </div>
 
                     <!-- Verify OTP & Sign In Button -->
@@ -102,6 +110,7 @@
                         <asp:Button ID="btnLogin" runat="server" Text="Verify OTP &amp; Sign In" 
                             CssClass="btn w-100 py-3 fw-bold text-white shadow-sm" 
                             OnClick="btnLogin_Click" ValidationGroup="OtpAuth"
+                            OnClientClick="return (Page_ClientValidate('LoginAuth') && Page_ClientValidate('OtpAuth'));"
                             style="background-color: #0b6028; border-radius: 6px; font-size: 1rem; border: none;" />
                     </div>
 

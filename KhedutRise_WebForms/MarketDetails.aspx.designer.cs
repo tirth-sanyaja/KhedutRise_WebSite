@@ -8,5 +8,17 @@ namespace KhedutRise {
     
     public partial class MarketDetails {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.Literal litHeroMarketName;
+        protected global::System.Web.UI.WebControls.Literal litTiming;
+        protected global::System.Web.UI.WebControls.DropDownList ddlMarketYards;
+        protected global::System.Web.UI.WebControls.Label lblMsg;
+        protected global::System.Web.UI.WebControls.Literal litCommodityCount;
+        protected global::System.Web.UI.WebControls.Literal litTotalArrivals;
+        protected global::System.Web.UI.WebControls.Literal litAvgPriceIndex;
+        protected global::System.Web.UI.WebControls.Repeater rptCommodities;
+        protected global::System.Web.UI.WebControls.Panel pnlNoData;
+        protected global::System.Web.UI.WebControls.Literal litMarketName;
+        protected global::System.Web.UI.WebControls.Literal litAddress;
+        protected global::System.Web.UI.WebControls.Literal litContact;
     }
 }

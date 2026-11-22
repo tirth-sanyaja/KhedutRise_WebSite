@@ -11,8 +11,14 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.Literal litFarmerGreeting;
         protected global::System.Web.UI.WebControls.Literal litTotalAcres;
         protected global::System.Web.UI.WebControls.Literal litCurrentCrop;
+        protected global::System.Web.UI.WebControls.Literal litCottonApmcRate;
         protected global::System.Web.UI.WebControls.Literal litActiveOrders;
         protected global::System.Web.UI.WebControls.Literal litUpcomingBookings;
         protected global::System.Web.UI.WebControls.Literal litTotalRevenue;
+        protected global::System.Web.UI.WebControls.Repeater rptDashboardApmc;
+        protected global::System.Web.UI.WebControls.Literal litProjectedRevenue;
+        protected global::System.Web.UI.WebControls.Literal litInputCost;
+        protected global::System.Web.UI.WebControls.Literal litNetProfit;
+        protected global::System.Web.UI.WebControls.Literal litMarginPercent;
     }
 }

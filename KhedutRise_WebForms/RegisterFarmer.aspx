@@ -1,4 +1,4 @@
-<%@ Page Title="Create Farmer Account" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterFarmer.aspx.cs" Inherits="KhedutRise.RegisterFarmer" %>
+<%@ Page Title="Create Farmer Account" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeFile="RegisterFarmer.aspx.cs" Inherits="KhedutRise.RegisterFarmer" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Farmer Registration: Clean, Professional & Fully Validated -->

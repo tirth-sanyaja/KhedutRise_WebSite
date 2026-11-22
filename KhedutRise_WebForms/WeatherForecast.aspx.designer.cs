@@ -8,5 +8,18 @@ namespace KhedutRise {
     
     public partial class WeatherForecast {
         protected global::System.Web.UI.WebControls.Content Content1;
+        protected global::System.Web.UI.WebControls.DropDownList ddlWeatherDistrict;
+        protected global::System.Web.UI.WebControls.Literal litTemp;
+        protected global::System.Web.UI.WebControls.Literal litCondition;
+        protected global::System.Web.UI.WebControls.Literal litWeatherMeta;
+        protected global::System.Web.UI.WebControls.Literal litDay1Temp;
+        protected global::System.Web.UI.WebControls.Literal litDay1Rain;
+        protected global::System.Web.UI.WebControls.Literal litDay2Temp;
+        protected global::System.Web.UI.WebControls.Literal litDay2Rain;
+        protected global::System.Web.UI.WebControls.Literal litDay3Temp;
+        protected global::System.Web.UI.WebControls.Literal litDay3Rain;
+        protected global::System.Web.UI.WebControls.Literal litAdvisory;
+        protected global::System.Web.UI.WebControls.Repeater rptTrendingDiscussions;
+        protected global::System.Web.UI.WebControls.Panel pnlNoTrending;
     }
 }
