@@ -3,18 +3,18 @@ using System.Data.SqlClient;
 
 namespace KhedutRise
 {
-    // Machinery Operator Registration — requires genuine email OTP verification before saving.
+    // Machinery Operator Account Creation — requires genuine email OTP verification before saving.
     public partial class RegisterOperator : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e) { }
 
-        // Send genuine OTP to operator email
+        // Send genuine OTP to operator email (inline flow)
         protected void btnSendOpOtp_Click(object sender, EventArgs e)
         {
             Page.Validate("EmailVerify");
             if (!Page.IsValid) return;
 
-            string email = txtOpEmail.Text.Trim().ToLower();
+            string email = (txtOpEmail.Text ?? "").Trim().ToLower();
 
             var dtCheck = DbHelper.ExecuteQuery(
                 "SELECT TOP 1 UserId FROM Users WHERE LOWER(Email) = @Email",
@@ -49,10 +49,10 @@ namespace KhedutRise
             }
         }
 
-        // Verify OTP
+        // Verify OTP (inline flow)
         protected void btnVerifyOpOtp_Click(object sender, EventArgs e)
         {
-            string email = txtOpEmail.Text.Trim().ToLower();
+            string email = (txtOpEmail.Text ?? "").Trim().ToLower();
             string otp   = (txtOpOtp.Text ?? "").Trim();
 
             if (string.IsNullOrEmpty(otp)) { ShowError("Please enter the 6-digit OTP sent to your email."); return; }
@@ -78,13 +78,6 @@ namespace KhedutRise
         {
             if (!Page.IsValid) return;
 
-            if (hfOpEmailVerified.Value != "1")
-            {
-                ShowError("Please verify your email address with the OTP before creating your account.");
-                pnlOpOtp.Visible = true;
-                return;
-            }
-
             string fullName        = txtName.Text.Trim();
             string mobile          = txtMobile.Text.Trim();
             string email           = txtOpEmail.Text.Trim().ToLower();
@@ -97,23 +90,55 @@ namespace KhedutRise
 
             if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)     { ShowError("Please enter your full name."); return; }
             if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10)       { ShowError("Please enter a valid 10-digit mobile number."); return; }
+            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))       { ShowError("Please enter a valid email address."); return; }
             if (string.IsNullOrWhiteSpace(machineModel))                        { ShowError("Please specify tractor / equipment model and HP."); return; }
             if (string.IsNullOrWhiteSpace(password) || password.Length < 6)     { ShowError("Password must be at least 6 characters."); return; }
             if (password != confirmPassword)                                     { ShowError("Passwords do not match."); return; }
 
             var dtMob = DbHelper.ExecuteQuery(
-                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob",
-                new SqlParameter[] { new SqlParameter("@Mob", mobile) });
+                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob OR LOWER(Email) = LOWER(@Email)",
+                new SqlParameter[]
+                {
+                    new SqlParameter("@Mob", mobile),
+                    new SqlParameter("@Email", email)
+                });
             if (dtMob != null && dtMob.Rows.Count > 0)
             {
-                ShowError("This mobile number is already registered. Please sign in.");
+                ShowError("This mobile number or email is already registered. Please sign in.");
+                return;
+            }
+
+            string specificField = machineModel + " (₹" + baseRate + "/hr) | " + attachments + " | " + radius + " km";
+
+            // If not verified inline yet -> dispatch OTP and redirect to VerifyOtp.aspx
+            if (hfOpEmailVerified.Value != "1")
+            {
+                OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress);
+                if (!otpRes.Success)
+                {
+                    ShowError(otpRes.Message);
+                    return;
+                }
+
+                PendingRegistration pending = new PendingRegistration
+                {
+                    Role          = "Operator",
+                    FullName      = fullName,
+                    MobileNo      = mobile,
+                    Email         = email,
+                    Location      = "Gujarat",
+                    SpecificField = specificField,
+                    PasswordHash  = SecurityHelper.HashPassword(password)
+                };
+                Session["PendingRegistration"] = pending;
+
+                Response.Redirect("VerifyOtp.aspx?purpose=REGISTER&email=" + Server.UrlEncode(email) + "&role=Operator");
                 return;
             }
 
             try
             {
                 string passHash = SecurityHelper.HashPassword(password);
-                string specificField = machineModel + " (₹" + baseRate + "/hr) | " + attachments + " | " + radius + " km";
                 string query = @"INSERT INTO Users 
                     (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, PasswordHash, CreatedDate) 
                     VALUES (@Name, @Mobile, @Email, 'Operator', 'Gujarat', @Specific, 'Verified', @PassHash, GETDATE())";
@@ -154,7 +179,7 @@ namespace KhedutRise
 
         private void ShowError(string msg)
         {
-            lblOpMsg.Text     = " " + msg;
+            lblOpMsg.Text     = "<i class='bi bi-exclamation-triangle-fill me-1'></i> " + msg;
             lblOpMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
         }
     }

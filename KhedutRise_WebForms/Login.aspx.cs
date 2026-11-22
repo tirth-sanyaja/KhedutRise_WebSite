@@ -96,6 +96,10 @@ namespace KhedutRise
                 hfTargetUser.Value = identifier;
                 hfCooldownRemaining.Value = "60";
 
+                Session["PendingLoginIdent"] = identifier;
+                Session["PendingLoginRole"]  = selectedRole;
+                Session["PendingLoginEmail"] = result.TargetEmail;
+
                 lblLoginMsg.Text = string.Format(
                     "<div class='alert alert-success d-block p-3 text-center mb-3 shadow-sm' style='background-color: #ecfdf5; border: 1.5px solid #10b981; color: #065f46; border-radius: 8px;'>" +
                     "<div class='fw-bold mb-1'><i class='bi bi-envelope-check-fill me-1 text-success'></i> Credentials Verified!</div>" +

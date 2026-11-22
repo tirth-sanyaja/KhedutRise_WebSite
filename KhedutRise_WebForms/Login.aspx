@@ -117,6 +117,11 @@
                                     Resend in <span id="cooldownTimer" class="fw-bold text-success">60</span>s
                                 </div>
                             </div>
+                            <div class="text-center mt-2 pt-1">
+                                <a href="VerifyOtp.aspx?purpose=LOGIN" class="text-muted text-decoration-none" style="font-size: 0.78rem;">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Open dedicated verification page
+                                </a>
+                            </div>
                         </div>
                     </asp:Panel>
 

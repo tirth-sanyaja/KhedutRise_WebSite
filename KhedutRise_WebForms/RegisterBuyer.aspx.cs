@@ -8,7 +8,7 @@ namespace KhedutRise
     {
         protected void Page_Load(object sender, EventArgs e) { }
 
-        // Send genuine OTP to buyer email
+        // Send genuine OTP to buyer email (inline flow)
         protected void btnSendBuyerOtp_Click(object sender, EventArgs e)
         {
             Page.Validate("EmailVerify");
@@ -49,7 +49,7 @@ namespace KhedutRise
             }
         }
 
-        // Verify OTP
+        // Verify OTP (inline flow)
         protected void btnVerifyBuyerOtp_Click(object sender, EventArgs e)
         {
             string email = (txtEmail.Text ?? "").Trim().ToLower();
@@ -78,13 +78,6 @@ namespace KhedutRise
         {
             if (!Page.IsValid) return;
 
-            if (hfBuyerEmailVerified.Value != "1")
-            {
-                ShowError("Please verify your email address with the OTP before creating your account.");
-                pnlBuyerOtp.Visible = true;
-                return;
-            }
-
             string fullName        = txtFullName.Text.Trim();
             string mobile          = txtMobile.Text.Trim();
             string email           = txtEmail.Text.Trim().ToLower();
@@ -96,22 +89,54 @@ namespace KhedutRise
 
             if (string.IsNullOrWhiteSpace(fullName) || fullName.Length < 2)   { ShowError("Please enter full business or personal name."); return; }
             if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10)     { ShowError("Please enter a valid 10-digit mobile number."); return; }
+            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))     { ShowError("Please enter a valid email address."); return; }
             if (string.IsNullOrWhiteSpace(password) || password.Length < 6)   { ShowError("Password must be at least 6 characters."); return; }
             if (password != confirmPassword)                                   { ShowError("Passwords do not match."); return; }
 
             var dtMob = DbHelper.ExecuteQuery(
-                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob",
-                new SqlParameter[] { new SqlParameter("@Mob", mobile) });
+                "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob OR LOWER(Email) = LOWER(@Email)",
+                new SqlParameter[]
+                {
+                    new SqlParameter("@Mob", mobile),
+                    new SqlParameter("@Email", email)
+                });
             if (dtMob != null && dtMob.Rows.Count > 0)
             {
-                ShowError("This mobile number is already registered. Please sign in.");
+                ShowError("This mobile number or email is already registered. Please sign in.");
+                return;
+            }
+
+            string specificField = bizType + " | GSTIN: " + (string.IsNullOrWhiteSpace(gstin) ? "N/A" : gstin) + " | Crops: " + interests;
+
+            // If not verified inline yet -> dispatch OTP and redirect to VerifyOtp.aspx
+            if (hfBuyerEmailVerified.Value != "1")
+            {
+                OtpRequestResult otpRes = EmailOtpService.GenerateAndSendEmailOtp(email, "REGISTER", Request.UserHostAddress);
+                if (!otpRes.Success)
+                {
+                    ShowError(otpRes.Message);
+                    return;
+                }
+
+                PendingRegistration pending = new PendingRegistration
+                {
+                    Role          = "Buyer",
+                    FullName      = fullName,
+                    MobileNo      = mobile,
+                    Email         = email,
+                    Location      = "Gujarat",
+                    SpecificField = specificField,
+                    PasswordHash  = SecurityHelper.HashPassword(password)
+                };
+                Session["PendingRegistration"] = pending;
+
+                Response.Redirect("VerifyOtp.aspx?purpose=REGISTER&email=" + Server.UrlEncode(email) + "&role=Buyer");
                 return;
             }
 
             try
             {
                 string passHash = SecurityHelper.HashPassword(password);
-                string specificField = bizType + " | GSTIN: " + (string.IsNullOrWhiteSpace(gstin) ? "N/A" : gstin) + " | Crops: " + interests;
                 string query = @"INSERT INTO Users 
                     (FullName, MobileNo, Email, UserRole, Location, SpecificField, Status, PasswordHash, CreatedDate) 
                     VALUES (@Name, @Mobile, @Email, 'Buyer', 'Gujarat', @Specific, 'Verified', @PassHash, GETDATE())";
@@ -137,7 +162,7 @@ namespace KhedutRise
                 Session["UserMobile"] = mobile;
                 Session["UserEmail"]  = email;
 
-                lblBuyerMsg.Text     = "Buyer account created and verified successfully! Redirecting to buyer portal...";
+                lblBuyerMsg.Text     = "Buyer enterprise account created and verified! Redirecting to marketplace...";
                 lblBuyerMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 Response.AddHeader("REFRESH", "1;URL=BuyerDashboard.aspx");
             }
@@ -152,7 +177,7 @@ namespace KhedutRise
 
         private void ShowError(string msg)
         {
-            lblBuyerMsg.Text     = " " + msg;
+            lblBuyerMsg.Text     = "<i class='bi bi-exclamation-triangle-fill me-1'></i> " + msg;
             lblBuyerMsg.CssClass = "alert alert-danger d-block p-2 text-center small mb-3";
         }
     }
