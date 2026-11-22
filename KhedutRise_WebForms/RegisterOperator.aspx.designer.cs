@@ -22,7 +22,6 @@ namespace KhedutRise {
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRadius;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRate;
-        protected global::System.Web.UI.WebControls.RangeValidator rngRate;
         protected global::System.Web.UI.WebControls.TextBox txtAttachments;
         protected global::System.Web.UI.WebControls.TextBox txtConfirmPassword;
         protected global::System.Web.UI.WebControls.TextBox txtMobile;

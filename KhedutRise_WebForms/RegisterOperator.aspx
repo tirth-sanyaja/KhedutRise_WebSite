@@ -69,7 +69,6 @@
                                 <span class="input-group-text bg-light text-muted">/ Hour</span>
                             </div>
                             <asp:RequiredFieldValidator ID="rfvRate" ControlToValidate="txtRate" ErrorMessage="Hourly rental rate is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                            <asp:RangeValidator ID="rngRate" ControlToValidate="txtRate" MinimumValue="50" MaximumValue="100000" Type="Double" ErrorMessage="Rate must be at least ₹50/hour." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Available Attachments -->
