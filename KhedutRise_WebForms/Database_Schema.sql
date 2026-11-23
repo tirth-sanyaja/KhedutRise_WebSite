@@ -78,8 +78,16 @@ BEGIN
         Location NVARCHAR(100) NULL,
         SpecificField NVARCHAR(200) NULL,               -- e.g. 'Cotton / Wheat', 'Wholesale Buyer'
         Status NVARCHAR(20) NOT NULL CONSTRAINT DF_Users_Status DEFAULT 'Verified',
-        CreatedDate DATETIME NOT NULL CONSTRAINT DF_Users_CreatedDate DEFAULT GETDATE()
+        CreatedDate DATETIME NOT NULL CONSTRAINT DF_Users_CreatedDate DEFAULT GETDATE(),
+        PasswordHash NVARCHAR(256) NULL
     );
+END
+ELSE
+BEGIN
+    IF COL_LENGTH('Users', 'PasswordHash') IS NULL
+    BEGIN
+        ALTER TABLE Users ADD PasswordHash NVARCHAR(256) NULL;
+    END
 END
 GO
 
@@ -366,11 +374,23 @@ BEGIN
         UserRole NVARCHAR(20) NULL,
         DeliveryStatus NVARCHAR(50) NULL,
         GatewayResponse NVARCHAR(500) NULL,
-        IPAddress NVARCHAR(50) NULL
+        IPAddress NVARCHAR(50) NULL,
+        Email NVARCHAR(255) NULL
     );
 
     CREATE INDEX IX_UserOTPs_Mobile_Purpose ON UserOTPs(MobileNo, OTPPurpose, IsUsed);
     CREATE INDEX IX_UserOTPs_CreatedAt ON UserOTPs(OTPCreatedAt);
+END
+ELSE
+BEGIN
+    IF COL_LENGTH('UserOTPs', 'Email') IS NULL
+    BEGIN
+        ALTER TABLE UserOTPs ADD Email NVARCHAR(255) NULL;
+    END
+    IF COL_LENGTH('UserOTPs', 'GatewayResponse') IS NULL
+    BEGIN
+        ALTER TABLE UserOTPs ADD GatewayResponse NVARCHAR(500) NULL;
+    END
 END
 GO
 

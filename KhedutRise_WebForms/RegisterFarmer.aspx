@@ -44,10 +44,10 @@
                         <div class="col-md-6">
                             <label class="form-label" style="color: #0b6028;">MOBILE NUMBER <span class="required-mark">*</span></label>
                             <asp:TextBox ID="txtMobile" runat="server" CssClass="form-control" 
-                                placeholder="+91  10-digit mobile number" MaxLength="10" 
+                                placeholder="10-digit mobile (e.g. 9825012345)" MaxLength="18" 
                                 type="tel"></asp:TextBox>
                             <asp:RequiredFieldValidator ID="rfvMobile" ControlToValidate="txtMobile" ErrorMessage="Mobile number is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                            <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^[6-9]\d{9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
+                            <asp:RegularExpressionValidator ID="revMobile" ControlToValidate="txtMobile" ValidationExpression="^(\+91[\s\-]?)?[0]?[6-9]([\s\-]?\d){9}$" ErrorMessage="Please enter a valid 10-digit Indian mobile number." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                         </div>
 
                         <!-- Primary Sowing Crop -->
@@ -122,9 +122,9 @@
                                     <div class="col-md-8">
                                         <asp:TextBox ID="txtRegEmail" runat="server" CssClass="form-control" type="email"
                                             placeholder="yourname@example.com"></asp:TextBox>
-                                        <asp:RequiredFieldValidator ID="rfvRegEmail" ControlToValidate="txtRegEmail" ValidationGroup="EmailVerify"
+                                        <asp:RequiredFieldValidator ID="rfvRegEmail" ControlToValidate="txtRegEmail"
                                             ErrorMessage="Email address is required." ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
-                                        <asp:RegularExpressionValidator ID="revRegEmail" ControlToValidate="txtRegEmail" ValidationGroup="EmailVerify"
+                                        <asp:RegularExpressionValidator ID="revRegEmail" ControlToValidate="txtRegEmail"
                                             ValidationExpression="^[\w\.\-]+@[\w\.\-]+\.\w+$" ErrorMessage="Please enter a valid email address."
                                             ForeColor="#dc2626" Display="Dynamic" CssClass="kr-val-error" SetFocusOnError="true" runat="server" />
                                     </div>

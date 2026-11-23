@@ -57,9 +57,26 @@ namespace KhedutRise
             {
                 PendingRegistration pending = Session["PendingRegistration"] as PendingRegistration;
 
+                if (pending == null && !string.IsNullOrEmpty(email))
+                {
+                    // Fallback recovery from UserOTPs.GatewayResponse if session was dropped
+                    string fetchRegSql = @"SELECT TOP 1 GatewayResponse FROM UserOTPs 
+                                           WHERE LOWER(Email) = @Email AND OTPPurpose = 'REGISTER' 
+                                           ORDER BY OTPCreatedAt DESC";
+                    object payloadObj = DbHelper.ExecuteScalar(fetchRegSql, new SqlParameter[] { new SqlParameter("@Email", email) });
+                    if (payloadObj != null && payloadObj != DBNull.Value)
+                    {
+                        pending = PendingRegistration.Deserialize(payloadObj.ToString());
+                        if (pending != null)
+                        {
+                            Session["PendingRegistration"] = pending;
+                        }
+                    }
+                }
+
                 if (pending == null && string.IsNullOrEmpty(email))
                 {
-                    // No pending registration in session -> redirect to role selection
+                    // No pending registration in session or DB -> redirect to role selection
                     Response.Redirect("SelectRole.aspx");
                     return;
                 }
@@ -136,6 +153,33 @@ namespace KhedutRise
             else // REGISTER
             {
                 string email = hfEmail.Value.Trim().ToLower();
+
+                // Reconstruct pending registration from Session or durable UserOTPs.GatewayResponse
+                PendingRegistration pending = Session["PendingRegistration"] as PendingRegistration;
+                if (pending == null)
+                {
+                    string fetchRegSql = @"SELECT TOP 1 GatewayResponse FROM UserOTPs 
+                                           WHERE LOWER(Email) = @Email AND OTPPurpose = 'REGISTER' 
+                                           ORDER BY OTPCreatedAt DESC";
+                    object payloadObj = DbHelper.ExecuteScalar(fetchRegSql, new SqlParameter[] { new SqlParameter("@Email", email) });
+                    if (payloadObj != null && payloadObj != DBNull.Value)
+                    {
+                        pending = PendingRegistration.Deserialize(payloadObj.ToString());
+                        if (pending != null)
+                        {
+                            Session["PendingRegistration"] = pending;
+                        }
+                    }
+                }
+
+                if (pending == null)
+                {
+                    string regRole = !string.IsNullOrEmpty(hfRole.Value) ? hfRole.Value : "Farmer";
+                    ShowError(string.Format("Registration details not found or timed out. Please <a href='{0}' class='alert-link fw-bold'>fill the registration form again</a>.", ResolveUrl(GetRegisterUrl(regRole))));
+                    return;
+                }
+
+                // Verify the OTP code entered by the user
                 OtpVerificationResult result = EmailOtpService.VerifyEmailOtp(email, otp, "REGISTER");
 
                 if (!result.Success)
@@ -146,25 +190,28 @@ namespace KhedutRise
                     return;
                 }
 
-                PendingRegistration pending = Session["PendingRegistration"] as PendingRegistration;
-                if (pending == null)
+                // Clean mobile number
+                string cleanMobile = EmailOtpService.CleanMobile(pending.MobileNo);
+
+                // Check duplicate mobile number specifically
+                var dtMob = DbHelper.ExecuteQuery(
+                    "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob",
+                    new SqlParameter[] { new SqlParameter("@Mob", cleanMobile) });
+
+                if (dtMob != null && dtMob.Rows.Count > 0)
                 {
-                    ShowError("Registration session timed out. Please submit the registration form again.");
+                    ShowError(string.Format("The mobile number (+91 {0}) is already registered with an existing account. Please sign in or use a different number.", cleanMobile));
                     return;
                 }
 
-                // Check duplicate mobile or email
-                var dtDup = DbHelper.ExecuteQuery(
-                    "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob OR LOWER(Email) = LOWER(@Email)",
-                    new SqlParameter[]
-                    {
-                        new SqlParameter("@Mob", pending.MobileNo),
-                        new SqlParameter("@Email", pending.Email)
-                    });
+                // Check duplicate email specifically
+                var dtEmail = DbHelper.ExecuteQuery(
+                    "SELECT TOP 1 UserId FROM Users WHERE LOWER(Email) = LOWER(@Email)",
+                    new SqlParameter[] { new SqlParameter("@Email", pending.Email) });
 
-                if (dtDup != null && dtDup.Rows.Count > 0)
+                if (dtEmail != null && dtEmail.Rows.Count > 0)
                 {
-                    ShowError("An account with this mobile number or email already exists. Please sign in.");
+                    ShowError(string.Format("The email address '{0}' is already registered with an existing account. Please sign in.", pending.Email));
                     return;
                 }
 
@@ -177,7 +224,7 @@ namespace KhedutRise
                     SqlParameter[] prms = new SqlParameter[]
                     {
                         new SqlParameter("@Name",     pending.FullName),
-                        new SqlParameter("@Mobile",   pending.MobileNo),
+                        new SqlParameter("@Mobile",   cleanMobile),
                         new SqlParameter("@Email",    pending.Email),
                         new SqlParameter("@Role",     pending.Role),
                         new SqlParameter("@Loc",      pending.Location ?? "Gujarat"),
@@ -198,7 +245,7 @@ namespace KhedutRise
                     Session["UserId"]     = userId;
                     Session["UserName"]   = pending.FullName;
                     Session["UserRole"]   = pending.Role;
-                    Session["UserMobile"] = pending.MobileNo;
+                    Session["UserMobile"] = cleanMobile;
                     Session["UserEmail"]  = pending.Email;
 
                     // Clear pending registration
@@ -255,13 +302,28 @@ namespace KhedutRise
             else // REGISTER
             {
                 PendingRegistration pending = Session["PendingRegistration"] as PendingRegistration;
+                if (pending == null)
+                {
+                    string fetchRegSql = @"SELECT TOP 1 GatewayResponse FROM UserOTPs 
+                                           WHERE LOWER(Email) = @Email AND OTPPurpose = 'REGISTER' 
+                                           ORDER BY OTPCreatedAt DESC";
+                    object payloadObj = DbHelper.ExecuteScalar(fetchRegSql, new SqlParameter[] { new SqlParameter("@Email", email) });
+                    if (payloadObj != null && payloadObj != DBNull.Value)
+                    {
+                        pending = PendingRegistration.Deserialize(payloadObj.ToString());
+                        if (pending != null) Session["PendingRegistration"] = pending;
+                    }
+                }
+
                 string recipientName = pending != null ? pending.FullName : null;
+                string payload       = pending != null ? pending.Serialize() : null;
 
                 OtpRequestResult req = EmailOtpService.GenerateAndSendEmailOtp(
                     email,
                     "REGISTER",
                     Request.UserHostAddress,
-                    recipientName);
+                    recipientName,
+                    payload);
 
                 if (req.Success)
                 {

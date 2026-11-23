@@ -303,7 +303,12 @@ namespace KhedutRise
         }
 
         // Generate and send OTP for Registration or Password Reset
-        public static OtpRequestResult GenerateAndSendEmailOtp(string email, string purpose, string clientIp, string recipientName = null)
+        public static OtpRequestResult GenerateAndSendEmailOtp(
+            string email, 
+            string purpose, 
+            string clientIp, 
+            string recipientName = null,
+            string registrationPayload = null)
         {
             int expiryMinutes = GetConfigInt("OtpExpiryMinutes", DEFAULT_EXPIRY_MINUTES);
             int cooldownSec   = GetConfigInt("OtpCooldownSeconds", DEFAULT_COOLDOWN_SECONDS);
@@ -355,13 +360,13 @@ namespace KhedutRise
                 return OtpRequestResult.Fail("Failed to send OTP to your email: " + emailError, "SMTP_ERROR");
             }
 
-            // Save to UserOTPs table
+            // Save to UserOTPs table with optional durable registration payload
             string insSql = @"INSERT INTO UserOTPs
                 (UserId, MobileNo, Email, OTPHash, OTPSalt, OTPExpiry, OTPAttempts, MaxAttempts,
                  OTPCreatedAt, OTPSentAt, OTPPurpose, IsUsed, UserRole, IPAddress, DeliveryStatus, GatewayResponse)
                 VALUES
                 (NULL, 'EMAIL', @Email, @Hash, @Salt, @Expiry, 0, @MaxAtt,
-                 GETDATE(), GETDATE(), @Purpose, 0, 'Email', @IP, 'Sent', '')";
+                 GETDATE(), GETDATE(), @Purpose, 0, 'Email', @IP, 'Sent', @Gateway)";
 
             DbHelper.ExecuteNonQuery(insSql, new SqlParameter[]
             {
@@ -371,7 +376,8 @@ namespace KhedutRise
                 new SqlParameter("@Expiry", expiry),
                 new SqlParameter("@MaxAtt", maxAttempts),
                 new SqlParameter("@Purpose", purpose),
-                new SqlParameter("@IP", clientIp ?? "")
+                new SqlParameter("@IP", clientIp ?? ""),
+                new SqlParameter("@Gateway", (object)registrationPayload ?? "")
             });
 
             string msg = string.Format("Verification OTP sent successfully to {0}. Please check your inbox and enter the 6-digit code below.", MaskEmail(targetEmail));
@@ -504,6 +510,10 @@ namespace KhedutRise
             if (clean.StartsWith("91") && clean.Length == 12)
             {
                 clean = clean.Substring(2);
+            }
+            else if (clean.StartsWith("0") && clean.Length == 11)
+            {
+                clean = clean.Substring(1);
             }
             return clean;
         }
