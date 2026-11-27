@@ -394,6 +394,41 @@ BEGIN
 END
 GO
 
+-- =========================================================================================
+-- 11. COMMUNITYPOSTS TABLE (Farmer Discussion Forum & Community Knowledge Base)
+-- =========================================================================================
+IF OBJECT_ID('CommunityPosts', 'U') IS NULL
+BEGIN
+    CREATE TABLE CommunityPosts (
+        PostId INT PRIMARY KEY IDENTITY(1, 1),
+        AuthorName NVARCHAR(150) NOT NULL,
+        AuthorRole NVARCHAR(50) NULL,
+        Category NVARCHAR(100) NOT NULL,
+        Title NVARCHAR(300) NOT NULL,
+        Details NVARCHAR(MAX) NOT NULL,
+        RepliesCount INT NULL CONSTRAINT DF_CommunityPosts_RepliesCount DEFAULT 0,
+        CreatedDate DATETIME NULL CONSTRAINT DF_CommunityPosts_CreatedDate DEFAULT GETDATE()
+    );
+END
+GO
+
+-- =========================================================================================
+-- 12. WISHLISTS TABLE (Buyer Saved Crop Produce & Watchlist)
+-- Foreign Keys:
+--   - UserId    -> References Users(UserId)
+--   - ProductId -> References Products(ProductId)
+-- =========================================================================================
+IF OBJECT_ID('Wishlists', 'U') IS NULL
+BEGIN
+    CREATE TABLE Wishlists (
+        WishlistId INT PRIMARY KEY IDENTITY(1, 1),
+        UserId INT NULL CONSTRAINT FK_Wishlists_Users REFERENCES Users(UserId),
+        ProductId INT NOT NULL CONSTRAINT FK_Wishlists_Products REFERENCES Products(ProductId),
+        AddedDate DATETIME NULL CONSTRAINT DF_Wishlists_AddedDate DEFAULT GETDATE()
+    );
+END
+GO
+
 -- Ensure Default System Administrator Exists
 IF NOT EXISTS (SELECT 1 FROM Users WHERE UserRole = 'Admin' OR Email = 'admin@khedutrise.com')
 BEGIN

@@ -82,9 +82,23 @@ namespace KhedutRise
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length != 10)
+            string cleanMob = EmailOtpService.CleanMobile(mobile);
+            if (string.IsNullOrWhiteSpace(cleanMob) || cleanMob.Length != 10)
             {
                 ShowProfileMessage("Please enter a valid 10-digit mobile number.", false);
+                return;
+            }
+
+            // Check if mobile number is already in use by another user
+            string dupMobSql = "SELECT TOP 1 UserId FROM Users WHERE MobileNo = @Mob AND UserId <> @UserId";
+            var dtDupMob = DbHelper.ExecuteQuery(dupMobSql, new SqlParameter[]
+            {
+                new SqlParameter("@Mob", cleanMob),
+                new SqlParameter("@UserId", userId)
+            });
+            if (dtDupMob != null && dtDupMob.Rows.Count > 0)
+            {
+                ShowProfileMessage("This mobile number is already registered to another account. Please use another mobile number.", false);
                 return;
             }
 
@@ -136,7 +150,7 @@ namespace KhedutRise
                 // Store pending changes in session until verified
                 Session["PendingNewEmail"] = newEmail;
                 Session["PendingName"]     = name;
-                Session["PendingMobile"]   = mobile;
+                Session["PendingMobile"]   = cleanMob;
                 Session["PendingVillage"]  = village;
 
                 // Show OTP panel
@@ -155,12 +169,13 @@ namespace KhedutRise
             // Normal profile save without email change
             try
             {
-                bool success = UserRepository.UpdateProfile(userId, name, currEmail, village, "");
+                bool success = UserRepository.UpdateProfile(userId, name, currEmail, village, "", cleanMob);
                 if (success)
                 {
                     Session["UserName"]   = name;
-                    Session["UserMobile"] = mobile;
+                    Session["UserMobile"] = cleanMob;
                     litProfileName.Text   = name;
+                    txtProfileMobile.Text = cleanMob;
                     ShowProfileMessage("Profile details updated successfully!", true);
                 }
                 else
@@ -215,11 +230,17 @@ namespace KhedutRise
             // OTP verified -> Update database with new verified email
             try
             {
-                bool updated = UserRepository.UpdateProfile(userId, name, newEmail, village, "");
+                string pendingMob = Session["PendingMobile"] != null ? Session["PendingMobile"].ToString() : "";
+                bool updated = UserRepository.UpdateProfile(userId, name, newEmail, village, "", pendingMob);
                 if (updated)
                 {
                     Session["UserEmail"]      = newEmail;
                     Session["UserName"]       = name;
+                    if (!string.IsNullOrEmpty(pendingMob))
+                    {
+                        Session["UserMobile"] = pendingMob;
+                        txtProfileMobile.Text = pendingMob;
+                    }
                     ViewState["CurrentEmail"] = newEmail;
                     txtProfileEmail.Text      = newEmail;
 

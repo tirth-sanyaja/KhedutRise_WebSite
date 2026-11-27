@@ -68,19 +68,39 @@ namespace KhedutRise
         }
 
         // Update profile
-        public static bool UpdateProfile(int userId, string fullName, string email, string location, string specificField)
+        public static bool UpdateProfile(int userId, string fullName, string email, string location, string specificField, string mobile = null)
         {
-            string sql = @"UPDATE Users 
-                           SET FullName = @Name, Email = @Email, Location = @Loc, SpecificField = @Field 
-                           WHERE UserId = @Id";
-            SqlParameter[] prms = new SqlParameter[]
+            string sql;
+            SqlParameter[] prms;
+            if (!string.IsNullOrEmpty(mobile))
             {
-                new SqlParameter("@Name", fullName),
-                new SqlParameter("@Email", (object)email ?? DBNull.Value),
-                new SqlParameter("@Loc", (object)location ?? DBNull.Value),
-                new SqlParameter("@Field", (object)specificField ?? DBNull.Value),
-                new SqlParameter("@Id", userId)
-            };
+                sql = @"UPDATE Users 
+                        SET FullName = @Name, MobileNo = @Mob, Email = @Email, Location = @Loc, SpecificField = @Field 
+                        WHERE UserId = @Id";
+                prms = new SqlParameter[]
+                {
+                    new SqlParameter("@Name", fullName),
+                    new SqlParameter("@Mob", mobile),
+                    new SqlParameter("@Email", (object)email ?? DBNull.Value),
+                    new SqlParameter("@Loc", (object)location ?? DBNull.Value),
+                    new SqlParameter("@Field", (object)specificField ?? DBNull.Value),
+                    new SqlParameter("@Id", userId)
+                };
+            }
+            else
+            {
+                sql = @"UPDATE Users 
+                        SET FullName = @Name, Email = @Email, Location = @Loc, SpecificField = @Field 
+                        WHERE UserId = @Id";
+                prms = new SqlParameter[]
+                {
+                    new SqlParameter("@Name", fullName),
+                    new SqlParameter("@Email", (object)email ?? DBNull.Value),
+                    new SqlParameter("@Loc", (object)location ?? DBNull.Value),
+                    new SqlParameter("@Field", (object)specificField ?? DBNull.Value),
+                    new SqlParameter("@Id", userId)
+                };
+            }
             return DbHelper.ExecuteNonQuery(sql, prms) > 0;
         }
 

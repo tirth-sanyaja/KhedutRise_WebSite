@@ -20,7 +20,7 @@ namespace KhedutRise
             try
             {
                 DataTable dt = DbHelper.ExecuteQuery("SELECT * FROM LandListings WHERE Status = 'Approved' OR Status = 'Verified' ORDER BY LandId DESC");
-                if (dt.Rows.Count > 0)
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     rptLandListings.DataSource = dt;
                     rptLandListings.DataBind();

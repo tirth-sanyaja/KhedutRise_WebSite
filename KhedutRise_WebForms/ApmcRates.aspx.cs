@@ -34,15 +34,22 @@ namespace KhedutRise
                 string gujaratiName = KhedutCollectionsService.TranslateCropName(filter);
 
                 string sql = "SELECT * FROM ApmcRates";
+                System.Data.SqlClient.SqlParameter[] prms = null;
                 if (!string.IsNullOrEmpty(filter))
                 {
-                    sql += " WHERE Commodity LIKE '%" + filter + "%' OR MarketYard LIKE '%" + filter + "%'";
+                    sql += " WHERE Commodity LIKE @Filter OR MarketYard LIKE @Filter";
+                    prms = new System.Data.SqlClient.SqlParameter[] { new System.Data.SqlClient.SqlParameter("@Filter", "%" + filter + "%") };
                 }
 
-                DataTable dt = DbHelper.ExecuteQuery(sql);
-                if (dt.Rows.Count > 0)
+                DataTable dt = DbHelper.ExecuteQuery(sql, prms);
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     gvApmc.DataSource = dt;
+                    gvApmc.DataBind();
+                }
+                else
+                {
+                    gvApmc.DataSource = null;
                     gvApmc.DataBind();
                 }
             }

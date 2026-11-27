@@ -123,10 +123,22 @@ namespace KhedutRise
             }
 
             // Establish full Admin session
+            int adminId = result.UserId;
+            if (adminId <= 0)
+            {
+                object objId = DbHelper.ExecuteScalar(
+                    "SELECT TOP 1 UserId FROM Users WHERE Email = @Email OR UserRole = 'Admin' ORDER BY UserId ASC",
+                    new SqlParameter[] { new SqlParameter("@Email", adminEmail) });
+                if (objId != null && objId != DBNull.Value)
+                {
+                    adminId = Convert.ToInt32(objId);
+                }
+            }
+
             Session["UserRole"]  = "Admin";
             Session["UserName"]  = !string.IsNullOrEmpty(result.FullName) ? result.FullName : "System Admin";
             Session["UserEmail"] = !string.IsNullOrEmpty(result.Email) ? result.Email : "admin@khedutrise.com";
-            Session["UserId"]    = result.UserId;
+            Session["UserId"]    = adminId;
 
             Response.Redirect("AdminDashboard.aspx");
         }
