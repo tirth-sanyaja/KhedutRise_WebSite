@@ -62,7 +62,23 @@ namespace KhedutRise
                 };
                 DbHelper.ExecuteNonQuery(sql, prms);
 
-                lblContactMsg.Text = "Thank you, " + name + "! Your inquiry has been submitted successfully. Our team will contact you shortly.";
+                // Dispatch confirmation notification email
+                try
+                {
+                    string emailErr;
+                    EmailService.SendNotificationEmail(
+                        email,
+                        name,
+                        "KhedutRise - Support Inquiry Received",
+                        "We Have Received Your Inquiry",
+                        "Thank you for contacting KhedutRise Support. Your message regarding <strong>" + System.Web.HttpUtility.HtmlEncode(category) + "</strong> has been received and logged in our system. Our support team will review your inquiry and get in touch with you shortly.",
+                        "Visit KhedutRise Portal",
+                        "https://khedutrise.com",
+                        out emailErr);
+                }
+                catch { }
+
+                lblContactMsg.Text = "Thank you, " + name + "! Your inquiry has been submitted successfully. A confirmation has been sent to your email and our team will contact you shortly.";
                 lblContactMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 txtContactName.Text = "";
                 txtContactMobile.Text = "";

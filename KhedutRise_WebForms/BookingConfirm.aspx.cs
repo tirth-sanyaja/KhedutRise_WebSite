@@ -143,6 +143,26 @@ namespace KhedutRise
 
                 string bookingId = EquipmentRepository.CreateBooking(userId, eqId, serviceType, provider, customerName, total);
 
+                // Dispatch booking confirmation notification email
+                string userEmail = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : "";
+                if (!string.IsNullOrEmpty(userEmail))
+                {
+                    try
+                    {
+                        string emailErr;
+                        EmailService.SendNotificationEmail(
+                            userEmail,
+                            customerName,
+                            "KhedutRise - Machinery Booking Confirmed " + bookingId,
+                            "Your Machinery Booking Is Confirmed",
+                            "Your agricultural machinery rental <strong>" + bookingId + "</strong> for <strong>" + System.Web.HttpUtility.HtmlEncode(litModelName.Text) + "</strong> (" + hours + " hours) with provider <strong>" + System.Web.HttpUtility.HtmlEncode(provider) + "</strong> has been scheduled and confirmed. Delivery address: " + System.Web.HttpUtility.HtmlEncode(address) + ".",
+                            "View My Bookings",
+                            "https://khedutrise.com/MyBookings.aspx",
+                            out emailErr);
+                    }
+                    catch { }
+                }
+
                 lblBookingMsg.Text = "Booking Confirmed! Booking ID: " + bookingId + ". Total: ₹" + total.ToString("N0") + ". Redirecting to My Bookings...";
                 lblBookingMsg.CssClass = "alert alert-success d-block p-2 text-center small mb-3";
                 btnConfirmBooking.Enabled = false;

@@ -128,6 +128,26 @@ namespace KhedutRise
                 lblOrderMsg.Text = "🎉 Order Placed Successfully! Your Order ID is <b>#" + orderId + "</b>. You can track this purchase in <a href='MyPurchases.aspx' class='alert-link fw-bold text-decoration-underline'>My Purchases</a>.";
                 lblOrderMsg.CssClass = "alert alert-success d-block p-3 text-center mb-4 fs-6";
 
+                // Dispatch order confirmation notification email to buyer
+                string buyerEmail = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : "";
+                if (!string.IsNullOrEmpty(buyerEmail))
+                {
+                    try
+                    {
+                        string emailErr;
+                        EmailService.SendNotificationEmail(
+                            buyerEmail,
+                            buyerName,
+                            "KhedutRise - Order Confirmation #" + orderId,
+                            "Your Order Has Been Placed Successfully",
+                            "Your crop purchase order <strong>#" + orderId + "</strong> for <strong>" + requestedQty.ToString("0.##") + " Quintal</strong> has been confirmed in the KhedutRise escrow system. Delivery destination: " + System.Web.HttpUtility.HtmlEncode(address) + ".",
+                            "View Order Details",
+                            "https://khedutrise.com/OrderDetails.aspx?id=" + orderId,
+                            out emailErr);
+                    }
+                    catch { }
+                }
+
                 // Refresh product details to show updated remaining stock
                 LoadProductDetails(ProductId);
             }

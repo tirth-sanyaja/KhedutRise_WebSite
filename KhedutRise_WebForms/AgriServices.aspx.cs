@@ -58,11 +58,14 @@ namespace KhedutRise
                 if (service.Contains("Survey")) fee = 1200;
                 else if (service.Contains("Irrigation")) fee = 800;
 
+                int? userId = Session["UserId"] != null ? (int?)Convert.ToInt32(Session["UserId"]) : null;
+
                 // Step 3: Insert booking into database
-                string sql = "INSERT INTO Bookings (BookingId, ServiceType, ProviderName, CustomerName, Amount, Status) VALUES (@Id, @Service, 'Rajkot Agri Labs', @Cust, @Fee, 'Confirmed')";
+                string sql = "INSERT INTO Bookings (BookingId, UserId, ServiceType, ProviderName, CustomerName, Amount, Status) VALUES (@Id, @UId, @Service, 'Rajkot Agri Labs', @Cust, @Fee, 'Confirmed')";
                 SqlParameter[] prms = new SqlParameter[]
                 {
                     new SqlParameter("@Id", bookingId),
+                    new SqlParameter("@UId", (object)userId ?? DBNull.Value),
                     new SqlParameter("@Service", service + " (" + dateLoc + ")"),
                     new SqlParameter("@Cust", customer),
                     new SqlParameter("@Fee", fee)

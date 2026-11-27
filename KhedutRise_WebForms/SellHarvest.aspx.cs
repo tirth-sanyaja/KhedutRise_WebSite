@@ -119,6 +119,26 @@ namespace KhedutRise
                     lblMsg.Text = "🎉 Crop Listed Successfully! Your crop <b>" + Server.HtmlEncode(name) + "</b> is now active and live on the <a href='Marketplace.aspx' class='alert-link fw-bold text-decoration-underline'>Marketplace</a>.";
                     lblMsg.CssClass = "alert alert-success d-block p-3 text-center mb-3 fs-6";
 
+                    // Dispatch listing notification email to farmer
+                    string farmerEmail = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : "";
+                    if (!string.IsNullOrEmpty(farmerEmail))
+                    {
+                        try
+                        {
+                            string emailErr;
+                            EmailService.SendNotificationEmail(
+                                farmerEmail,
+                                farmerName,
+                                "KhedutRise - Crop Listing Live: " + name,
+                                "Your Crop Listing is Now Live on Marketplace",
+                                "Your harvest listing for <strong>" + System.Web.HttpUtility.HtmlEncode(name) + "</strong> (" + qty.ToString("0.##") + " Quintal @ ₹" + price.ToString("N0") + "/Quintal) has been published and is now visible to verified buyers.",
+                                "View on Marketplace",
+                                "https://khedutrise.com/ProductDetails.aspx?id=" + newProductId,
+                                out emailErr);
+                        }
+                        catch { }
+                    }
+
                     // Reset form
                     txtProdName.Text = "";
                     txtQty.Text = "";

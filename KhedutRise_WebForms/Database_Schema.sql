@@ -232,6 +232,7 @@ BEGIN
     CREATE TABLE Bookings (
         BookingId NVARCHAR(30) PRIMARY KEY,             -- e.g. '#KR-BK-408'
         UserId INT NULL CONSTRAINT FK_Bookings_Users REFERENCES Users(UserId),
+        EquipmentId INT NULL CONSTRAINT FK_Bookings_Equipments REFERENCES Equipments(EquipmentId),
         ServiceType NVARCHAR(100) NOT NULL,             -- 'Soil Lab Test Visit', 'Drone Nano Urea Spray'
         ProviderName NVARCHAR(100) NOT NULL,
         CustomerName NVARCHAR(100) NOT NULL,
@@ -239,6 +240,13 @@ BEGIN
         Amount DECIMAL(10, 2) NOT NULL,
         Status NVARCHAR(50) CONSTRAINT DF_Bookings_Status DEFAULT 'Confirmed'
     );
+END
+ELSE
+BEGIN
+    IF COL_LENGTH('Bookings', 'EquipmentId') IS NULL
+    BEGIN
+        ALTER TABLE Bookings ADD EquipmentId INT NULL;
+    END
 END
 GO
 

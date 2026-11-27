@@ -259,8 +259,8 @@ namespace KhedutRise
                     }
                     catch { }
 
-                    ShowSuccess("Registration Successful! Your email has been verified. Please login to continue.");
-                    Response.AddHeader("REFRESH", "1.5;URL=Login.aspx?msg=registered");
+                    ShowSuccess("Registration Successful! Your email has been verified. Welcome to KhedutRise! Redirecting to your dashboard...");
+                    RedirectToDashboard(pending.Role);
                 }
                 catch (Exception ex)
                 {
